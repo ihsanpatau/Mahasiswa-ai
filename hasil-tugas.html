@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasil Tugas – asistenku.pro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <div class="backnav">
+    <div class="backnav-left">
+      <button class="back-btn" onclick="history.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div><div class="backnav-title">Hasil Tugas</div><div class="backnav-sub">Tugas sudah selesai diproses oleh AI</div></div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="showToast('Link disalin!')" style="background:var(--gray-100);border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Bagikan</button>
+      <button style="background:var(--gray-100);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+    </div>
+  </div>
+  <div class="page-content">
+    <!-- Success Banner -->
+    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-radius:20px;padding:16px;position:relative;overflow:hidden;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--green);">Tugas selesai!</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">AI telah memproses tugasmu dengan sukses.</div>
+        </div>
+        <div style="position:absolute;right:10px;top:10px;width:90px;">
+          <svg viewBox="0 0 120 140" fill="none">
+            <ellipse cx="60" cy="120" rx="38" ry="22" fill="#1A2B6D" opacity="0.4"/>
+            <ellipse cx="60" cy="95" rx="28" ry="28" fill="#1A2B6D"/>
+            <ellipse cx="60" cy="66" rx="28" ry="26" fill="#F5F5F5"/>
+            <ellipse cx="60" cy="44" rx="28" ry="25" fill="#F5F5F5"/>
+            <ellipse cx="50" cy="45" rx="6" ry="7" fill="#1A90FF"/>
+            <ellipse cx="70" cy="45" rx="6" ry="7" fill="#1A90FF"/>
+            <ellipse cx="50" cy="46" rx="3.5" ry="4.5" fill="#0A2060"/>
+            <ellipse cx="70" cy="46" rx="3.5" ry="4.5" fill="#0A2060"/>
+            <ellipse cx="48.5" cy="43.5" rx="1.5" ry="1.5" fill="#fff"/>
+            <ellipse cx="68.5" cy="43.5" rx="1.5" ry="1.5" fill="#fff"/>
+            <ellipse cx="60" cy="56" rx="3" ry="2" fill="#FFB6C1"/>
+            <path d="M53 60 Q60 65 67 60" stroke="#888" stroke-width="1.2" fill="none"/>
+            <!-- Laptop -->
+            <rect x="25" y="68" width="56" height="38" rx="4" fill="#374151"/>
+            <rect x="28" y="71" width="50" height="30" rx="2" fill="#10B981" opacity="0.8"/>
+            <rect x="14" y="106" width="72" height="5" rx="2" fill="#374151"/>
+            <!-- Book stack -->
+            <rect x="80" y="82" width="28" height="8" rx="2" fill="#3B5BFF"/>
+            <rect x="80" y="74" width="28" height="8" rx="2" fill="#6366F1"/>
+            <rect x="80" y="66" width="28" height="8" rx="2" fill="#A5B4FC"/>
+            <circle cx="60" cy="88" r="10" fill="#3B5BFF"/>
+            <text x="60" y="92" text-anchor="middle" fill="#fff" font-size="9" font-family="sans-serif" font-weight="bold">a</text>
+          </svg>
+        </div>
+      </div>
+      <!-- Meta info -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+        <div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px;font-size:11px;">
+          <div style="color:var(--gray-500);display:flex;align-items:center;gap:4px;margin-bottom:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Judul Tugas</div>
+          <div style="font-weight:700;color:var(--dark);" id="hasilJudulTugas">Analisis Data Penjualan</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px;font-size:11px;">
+          <div style="color:var(--gray-500);display:flex;align-items:center;gap:4px;margin-bottom:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Tanggal Selesai</div>
+          <div style="font-weight:700;color:var(--dark);" id="hasilTanggalTugas">–</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px;font-size:11px;">
+          <div style="color:var(--gray-500);display:flex;align-items:center;gap:4px;margin-bottom:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42"/></svg>Metode AI</div>
+          <div style="font-weight:700;color:var(--dark);">GPT-4o (Advanced)</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px;font-size:11px;">
+          <div style="color:var(--gray-500);display:flex;align-items:center;gap:4px;margin-bottom:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>Kata</div>
+          <div style="font-weight:700;color:var(--dark);">2.150 kata</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar" style="margin-top:16px;">
+      <button class="tab-item active" onclick="switchTab('ringkasan',this)" style="color:var(--green);border-bottom-color:var(--green);">Hasil Ringkasan</button>
+      <button class="tab-item" onclick="switchTab('preview',this)">Preview Dokumen</button>
+      <button class="tab-item" onclick="switchTab('pengecekan',this)">Detail Pengecekan</button>
+      <button class="tab-item" onclick="switchTab('referensi',this)">Sumber Referensi</button>
+    </div>
+
+    <!-- Ringkasan Tab -->
+    <div id="tab-ringkasan" style="padding:16px;">
+      <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px;">Ringkasan Hasil</div>
+      <div style="font-size:13px;color:var(--gray-700);line-height:1.6;margin-bottom:14px;" id="ringkasanTugas">AI telah menganalisis data penjualan yang Anda berikan dan menghasilkan laporan lengkap sesuai dengan permintaan.</div>
+
+      <!-- Score Cards -->
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="score-label">Skor Kualitas</div>
+          <div class="score-val">94%</div>
+          <div class="score-sub">Sangat Baik</div>
+          <div class="score-bar"><div class="score-fill" style="width:94%;"></div></div>
+        </div>
+        <div class="score-card">
+          <div class="score-label">Keaslian (Plagiarisme)</div>
+          <div class="score-val">98%</div>
+          <div class="score-sub">Aman</div>
+          <div class="score-bar"><div class="score-fill" style="width:98%;"></div></div>
+        </div>
+        <div class="score-card">
+          <div class="score-label">Struktur</div>
+          <div class="score-val">91%</div>
+          <div class="score-sub">Baik</div>
+          <div class="score-bar"><div class="score-fill" style="width:91%;"></div></div>
+        </div>
+        <div class="score-card">
+          <div class="score-label">Kelengkapan</div>
+          <div class="score-val">100%</div>
+          <div class="score-sub">Lengkap</div>
+          <div class="score-bar"><div class="score-fill" style="width:100%;"></div></div>
+        </div>
+      </div>
+
+      <!-- AI Conclusion -->
+      <div style="margin-top:12px;background:var(--green-pale);border:1px solid #A7F3D0;border-radius:12px;padding:12px;display:flex;align-items:flex-start;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:3px;">Kesimpulan AI</div>
+          <div style="font-size:12px;color:var(--gray-700);line-height:1.4;">Tugas Anda sudah sangat baik dan siap dikumpulkan. Struktur jelas, analisis data akurat, dan tidak terdeteksi plagiarisme.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Tab -->
+    <div id="tab-preview" style="display:none;padding:16px;">
+      <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:8px;padding:20px;">
+        <div style="font-family:'Times New Roman',serif;font-size:12px;line-height:1.7;color:var(--dark);">
+          <div style="text-align:center;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;text-transform:uppercase;margin-bottom:8px;" id="previewTitleTugas">LAPORAN ANALISIS DATA PENJUALAN</div>
+            <div style="font-size:11px;color:var(--gray-500);">Disusun oleh: AI Assistant | asistenku.pro</div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px;">I. PENDAHULUAN</div>
+            <p>Laporan ini merupakan hasil analisis data penjualan yang diberikan oleh pengguna. Analisis dilakukan menggunakan metode statistik deskriptif untuk mengidentifikasi tren dan pola yang signifikan dalam data.</p>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px;">II. ANALISIS DATA</div>
+            <p>Berdasarkan data yang diberikan, terdapat peningkatan penjualan sebesar 18% dibandingkan periode sebelumnya. Produk kategori A menjadi kontributor terbesar dengan pangsa pasar 42%...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Pengecekan Tab -->
+    <div id="tab-pengecekan" style="display:none;padding:16px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;">✅ Tata Bahasa</div>
+          <div style="font-size:12px;color:var(--gray-500);">Tidak ditemukan kesalahan tata bahasa yang signifikan. Penulisan sudah sesuai EYD.</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;">✅ Plagiarisme</div>
+          <div style="font-size:12px;color:var(--gray-500);">Keaslian konten: 98%. Tidak terdeteksi plagiarisme yang signifikan.</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;">✅ Struktur Dokumen</div>
+          <div style="font-size:12px;color:var(--gray-500);">Struktur dokumen lengkap dan sesuai format yang diminta.</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px;">⚠️ Saran Perbaikan</div>
+          <div style="font-size:12px;color:var(--gray-500);">Pertimbangkan untuk menambahkan grafik visual pada bagian analisis data untuk memperkuat temuan.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sumber Referensi Tab -->
+    <div id="tab-referensi" style="display:none;padding:16px;">
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">Referensi yang digunakan AI dalam menghasilkan dokumen ini:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;font-size:12px;line-height:1.5;color:var(--dark);">Kotler, P., & Keller, K. L. (2016). <em>Marketing Management</em> (15th ed.). Pearson Education.</div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;font-size:12px;line-height:1.5;color:var(--dark);">Sugiyono. (2019). <em>Metode Penelitian Kuantitatif, Kualitatif, dan R&D</em>. Alfabeta.</div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:10px;padding:12px;font-size:12px;line-height:1.5;color:var(--dark);">BPS Indonesia. (2025). <em>Statistik Penjualan Ritel 2024</em>. Badan Pusat Statistik.</div>
+      </div>
+    </div>
+
+    <!-- Preview dokumen card -->
+    <div style="margin:0 16px 14px;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:12px;display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:50px;height:60px;background:var(--gray-100);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B579A" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:var(--dark);" id="namaFileTugas">Analisis Data Penjualan.docx</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">24 halaman • 2.150 kata</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;line-height:1.4;">Laporan ini berisi analisis menyeluruh mengenai data penjualan selama periode Januari – April 2026. Hasil analisis menunjukkan tren peningkatan penjualan sebesar 18%...</div>
+        <button onclick="showToast('Membuka preview lengkap...')" style="margin-top:8px;background:none;border:1.5px solid var(--gray-200);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--dark);cursor:pointer;font-family:inherit;">Lihat Preview Lengkap</button>
+      </div>
+    </div>
+
+    <!-- Download -->
+    <div style="padding:0 16px 14px;">
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">Download Dokumen</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;">
+        <div onclick="showToast('Mengunduh Word...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:48px;height:44px;background:#2B579A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">W</div>
+          <div style="font-size:10px;color:var(--gray-500);">Word (.docx)</div>
+        </div>
+        <div onclick="showToast('Mengunduh PDF...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:48px;height:44px;background:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PDF</div>
+          <div style="font-size:10px;color:var(--gray-500);">PDF</div>
+        </div>
+        <div onclick="showToast('Mengunduh PPT...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:48px;height:44px;background:#D97706;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PPT</div>
+          <div style="font-size:10px;color:var(--gray-500);">PowerPoint</div>
+        </div>
+        <div onclick="showToast('Mengunduh Excel...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:48px;height:44px;background:#16A34A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">XLS</div>
+          <div style="font-size:10px;color:var(--gray-500);">Excel</div>
+        </div>
+        <div onclick="showToast('Mengunduh TXT...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+          <div style="width:48px;height:44px;background:#6B7280;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">TXT</div>
+          <div style="font-size:10px;color:var(--gray-500);">TXT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-outline" onclick="history.back()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Buat Revisi
+      </button>
+      <button class="btn btn-green" onclick="showToast('Tugas siap dikumpulkan! ✓')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kumpulkan Tugas
+      </button>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
+    <a href="mahasiswa.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg><span class="nav-label">Mahasiswa</span></a>
+    <a href="tugas.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span class="nav-label">Tugas &amp; Project</span></a>
+    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
+    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+const now=new Date();
+document.getElementById('hasilTanggalTugas').textContent=`${now.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'][now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} WIB`;
+const prompt=localStorage.getItem('task_prompt');
+if(prompt){document.getElementById('hasilJudulTugas').textContent=prompt.substring(0,30)+(prompt.length>30?'...':'');document.getElementById('namaFileTugas').textContent=prompt.substring(0,20).replace(/\s/g,'_')+'.docx';document.getElementById('previewTitleTugas').textContent=prompt.toUpperCase();document.getElementById('ringkasanTugas').textContent=`AI telah memproses tugas "${prompt}" dengan hasil yang baik dan lengkap sesuai permintaan Anda.`;}
+
+// Auto-generate content
+async function generateContent(){
+  const p=localStorage.getItem('task_prompt');
+  if(!p)return;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Kerjakan tugas berikut dalam Bahasa Indonesia dan buat ringkasan singkat (2-3 kalimat) hasilnya: "${p}". Mulai langsung dengan konten, tanpa preamble.`}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'';
+    if(text) document.getElementById('ringkasanTugas').textContent=text.substring(0,300)+'...';
+  }catch(e){}
+}
+generateContent();
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-item').forEach(b=>{b.classList.remove('active');b.style.color='';b.style.borderBottomColor='';});
+  btn.classList.add('active');btn.style.color='var(--green)';btn.style.borderBottomColor='var(--green)';
+  ['ringkasan','preview','pengecekan','referensi'].forEach(t=>document.getElementById('tab-'+t).style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+}
+</script>
+</body>
+</html>

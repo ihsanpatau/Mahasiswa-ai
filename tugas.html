@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tugas & Project – asistenku.pro</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.input-action-row { display:flex; gap:8px; margin-top:8px; align-items:center; }
+.attach-btn { display:flex; align-items:center; gap:5px; padding:8px 12px; background:var(--gray-100); border:none; border-radius:var(--radius); font-family:inherit; font-size:12px; font-weight:600; color:var(--dark); cursor:pointer; transition:background 0.2s; }
+.attach-btn:hover { background:var(--gray-200); }
+.send-btn-tugas { display:flex; align-items:center; gap:5px; padding:8px 16px; background:var(--green); border:none; border-radius:var(--radius); font-family:inherit; font-size:13px; font-weight:700; color:#fff; cursor:pointer; margin-left:auto; }
+.send-btn-tugas svg { width:15px; height:15px; }
+.example-chips { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.example-chips::-webkit-scrollbar { display:none; }
+.example-chip { background:var(--white); border:1.5px solid var(--gray-200); border-radius:var(--radius-full); padding:6px 12px; font-size:12px; font-weight:600; color:var(--dark); white-space:nowrap; cursor:pointer; transition:border-color 0.2s; flex-shrink:0; }
+.example-chip:hover { border-color:var(--green); color:var(--green); }
+.file-type-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.file-type-row::-webkit-scrollbar { display:none; }
+.ftype { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+.ftype-icon { width:44px; height:48px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; }
+.ftype-lbl { font-size:10px; color:var(--gray-500); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="backnav">
+    <div class="backnav-left">
+      <button class="back-btn" onclick="history.back()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div><div class="backnav-title">Tugas &amp; Project</div><div class="backnav-sub">Satu halaman serba-bisa untuk tugas apapun &amp; pekerjaan kantor.</div></div>
+    </div>
+    <a href="bantuan.html" style="background:var(--gray-100);border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:5px;text-decoration:none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Panduan
+    </a>
+  </div>
+
+  <div class="page-content">
+    <!-- Hero Banner -->
+    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#ECFDF5,#A7F3D0);border-radius:20px;padding:18px;overflow:hidden;position:relative;min-height:130px;">
+      <h2 style="font-size:20px;font-weight:800;color:var(--green);line-height:1.2;max-width:180px;">Kerjakan tugasmu dengan AI</h2>
+      <p style="font-size:12px;color:var(--gray-500);margin-top:6px;max-width:180px;">Ketik perintah apa saja, unggah file, atau tempel link. AI siap membantu!</p>
+      <div class="hero-banner-chips" style="margin-top:10px;">
+        <div class="chip" style="color:var(--green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>Cepat</div>
+        <div class="chip" style="color:var(--green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>Akurat</div>
+        <div class="chip" style="color:var(--green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>Serba-bisa</div>
+      </div>
+      <!-- Mascot -->
+      <div style="position:absolute;right:5px;bottom:0;width:110px;">
+        <svg viewBox="0 0 150 165" fill="none">
+          <ellipse cx="75" cy="140" rx="44" ry="28" fill="#5a7a5a" opacity="0.4"/>
+          <rect x="28" y="90" width="70" height="50" rx="6" fill="#374151"/>
+          <rect x="32" y="94" width="62" height="40" rx="3" fill="#10B981"/>
+          <rect x="38" y="99" width="50" height="6" rx="2" fill="rgba(255,255,255,0.3)"/>
+          <rect x="38" y="108" width="40" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+          <rect x="38" y="114" width="44" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+          <circle cx="75" cy="85" r="8" fill="#10B981" opacity="0.3"/>
+          <text x="75" y="89" text-anchor="middle" fill="#16A34A" font-size="9" font-family="sans-serif" font-weight="bold">a</text>
+          <rect x="18" y="140" width="114" height="7" rx="3" fill="#374151"/>
+          <!-- Briefcase -->
+          <rect x="100" y="100" width="36" height="28" rx="5" fill="#92400E"/>
+          <rect x="108" y="93" width="20" height="11" rx="4" fill="#B45309"/>
+          <circle cx="118" cy="114" r="5" fill="#D97706"/>
+          <!-- Cat head -->
+          <ellipse cx="65" cy="62" rx="30" ry="28" fill="#F5F5F5"/>
+          <polygon points="44,47 33,28 57,42" fill="#F5F5F5"/>
+          <polygon points="86,47 97,28 73,42" fill="#F5F5F5"/>
+          <polygon points="46,45 37,30 57,41" fill="#FFB6C1"/>
+          <polygon points="84,45 93,30 73,41" fill="#FFB6C1"/>
+          <ellipse cx="55" cy="63" rx="7" ry="8" fill="#1A90FF"/>
+          <ellipse cx="75" cy="63" rx="7" ry="8" fill="#1A90FF"/>
+          <ellipse cx="55" cy="64" rx="4" ry="5" fill="#0A2060"/>
+          <ellipse cx="75" cy="64" rx="4" ry="5" fill="#0A2060"/>
+          <ellipse cx="53" cy="61" rx="1.5" ry="1.5" fill="#fff"/>
+          <ellipse cx="73" cy="61" rx="1.5" ry="1.5" fill="#fff"/>
+          <ellipse cx="65" cy="74" rx="3" ry="2" fill="#FFB6C1"/>
+          <path d="M58 79 Q65 84 72 79" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="48" cy="78" rx="7" ry="5" fill="#FFB6C1" opacity="0.5"/>
+          <ellipse cx="82" cy="78" rx="7" ry="5" fill="#FFB6C1" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div style="margin:14px 16px 0;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px;">
+      <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px;">Mulai di sini</div>
+      <textarea id="taskInput" class="form-textarea" placeholder="Ketik perintah atau jelaskan tugas/project yang ingin dikerjakan..." rows="3"></textarea>
+      <div class="input-action-row">
+        <button class="attach-btn" onclick="document.getElementById('taskFile').click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Unggah File
+        </button>
+        <input type="file" id="taskFile" style="display:none" onchange="handleTaskFile(this)">
+        <button class="attach-btn" onclick="promptLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Tempel Link
+        </button>
+        <button class="send-btn-tugas" onclick="kirimTugas()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Kirim
+        </button>
+      </div>
+      <div id="attachedFile" style="display:none;margin-top:8px;padding:6px 10px;background:var(--green-pale);border-radius:8px;font-size:12px;color:var(--green);font-weight:600;"></div>
+    </div>
+
+    <!-- Contoh Perintah -->
+    <div style="padding:12px 16px 0;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span style="font-size:12px;font-weight:700;color:var(--gray-700);">Contoh perintah:</span>
+      </div>
+      <div class="example-chips">
+        <div class="example-chip" onclick="fillExample(this)">"Kerjakan tugas ini"</div>
+        <div class="example-chip" onclick="fillExample(this)">"Buat laporan dari file ini"</div>
+        <div class="example-chip" onclick="fillExample(this)">"Analisis data pada file ini"</div>
+        <div class="example-chip" onclick="fillExample(this)">"Selesaikan project ini"</div>
+        <div class="example-chip" onclick="fillExample(this)">Atau buat pernyataan sendiri</div>
+      </div>
+    </div>
+
+    <!-- File Types -->
+    <div style="margin:14px 16px 0;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px;">Jenis file yang didukung</div>
+      <div class="file-type-row">
+        <div class="ftype"><div class="ftype-icon" style="background:#DC2626;">PDF</div><div class="ftype-lbl">PDF</div></div>
+        <div class="ftype"><div class="ftype-icon" style="background:#2B579A;">W</div><div class="ftype-lbl">Word</div></div>
+        <div class="ftype"><div class="ftype-icon" style="background:#16A34A;">XLS</div><div class="ftype-lbl">Excel</div></div>
+        <div class="ftype"><div class="ftype-icon" style="background:#D97706;">PPT</div><div class="ftype-lbl">PPT</div></div>
+        <div class="ftype"><div class="ftype-icon" style="background:#7C3AED;">IMG</div><div class="ftype-lbl">Gambar</div></div>
+        <div class="ftype"><div class="ftype-icon" style="background:var(--gray-400);">...</div><div class="ftype-lbl">Lainnya</div></div>
+      </div>
+    </div>
+
+    <!-- Security Note -->
+    <div class="security-note" style="margin-top:12px;">
+      <div style="width:36px;height:36px;background:#DCFCE7;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="security-note-body">
+        <div class="security-note-title">Privasi &amp; Keamanan Terjamin</div>
+        <div class="security-note-desc">File Anda aman dan hanya digunakan untuk memproses tugas. Data tidak akan dibagikan ke pihak lain.</div>
+      </div>
+      <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+
+    <!-- Riwayat Tugas -->
+    <div class="section-header" style="margin-top:20px;"><span class="section-title">Riwayat Tugas Terbaru</span><a href="riwayat.html" class="section-link" style="color:var(--green);">Lihat Semua</a></div>
+    <div class="history-list">
+      <div class="history-item">
+        <div class="history-icon" style="background:#2B579A;"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+        <div class="history-body">
+          <div class="history-title">Laporan Analisis Data Penjualan.docx</div>
+          <div class="history-time">Dibuat 2 jam lalu</div>
+        </div>
+        <span class="status-badge done">Selesai</span>
+        <button style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      </div>
+      <div class="history-item">
+        <div class="history-icon" style="background:#DC2626;"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+        <div class="history-body">
+          <div class="history-title">Tugas Makalah Manajemen.pdf</div>
+          <div class="history-time">Dibuat 1 hari lalu</div>
+        </div>
+        <span class="status-badge done">Selesai</span>
+        <button style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      </div>
+      <div class="history-item">
+        <div class="history-icon" style="background:#16A34A;"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+        <div class="history-body">
+          <div class="history-title">Analisis Data Survey.xlsx</div>
+          <div class="history-time">Dibuat 2 hari lalu</div>
+        </div>
+        <span class="status-badge done">Selesai</span>
+        <button style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      </div>
+      <div class="history-item">
+        <div class="history-icon" style="background:#D97706;"><svg viewBox="0 0 24 24" fill="white" width="18" height="18"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
+        <div class="history-body">
+          <div class="history-title">Presentasi Project Marketing.pptx</div>
+          <div class="history-time">Dibuat 3 hari lalu</div>
+        </div>
+        <span class="status-badge done">Selesai</span>
+        <button style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
+    <a href="mahasiswa.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg><span class="nav-label">Mahasiswa</span></a>
+    <a href="tugas.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span class="nav-label">Tugas &amp; Project</span></a>
+    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
+    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+function fillExample(el){document.getElementById('taskInput').value=el.textContent.replace(/"/g,'');}
+function handleTaskFile(inp){
+  if(inp.files[0]){
+    const af=document.getElementById('attachedFile');
+    af.style.display='block';
+    af.innerHTML=`📎 ${inp.files[0].name} (${(inp.files[0].size/1024).toFixed(0)} KB)`;
+  }
+}
+function promptLink(){
+  const url=prompt('Masukkan URL/link:');
+  if(url){
+    const inp=document.getElementById('taskInput');
+    inp.value=(inp.value?inp.value+'\n':'')+url;
+  }
+}
+async function kirimTugas(){
+  const task=document.getElementById('taskInput').value.trim();
+  if(!task){showToast('Tulis perintah terlebih dahulu');return;}
+  showToast('Memproses tugas...');
+  // Redirect to hasil
+  localStorage.setItem('task_prompt',task);
+  setTimeout(()=>window.location.href='hasil-tugas.html',1500);
+}
+</script>
+</body>
+</html>

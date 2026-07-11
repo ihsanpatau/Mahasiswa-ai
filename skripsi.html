@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skripsi, Tesis & Disertasi – asistenku.pro</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.select-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--dark);
+  background: var(--white);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.select-input:focus { border-color: var(--blue-light); }
+.ai-suggest-card {
+  border: 1.5px solid var(--blue-mid);
+  background: var(--blue-pale);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.2s;
+}
+.ai-suggest-card:hover { background: #dce5ff; }
+.ai-suggest-card svg { color: var(--blue-light); width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+.ai-card-title { font-size: 13px; font-weight: 700; color: var(--blue); }
+.ai-card-desc { font-size: 11px; color: var(--gray-500); margin-top: 2px; line-height: 1.3; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="backnav">
+    <div class="backnav-left">
+      <button class="back-btn" onclick="history.back()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <div class="backnav-title">Skripsi, Tesis &amp; Disertasi</div>
+        <div class="backnav-sub">Bantu susun skripsi dari judul hingga lengkap</div>
+      </div>
+    </div>
+    <a href="bantuan.html" style="background:var(--gray-100);border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:5px;text-decoration:none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Bantuan
+    </a>
+  </div>
+
+  <div class="page-content">
+    <!-- Hero banner -->
+    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#EEF2FF,#C7D5FF);border-radius:20px;padding:18px 18px 0;overflow:hidden;position:relative;min-height:130px;">
+      <h2 style="font-size:18px;font-weight:800;color:var(--blue);line-height:1.2;max-width:190px;">Buat skripsi kamu lebih mudah dan cepat bersama AI</h2>
+      <p style="font-size:12px;color:var(--gray-500);margin-top:6px;max-width:180px;">Mulai dari judul, outline, setiap bab, hingga selesai.</p>
+      <div style="position:absolute;right:0;bottom:0;width:120px;">
+        <svg viewBox="0 0 150 160" fill="none">
+          <ellipse cx="75" cy="135" rx="45" ry="28" fill="#1A2B6D"/>
+          <ellipse cx="75" cy="105" rx="32" ry="33" fill="#F5F5F5"/>
+          <ellipse cx="75" cy="67" rx="34" ry="32" fill="#F5F5F5"/>
+          <polygon points="52,53 40,32 65,48" fill="#F5F5F5"/>
+          <polygon points="98,53 110,32 85,48" fill="#F5F5F5"/>
+          <ellipse cx="63" cy="68" rx="8" ry="9" fill="#1A90FF"/>
+          <ellipse cx="87" cy="68" rx="8" ry="9" fill="#1A90FF"/>
+          <ellipse cx="63" cy="69" rx="5" ry="6" fill="#0A2060"/>
+          <ellipse cx="87" cy="69" rx="5" ry="6" fill="#0A2060"/>
+          <ellipse cx="61" cy="66" rx="2" ry="2" fill="#fff"/>
+          <ellipse cx="85" cy="66" rx="2" ry="2" fill="#fff"/>
+          <ellipse cx="75" cy="80" rx="4" ry="2.5" fill="#FFB6C1"/>
+          <path d="M67 85 Q75 90 83 85" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="56" cy="86" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
+          <ellipse cx="94" cy="86" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
+          <rect x="44" y="46" width="62" height="9" rx="4" fill="#1A2B6D"/>
+          <polygon points="75,30 48,46 102,46" fill="#1A2B6D"/>
+          <line x1="102" y1="46" x2="110" y2="58" stroke="#F5A623" stroke-width="2"/>
+          <rect x="107" y="58" width="7" height="9" rx="2" fill="#F5A623"/>
+          <circle cx="75" cy="122" r="12" fill="#3B5BFF"/>
+          <text x="75" y="127" text-anchor="middle" fill="#fff" font-size="10" font-family="sans-serif" font-weight="bold">a</text>
+          <!-- Laptop -->
+          <rect x="32" y="98" width="50" height="34" rx="4" fill="#374151"/>
+          <rect x="35" y="101" width="44" height="26" rx="2" fill="#3B5BFF" opacity="0.7"/>
+          <rect x="22" y="132" width="70" height="5" rx="2" fill="#374151"/>
+          <!-- Books -->
+          <rect x="100" y="105" width="28" height="8" rx="2" fill="#3B5BFF"/>
+          <rect x="100" y="97" width="28" height="8" rx="2" fill="#6366F1"/>
+          <rect x="100" y="89" width="28" height="8" rx="2" fill="#A5B4FC"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="steps">
+      <div class="step active">
+        <div class="step-circle">1</div>
+        <div class="step-label">Informasi<br>Lengkapi detail</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">2</div>
+        <div class="step-label">Outline<br>Atur struktur</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <div class="step-label">Pengaturan<br>Gaya &amp; format</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-circle">4</div>
+        <div class="step-label">Konfirmasi<br>Periksa &amp; mulai</div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px;">
+      <!-- Section 1: Info -->
+      <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:14px;">1. Informasi Penelitian</div>
+
+      <div class="form-group">
+        <label class="form-label">Judul Skripsi <span style="color:var(--red);">*</span></label>
+        <div class="input-wrap">
+          <textarea class="form-textarea" id="judulSkripsi" placeholder="Masukkan judul skripsi Anda..." maxlength="200" oninput="countChar(this,'charJudul')"></textarea>
+        </div>
+        <div class="char-count"><span id="charJudul">0</span> / 200</div>
+      </div>
+
+      <!-- AI Generate or Manual -->
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <div class="ai-suggest-card" onclick="generateJudul()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <div>
+            <div class="ai-card-title">Buatkan Judul dengan AI</div>
+            <div class="ai-card-desc">AI akan membuatkan beberapa opsi judul</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;color:var(--blue);"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+        <div class="ai-suggest-card" onclick="showToast('Gunakan judul Anda sendiri')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div>
+            <div class="ai-card-title">Gunakan Judul Saya Sendiri</div>
+            <div class="ai-card-desc">Saya sudah punya judul sendiri</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;color:var(--blue);"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Jenis Penelitian <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
+        <div class="type-pills">
+          <button class="type-pill active" onclick="selectType(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Kuantitatif
+          </button>
+          <button class="type-pill" onclick="selectType(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Kualitatif
+          </button>
+          <button class="type-pill" onclick="selectType(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+            R&amp;D
+          </button>
+          <button class="type-pill" onclick="selectType(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Lainnya
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Deskripsi Singkat (Opsional)</label>
+        <textarea class="form-textarea" id="deskripsi" placeholder="Jelaskan secara singkat tentang topik penelitian Anda..." maxlength="500" oninput="countChar(this,'charDesc')"></textarea>
+        <div class="char-count"><span id="charDesc">0</span> / 500</div>
+      </div>
+
+      <!-- Section 2: Upload Referensi -->
+      <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:10px;margin-top:4px;">2. Upload Referensi <span style="font-size:12px;font-weight:500;color:var(--gray-400);">(Opsional)</span></div>
+      <div class="upload-area" onclick="document.getElementById('fileRef').click()">
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <div class="upload-label">Upload file referensi (PDF, Word, atau TXT)</div>
+        <div class="upload-sub">Maks. 10MB per file. Bisa lebih dari 1 file</div>
+        <input type="file" id="fileRef" multiple accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFiles(this)">
+      </div>
+      <div id="fileList" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
+
+      <!-- Section 3: Target -->
+      <div style="font-size:15px;font-weight:800;color:var(--dark);margin:16px 0 10px;">3. Target &amp; Ruang Lingkup</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Target Jumlah Halaman <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
+          <select class="select-input" id="targetHalaman">
+            <option value="">– Pilih target halaman –</option>
+            <option value="30">30 halaman</option>
+            <option value="50">50 halaman</option>
+            <option value="80">80 halaman</option>
+            <option value="100">100 halaman</option>
+            <option value="120">120 halaman</option>
+            <option value="150">150+ halaman</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Batas Waktu <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
+          <input type="date" class="form-input" id="deadline">
+        </div>
+      </div>
+
+      <!-- Info perhitungan -->
+      <div class="info-banner" style="margin:12px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3DC2" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div><strong>Perhitungan Halaman</strong><br>1 halaman ≈ 450 kata ≈ 720 token AI. Hasil akhir sesuai dengan paket dan sisa kuota Anda.</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="lanjutOutline()" style="margin-top:16px;">
+        Lanjut ke Outline <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <div style="height:20px;"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
+    <a href="mahasiswa.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6L23 9zm6.82 6L12 12.72 5.18 9 12 5.28zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg><span class="nav-label">Mahasiswa</span></a>
+    <a href="tugas.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span class="nav-label">Tugas &amp; Project</span></a>
+    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
+    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+  </nav>
+</div>
+
+<!-- AI Title Modal -->
+<div class="modal-overlay" id="titleModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:800;color:var(--dark);margin-bottom:4px;">✨ Pilih Judul AI</div>
+    <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Ketik topik penelitian untuk mendapatkan saran judul:</p>
+    <div class="input-wrap" style="margin-bottom:12px;">
+      <input class="form-input" id="topikInput" placeholder="Contoh: pengaruh media sosial terhadap prestasi...">
+    </div>
+    <button class="btn btn-primary btn-sm" style="width:100%;margin-bottom:16px;" onclick="getAITitles()">Generate Judul AI ✨</button>
+    <div id="aiTitleResults"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const SUPABASE_URL='https://dkpztybbcvvzatgwhano.supabase.co';
+const SUPABASE_KEY='sbp_159989ff1f59b4a7a127f2917c4a538cf0797fe6';
+function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+function countChar(el,id){document.getElementById(id).textContent=el.value.length;}
+function selectType(btn){document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
+function handleFiles(inp){
+  const list=document.getElementById('fileList');list.innerHTML='';
+  Array.from(inp.files).forEach(f=>{
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:8px;background:var(--blue-pale);border-radius:8px;padding:8px 10px;font-size:12px;';
+    div.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A3DC2" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><span style="flex:1;color:var(--dark);font-weight:600;">${f.name}</span><span style="color:var(--gray-500);">${(f.size/1024).toFixed(0)} KB</span>`;
+    list.appendChild(div);
+  });
+}
+function generateJudul(){document.getElementById('titleModal').classList.add('open');}
+function closeModal(){document.getElementById('titleModal').classList.remove('open');}
+document.getElementById('titleModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+async function getAITitles(){
+  const topik=document.getElementById('topikInput').value.trim();
+  if(!topik){showToast('Ketik topik penelitian dulu');return;}
+  const div=document.getElementById('aiTitleResults');
+  div.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray-400);">⏳ Sedang membuat judul...</div>';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Buatkan 5 judul skripsi/penelitian dalam Bahasa Indonesia tentang topik: "${topik}". Format: JSON array dengan field "judul". Hanya JSON, tidak ada teks lain.`}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'[]';
+    const clean=text.replace(/```json|```/g,'').trim();
+    const judul=JSON.parse(clean);
+    div.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">Pilih salah satu judul:</div>'+judul.map(j=>`<div onclick="pilihJudul('${j.judul.replace(/'/g,"\\'")}');closeModal();" style="padding:12px;background:var(--white);border:1.5px solid var(--gray-200);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--dark);line-height:1.4;" onmouseover="this.style.borderColor='var(--blue-light)'" onmouseout="this.style.borderColor='var(--gray-200)'">${j.judul}</div>`).join('');
+  }catch(e){
+    div.innerHTML='<div style="color:var(--red);text-align:center;padding:10px;">Gagal generate. Coba lagi.</div>';
+  }
+}
+function pilihJudul(j){
+  document.getElementById('judulSkripsi').value=j;
+  document.getElementById('charJudul').textContent=j.length;
+}
+function lanjutOutline(){
+  const judul=document.getElementById('judulSkripsi').value.trim();
+  if(!judul){showToast('Isi judul skripsi terlebih dahulu');return;}
+  const jenis=document.querySelector('.type-pill.active')?.textContent.trim()||'Kuantitatif';
+  const halaman=document.getElementById('targetHalaman').value||'80';
+  localStorage.setItem('skripsi_data',JSON.stringify({judul,jenis,deskripsi:document.getElementById('deskripsi').value,halaman,deadline:document.getElementById('deadline').value}));
+  window.location.href='skripsi-outline.html';
+}
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+</script>
+</body>
+</html>

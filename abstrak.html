@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstrak – asistenku.pro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <div class="backnav">
+    <div class="backnav-left">
+      <button class="back-btn" onclick="history.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div><div class="backnav-title">Abstrak</div><div class="backnav-sub">Buat ringkasan penelitian otomatis</div></div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#FFFBEB,#FDE68A);border-radius:20px;padding:16px;">
+      <h2 style="font-size:18px;font-weight:800;color:#92400E;">Abstrak Bilingual Otomatis</h2>
+      <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">Buat abstrak Indonesia dan Inggris secara otomatis dari naskah penelitian Anda.</p>
+    </div>
+    <div style="padding:16px;">
+      <div class="form-group">
+        <label class="form-label">Judul Penelitian <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="judulPenelitian" placeholder="Masukkan judul penelitian...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teks / Isi Penelitian <span style="color:var(--red)">*</span></label>
+        <textarea class="form-textarea" id="inputText" placeholder="Tempel teks skripsi atau penelitian Anda di sini (minimal BAB I – BAB V)..." rows="6"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Atau Upload File</label>
+        <div class="upload-area" onclick="document.getElementById('abstrakFile').click()">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          <div class="upload-label">PDF, Word, atau TXT</div>
+          <div class="upload-sub">Maks. 10MB</div>
+          <input type="file" id="abstrakFile" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="showToast('File: '+this.files[0].name)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kata Kunci (Opsional)</label>
+        <input type="text" class="form-input" id="keywords" placeholder="Contoh: digital marketing, keputusan pembelian, Shopee">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Panjang Abstrak</label>
+        <div class="type-pills">
+          <button class="type-pill active" onclick="selectPill(this)">Pendek (100-150 kata)</button>
+          <button class="type-pill" onclick="selectPill(this)">Standar (150-250 kata)</button>
+          <button class="type-pill" onclick="selectPill(this)">Panjang (250+ kata)</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="background:#D97706;" onclick="generateAbstrak()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Generate Abstrak Bilingual
+      </button>
+    </div>
+    <div id="resultArea" style="display:none;padding:0 16px 16px;">
+      <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:10px;">Hasil Abstrak:</div>
+      <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:16px;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;border-bottom:1px solid var(--gray-100);padding-bottom:6px;">ABSTRAK (Indonesia)</div>
+        <div id="abstrakIndo" style="font-size:13px;line-height:1.7;color:var(--dark);"></div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;border-bottom:1px solid var(--gray-100);padding-bottom:6px;">ABSTRACT (English)</div>
+        <div id="abstrakEng" style="font-size:13px;line-height:1.7;color:var(--dark);"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-secondary btn-sm" onclick="copyAll()">Salin Semua</button>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Download segera hadir')">Download Word</button>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
+    <a href="mahasiswa.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6L23 9z"/></svg><span class="nav-label">Mahasiswa</span></a>
+    <a href="tugas.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/></svg><span class="nav-label">Tugas</span></a>
+    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
+    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+function selectPill(btn){btn.closest('.type-pills').querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+async function generateAbstrak(){
+  const text=document.getElementById('inputText').value.trim();
+  const judul=document.getElementById('judulPenelitian').value.trim();
+  const keywords=document.getElementById('keywords').value.trim();
+  if(!text&&!judul){showToast('Isi judul atau teks penelitian');return;}
+  showToast('Membuat abstrak bilingual...');
+  const prompt=`Buatkan abstrak penelitian bilingual (Indonesia dan Inggris) untuk:
+Judul: "${judul||'Penelitian'}"
+${keywords?'Kata kunci: '+keywords:''}
+${text?'Isi/Konteks: '+text.substring(0,1000):''}
+
+Format respons:
+ABSTRAK_INDO:
+[Abstrak dalam Bahasa Indonesia 150-250 kata]
+Kata kunci: [5 kata kunci]
+
+ABSTRACT_ENG:
+[Abstract in English 150-250 words]
+Keywords: [5 keywords]`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const result=data.content?.[0]?.text||'';
+    const indoMatch=result.match(/ABSTRAK_INDO:\n([\s\S]*?)(?=ABSTRACT_ENG:|$)/);
+    const engMatch=result.match(/ABSTRACT_ENG:\n([\s\S]*?)$/);
+    document.getElementById('abstrakIndo').innerHTML=(indoMatch?.[1]||result.split('\n\n')[0]||result).trim().replace(/\n/g,'<br>');
+    document.getElementById('abstrakEng').innerHTML=(engMatch?.[1]||result.split('\n\n')[1]||'').trim().replace(/\n/g,'<br>');
+    document.getElementById('resultArea').style.display='block';
+    document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+    showToast('Abstrak berhasil dibuat! ✓');
+  }catch(e){showToast('Gagal. Coba lagi.');}
+}
+function copyAll(){
+  const indo=document.getElementById('abstrakIndo').innerText;
+  const eng=document.getElementById('abstrakEng').innerText;
+  navigator.clipboard.writeText('ABSTRAK\n'+indo+'\n\nABSTRACT\n'+eng).then(()=>showToast('Disalin!'));
+}
+</script>
+</body>
+</html>

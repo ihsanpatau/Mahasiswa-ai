@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1A3DC2">
+<meta name="description" content="asistenku.pro – Asisten AI pintar untuk tugas akademik dan profesional">
+<title>asistenku.pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── Splash-specific overrides ── */
+.splash {
+  width: 100%; max-width: 430px; min-height: 100vh; min-height: 100dvh;
+  background: #fff; display: flex; flex-direction: column;
+  align-items: center; position: relative; overflow: hidden;
+}
+
+/* Top area */
+.splash-top {
+  width: 100%; padding: 64px 28px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  z-index: 2; position: relative;
+}
+.splash-logo {
+  display: flex; align-items: center;
+  font-size: 34px; font-weight: 800; color: #1A3DC2; letter-spacing: -1px;
+}
+.splash-logo-pro {
+  background: #3B5BFF; color: #fff;
+  font-size: 21px; font-weight: 700;
+  padding: 2px 10px; border-radius: 9px; margin-left: 1px;
+}
+.splash-tagline {
+  font-size: 16px; color: #6B7280; text-align: center;
+  line-height: 1.5; max-width: 280px;
+}
+
+/* Wave background */
+.wave-bg {
+  position: absolute;
+  bottom: 230px; left: 0; right: 0; height: 340px;
+  background: linear-gradient(180deg, #EEF2FF 0%, #C7D5FF 100%);
+  border-radius: 58% 58% 0 0 / 38% 38% 0 0;
+  z-index: 1;
+}
+
+/* Mascot */
+.splash-mascot {
+  width: 100%; max-width: 340px;
+  position: relative; z-index: 2; margin-top: 6px;
+  display: flex; justify-content: center;
+}
+
+/* Sparkles */
+.sparkle {
+  position: absolute; border-radius: 50%; z-index: 3;
+  animation: sparklePulse 3s ease-in-out infinite alternate;
+}
+@keyframes sparklePulse {
+  0%   { transform: scale(1) rotate(0deg); opacity: .5; }
+  100% { transform: scale(1.3) rotate(30deg); opacity: .9; }
+}
+/* 4-point star shape */
+.star {
+  position: absolute; z-index: 3;
+  animation: starFloat 2.5s ease-in-out infinite alternate;
+}
+@keyframes starFloat {
+  0%   { transform: translateY(0) scale(1); opacity: .6; }
+  100% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+}
+
+/* Features bar */
+.features-bar {
+  background: #fff; border-radius: 20px 20px 0 0;
+  width: 100%; padding: 20px 18px 0;
+  z-index: 3; box-shadow: 0 -6px 28px rgba(27,61,194,.07);
+}
+.features-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.feat-item { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+.feat-icon {
+  width: 46px; height: 46px; background: #EEF2FF; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.feat-icon svg { width: 22px; height: 22px; color: #1A3DC2; }
+.feat-label { font-size: 12px; font-weight: 700; color: #1A3DC2; }
+.feat-desc  { font-size: 10px; color: #6B7280; line-height: 1.3; }
+
+/* Loading bar area */
+.splash-footer {
+  background: #1A3DC2; width: 100%;
+  padding: 20px 32px 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  z-index: 3;
+}
+.loading-text { color: #fff; font-size: 14px; font-weight: 500; }
+.loading-track {
+  width: 100%; max-width: 260px; height: 6px;
+  background: rgba(255,255,255,.25); border-radius: 99px; overflow: hidden;
+}
+.loading-fill {
+  height: 100%; width: 0%; background: #fff; border-radius: 99px;
+  transition: width .4s ease;
+}
+.start-btn {
+  display: none;
+  width: 100%; max-width: 260px; padding: 14px;
+  background: #fff; color: #1A3DC2;
+  font-family: inherit; font-size: 16px; font-weight: 700;
+  border: none; border-radius: 14px; cursor: pointer;
+  transition: transform .1s;
+}
+.start-btn:hover { transform: scale(1.02); }
+.start-btn:active { transform: scale(.98); }
+</style>
+</head>
+<body>
+<div class="splash">
+  <!-- Sparkle decorations -->
+  <div class="star" style="top:105px;left:52px;animation-delay:.1s;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#3B5BFF" opacity=".7"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+  <div class="star" style="top:88px;right:56px;animation-delay:.6s;">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="#A5B4FC" opacity=".8"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+  <div class="star" style="top:195px;left:28px;animation-delay:1s;">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="#6366F1" opacity=".6"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+  <div class="star" style="top:210px;right:36px;animation-delay:.3s;">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="#93C5FD" opacity=".7"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+
+  <!-- Top brand -->
+  <div class="splash-top">
+    <div class="splash-logo">asistenku<span class="splash-logo-pro">.pro</span></div>
+    <p class="splash-tagline">Asisten AI pintar untuk membantu tugas akademik dan profesionalmu.</p>
+  </div>
+
+  <!-- Wave bg -->
+  <div class="wave-bg"></div>
+
+  <!-- Mascot -->
+  <div class="splash-mascot">
+    <svg viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:330px;">
+      <!-- Wave platform under cat -->
+      <ellipse cx="170" cy="300" rx="155" ry="42" fill="#C7D5FF" opacity=".5"/>
+
+      <!-- GOWN -->
+      <ellipse cx="170" cy="272" rx="100" ry="74" fill="#1A2B6D"/>
+
+      <!-- BODY FUR -->
+      <ellipse cx="170" cy="238" rx="74" ry="76" fill="#F5F5F5"/>
+
+      <!-- HEAD -->
+      <ellipse cx="170" cy="160" rx="78" ry="74" fill="#F5F5F5"/>
+
+      <!-- EARS -->
+      <polygon points="108,104 86,60 128,88" fill="#F5F5F5"/>
+      <polygon points="232,104 254,60 212,88" fill="#F5F5F5"/>
+      <polygon points="110,102 90,64 128,90" fill="#FFADB9"/>
+      <polygon points="230,102 250,64 212,90" fill="#FFADB9"/>
+
+      <!-- EYES -->
+      <ellipse cx="143" cy="162" rx="18" ry="20" fill="#1A90FF"/>
+      <ellipse cx="197" cy="162" rx="18" ry="20" fill="#1A90FF"/>
+      <ellipse cx="143" cy="163" rx="11" ry="13" fill="#0A2060"/>
+      <ellipse cx="197" cy="163" rx="11" ry="13" fill="#0A2060"/>
+      <!-- Eye shine -->
+      <ellipse cx="138" cy="157" rx="4.5" ry="4.5" fill="white"/>
+      <ellipse cx="192" cy="157" rx="4.5" ry="4.5" fill="white"/>
+
+      <!-- NOSE -->
+      <ellipse cx="170" cy="184" rx="7" ry="5" fill="#FFADB9"/>
+      <!-- MOUTH -->
+      <path d="M156 194 Q170 206 184 194" stroke="#BBBBBB" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+      <!-- CHEEKS -->
+      <ellipse cx="120" cy="188" rx="17" ry="12" fill="#FFADB9" opacity="0.4"/>
+      <ellipse cx="220" cy="188" rx="17" ry="12" fill="#FFADB9" opacity="0.4"/>
+
+      <!-- WHISKERS -->
+      <line x1="64" y1="184" x2="140" y2="187" stroke="#CCCCCC" stroke-width="1.5"/>
+      <line x1="64" y1="194" x2="140" y2="194" stroke="#CCCCCC" stroke-width="1.5"/>
+      <line x1="200" y1="187" x2="276" y2="184" stroke="#CCCCCC" stroke-width="1.5"/>
+      <line x1="200" y1="194" x2="276" y2="194" stroke="#CCCCCC" stroke-width="1.5"/>
+
+      <!-- GRADUATION CAP BOARD -->
+      <rect x="92" y="98" width="156" height="18" rx="7" fill="#1A2B6D"/>
+      <!-- CAP TOP -->
+      <polygon points="170,56 94,98 246,98" fill="#1A2B6D"/>
+      <!-- TASSEL -->
+      <line x1="246" y1="98" x2="260" y2="126" stroke="#F5A623" stroke-width="3.5"/>
+      <rect x="255" y="126" width="13" height="19" rx="5" fill="#F5A623"/>
+
+      <!-- BADGE A -->
+      <circle cx="170" cy="256" r="26" fill="#3B5BFF"/>
+      <text x="170" y="265" text-anchor="middle" fill="white"
+        font-family="'Plus Jakarta Sans',sans-serif" font-size="22" font-weight="800">a</text>
+
+      <!-- LEFT PAW (waving) -->
+      <ellipse cx="66" cy="248" rx="38" ry="30" fill="#F5F5F5" transform="rotate(-30 66 248)"/>
+      <ellipse cx="50" cy="224" rx="15" ry="11" fill="#F5F5F5" transform="rotate(-20 50 224)"/>
+
+      <!-- RIGHT PAW -->
+      <ellipse cx="274" cy="272" rx="36" ry="28" fill="#F5F5F5"/>
+
+      <!-- FLOATING BOOK (left) -->
+      <rect x="16" y="192" width="56" height="40" rx="7" fill="#A5B4FC" opacity=".85"/>
+      <rect x="20" y="196" width="48" height="32" rx="4" fill="#EEF2FF"/>
+      <line x1="44" y1="196" x2="44" y2="228" stroke="#818CF8" stroke-width="2"/>
+      <line x1="28" y1="207" x2="42" y2="207" stroke="#C7D2FE" stroke-width="1.5"/>
+      <line x1="28" y1="213" x2="42" y2="213" stroke="#C7D2FE" stroke-width="1.5"/>
+      <line x1="28" y1="219" x2="38" y2="219" stroke="#C7D2FE" stroke-width="1.5"/>
+
+      <!-- FLOATING DOC (right) -->
+      <rect x="270" y="172" width="50" height="60" rx="7" fill="#A5B4FC" opacity=".75"/>
+      <rect x="274" y="176" width="42" height="52" rx="4" fill="#EEF2FF"/>
+      <line x1="282" y1="186" x2="308" y2="186" stroke="#818CF8" stroke-width="1.5"/>
+      <line x1="282" y1="194" x2="308" y2="194" stroke="#818CF8" stroke-width="1.5"/>
+      <line x1="282" y1="202" x2="298" y2="202" stroke="#818CF8" stroke-width="1.5"/>
+      <line x1="282" y1="210" x2="308" y2="210" stroke="#818CF8" stroke-width="1.5"/>
+      <line x1="282" y1="218" x2="302" y2="218" stroke="#818CF8" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Features -->
+  <div class="features-bar">
+    <div class="features-grid">
+      <div class="feat-item">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="feat-label">Cerdas</div>
+        <div class="feat-desc">AI terdepan untuk hasil terbaik</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="feat-label">Aman</div>
+        <div class="feat-desc">Data dan privasi terjamin</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="feat-label">Cepat</div>
+        <div class="feat-desc">Kerjakan apa saja dalam detik</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="feat-label">Serba Bisa</div>
+        <div class="feat-desc">Akademik, kerja, konsultasi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading footer -->
+  <div class="splash-footer">
+    <p class="loading-text" id="loadText">Menyiapkan pengalaman terbaik untukmu...</p>
+    <div class="loading-track">
+      <div class="loading-fill" id="loadFill"></div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="location.href='login.html'">
+      Mulai Sekarang →
+    </button>
+  </div>
+</div>
+
+<script>
+// Animate loading bar
+const fill = document.getElementById('loadFill');
+const text = document.getElementById('loadText');
+const btn  = document.getElementById('startBtn');
+
+let pct = 0;
+const interval = setInterval(() => {
+  pct = Math.min(pct + (Math.random() * 18 + 8), 100);
+  fill.style.width = pct + '%';
+  if (pct >= 100) {
+    clearInterval(interval);
+    text.textContent = 'Siap! Selamat datang 🎓';
+    btn.style.display = 'block';
+    // Auto-redirect after 3.5s
+    setTimeout(() => location.href = 'login.html', 3500);
+  }
+}, 200);
+</script>
+</body>
+</html>

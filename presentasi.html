@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentasi (PPT) – asistenku.pro</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.slide-preview{background:#1E293B;border-radius:12px;padding:16px 20px;margin-bottom:8px;cursor:pointer;transition:background 0.15s;}
+.slide-preview:hover{background:#334155;}
+.slide-num{font-size:10px;font-weight:700;color:#94A3B8;margin-bottom:4px;}
+.slide-title-preview{font-size:14px;font-weight:700;color:#F8FAFC;}
+.slide-points{margin-top:4px;display:flex;flex-direction:column;gap:2px;}
+.slide-point{font-size:11px;color:#CBD5E1;display:flex;align-items:flex-start;gap:5px;}
+.slide-point::before{content:'•';color:#64748B;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="backnav">
+    <div class="backnav-left">
+      <button class="back-btn" onclick="history.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div><div class="backnav-title">Presentasi (PPT)</div><div class="backnav-sub">Buat slide dari topik atau dokumen</div></div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#FDF2F8,#FBCFE8);border-radius:20px;padding:16px;">
+      <h2 style="font-size:18px;font-weight:800;color:#9D174D;">Presentasi AI dalam Menit</h2>
+      <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">Buat outline slide presentasi profesional dari topik, skripsi, atau dokumen Anda.</p>
+    </div>
+    <div id="inputSection" style="padding:16px;">
+      <div class="form-group">
+        <label class="form-label">Topik / Judul Presentasi <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="topikPPT" placeholder="Contoh: Pengaruh Digital Marketing terhadap Keputusan Pembelian">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tujuan Presentasi</label>
+        <div class="type-pills">
+          <button class="type-pill active" onclick="selectPill(this)">Sidang Skripsi</button>
+          <button class="type-pill" onclick="selectPill(this)">Seminar</button>
+          <button class="type-pill" onclick="selectPill(this)">Bisnis / Kantor</button>
+          <button class="type-pill" onclick="selectPill(this)">Pendidikan</button>
+          <button class="type-pill" onclick="selectPill(this)">Lainnya</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jumlah Slide</label>
+        <div class="type-pills">
+          <button class="type-pill" onclick="selectPill(this)">10 slide</button>
+          <button class="type-pill active" onclick="selectPill(this)">15 slide</button>
+          <button class="type-pill" onclick="selectPill(this)">20 slide</button>
+          <button class="type-pill" onclick="selectPill(this)">25+ slide</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Konten / Ringkasan (Opsional)</label>
+        <textarea class="form-textarea" id="kontenPPT" placeholder="Tempel ringkasan atau poin penting yang harus ada dalam presentasi..." rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Upload Dokumen Referensi (Opsional)</label>
+        <div class="upload-area" onclick="document.getElementById('pptFile').click()">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          <div class="upload-label">PDF, Word, atau TXT</div>
+          <input type="file" id="pptFile" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="showToast('File: '+this.files[0].name)">
+        </div>
+      </div>
+      <button class="btn btn-primary" style="background:#DB2777;" onclick="generatePPT()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Generate Outline Presentasi
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div id="resultArea" style="display:none;padding:0 16px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:700;color:var(--dark);">Outline Slide (<span id="slideCount">0</span> slide):</div>
+        <button onclick="generatePPT()" style="background:none;border:none;font-size:12px;font-weight:600;color:#DB2777;cursor:pointer;">Regenerate</button>
+      </div>
+      <div id="slideList"></div>
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#92400E;">
+        💡 Outline ini akan digunakan sebagai panduan. Download file PPT untuk mendapatkan file presentasi lengkap.
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-primary btn-sm" style="background:#DB2777;" onclick="showToast('Download PPT segera hadir – gunakan outline sebagai panduan')">Download PPT</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyOutline()">Salin Outline</button>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
+    <a href="mahasiswa.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6L23 9z"/></svg><span class="nav-label">Mahasiswa</span></a>
+    <a href="tugas.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/></svg><span class="nav-label">Tugas</span></a>
+    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
+    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+function selectPill(btn){btn.closest('.type-pills').querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+let slides=[];
+async function generatePPT(){
+  const topik=document.getElementById('topikPPT').value.trim();
+  if(!topik){showToast('Isi judul/topik presentasi');return;}
+  const tujuan=document.querySelector('.type-pills .type-pill.active')?.textContent||'Sidang Skripsi';
+  const jumlah=document.querySelectorAll('.type-pills')[1]?.querySelector('.type-pill.active')?.textContent||'15 slide';
+  const konten=document.getElementById('kontenPPT').value.trim();
+  showToast('Membuat outline presentasi...');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Buatkan outline ${jumlah} slide presentasi untuk ${tujuan} dengan topik: "${topik}".${konten?' Konten: '+konten.substring(0,500):''}\n\nFormat JSON array: [{"num":1,"title":"Judul Slide","points":["Poin 1","Poin 2","Poin 3"]}]\nHanya JSON, tidak ada teks lain.`}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'[]';
+    const clean=text.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    slides=JSON.parse(clean);
+    renderSlides(slides);
+    showToast('Outline berhasil dibuat! ✓');
+  }catch(e){
+    slides=[{num:1,title:'Halaman Judul',points:[topik,'Nama Penulis','Institusi','Tahun']},{num:2,title:'Latar Belakang',points:['Permasalahan yang diangkat','Urgensi penelitian','Kontribusi']},{num:3,title:'Rumusan Masalah',points:['Pertanyaan penelitian 1','Pertanyaan penelitian 2']},{num:4,title:'Tujuan Penelitian',points:['Tujuan umum','Tujuan khusus']},{num:5,title:'Tinjauan Pustaka',points:['Landasan teori','Penelitian terdahulu']},{num:6,title:'Metode Penelitian',points:['Pendekatan','Populasi & sampel','Instrumen']},{num:7,title:'Hasil Penelitian',points:['Temuan utama','Data statistik']},{num:8,title:'Pembahasan',points:['Analisis temuan','Kaitannya dengan teori']},{num:9,title:'Simpulan',points:['Jawaban rumusan masalah','Implikasi']},{num:10,title:'Penutup & Terima Kasih',points:['Saran','Pertanyaan?']}];
+    renderSlides(slides);
+    showToast('Menggunakan template standar');
+  }
+}
+function renderSlides(slides){
+  const list=document.getElementById('slideList');
+  document.getElementById('slideCount').textContent=slides.length;
+  list.innerHTML=slides.map(s=>`
+    <div class="slide-preview">
+      <div class="slide-num">SLIDE ${s.num}</div>
+      <div class="slide-title-preview">${s.title}</div>
+      <div class="slide-points">${(s.points||[]).map(p=>`<div class="slide-point">${p}</div>`).join('')}</div>
+    </div>
+  `).join('');
+  document.getElementById('resultArea').style.display='block';
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+}
+function copyOutline(){
+  const text=slides.map(s=>`Slide ${s.num}: ${s.title}\n${(s.points||[]).map(p=>'• '+p).join('\n')}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>showToast('Outline disalin!'));
+}
+</script>
+</body>
+</html>
