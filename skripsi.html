@@ -4,298 +4,731 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skripsi, Tesis & Disertasi – asistenku.pro</title>
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.select-input {
-  width: 100%;
-  padding: 11px 14px;
+:root {
+  --blue: #1A3DC2;
+  --blue-light: #3B5BFF;
+  --blue-pale: #EEF2FF;
+  --blue-mid: #4F6EFF;
+  --dark: #111827;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --white: #fff;
+  --red: #EF4444;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F4FF; color: var(--dark); }
+.app { max-width: 430px; margin: 0 auto; background: #F0F4FF; min-height: 100vh; padding-bottom: 90px; }
+
+/* TOPNAV */
+.backnav {
+  background: linear-gradient(135deg, #1A3DC2, #2251E8);
+  padding: 13px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 4px 20px rgba(26,61,194,0.4);
+}
+.backnav-left { display: flex; align-items: center; gap: 10px; }
+.back-btn {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.back-btn svg { color: #fff; }
+.backnav-title { font-size: 16px; font-weight: 800; color: #fff; }
+.backnav-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.help-btn {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 12px; font-weight: 600; color: #fff;
+  display: flex; align-items: center; gap: 5px;
+  text-decoration: none;
+}
+
+/* HERO */
+.skripsi-hero {
+  margin: 16px 16px 0;
+  background: linear-gradient(135deg, #1A3DC2 0%, #2251E8 60%, #4F6EFF 100%);
+  border-radius: 20px; padding: 18px 18px 14px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(26,61,194,0.35);
+  display: flex; align-items: center; gap: 12px;
+}
+.skripsi-hero h2 {
+  font-size: 17px; font-weight: 800; color: #fff; line-height: 1.2;
+}
+.skripsi-hero p { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 6px; line-height: 1.4; }
+.skripsi-hero-img { width: 80px; height: 80px; flex-shrink: 0; }
+.skripsi-hero-img img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+
+/* STEPS */
+.steps {
+  display: flex; align-items: center;
+  padding: 16px 16px 8px; gap: 0;
+}
+.step {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1;
+}
+.step-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gray-200); color: var(--gray-400);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  transition: all 0.3s;
+}
+.step.active .step-circle {
+  background: linear-gradient(135deg, #1A3DC2, #3B5BFF);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(59,91,255,0.4);
+}
+.step.done .step-circle { background: #10B981; color: #fff; }
+.step-label { font-size: 9px; color: var(--gray-400); text-align: center; font-weight: 600; line-height: 1.2; }
+.step.active .step-label { color: var(--blue-light); }
+.step-line { flex: 1; height: 2px; background: var(--gray-200); margin: 0 4px; margin-bottom: 14px; }
+.step-line.done { background: #10B981; }
+
+/* CARD */
+.card {
+  margin: 12px 16px 0;
+  background: #fff; border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(26,61,194,0.07);
+  border: 1px solid var(--gray-200);
+}
+.card-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 14px; }
+
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 700; color: var(--dark); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+.form-input, .form-textarea, .form-select {
+  width: 100%; padding: 11px 14px;
   border: 1.5px solid var(--gray-200);
-  border-radius: var(--radius);
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--dark);
-  background: var(--white);
-  outline: none;
+  border-radius: var(--radius); font-family: inherit;
+  font-size: 13px; color: var(--dark);
+  outline: none; background: var(--gray-100);
+  transition: border-color 0.2s, background 0.2s;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--blue-light); background: #fff;
+}
+.form-textarea { resize: none; min-height: 80px; }
+.form-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
-.select-input:focus { border-color: var(--blue-light); }
-.ai-suggest-card {
-  border: 1.5px solid var(--blue-mid);
-  background: var(--blue-pale);
-  border-radius: var(--radius);
-  padding: 12px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-  flex: 1;
-  transition: background 0.2s;
+.char-count { font-size: 10px; color: var(--gray-400); text-align: right; margin-top: 4px; }
+
+/* TYPE PILLS */
+.type-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+.type-pill {
+  display: flex; align-items: center; gap: 6px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 20px; padding: 7px 12px;
+  font-size: 12px; font-weight: 600; color: var(--gray-500);
+  cursor: pointer; background: #fff; transition: all 0.15s;
 }
-.ai-suggest-card:hover { background: #dce5ff; }
-.ai-suggest-card svg { color: var(--blue-light); width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
-.ai-card-title { font-size: 13px; font-weight: 700; color: var(--blue); }
-.ai-card-desc { font-size: 11px; color: var(--gray-500); margin-top: 2px; line-height: 1.3; }
+.type-pill svg { width: 14px; height: 14px; }
+.type-pill.active {
+  border-color: var(--blue-light); color: var(--blue);
+  background: var(--blue-pale);
+}
+
+/* AI SUGGEST */
+.ai-suggest-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.ai-suggest-card {
+  flex: 1; border: 1.5px solid #C7D5FF;
+  background: var(--blue-pale); border-radius: var(--radius);
+  padding: 11px 12px; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 8px;
+  transition: background 0.15s, transform 0.1s;
+}
+.ai-suggest-card:hover { background: #dce5ff; transform: translateY(-1px); }
+.ai-suggest-card:active { transform: scale(0.97); }
+.ai-suggest-card svg { width: 18px; height: 18px; color: var(--blue-light); flex-shrink: 0; margin-top: 1px; }
+.ai-card-title { font-size: 12px; font-weight: 700; color: var(--blue); }
+.ai-card-desc { font-size: 10px; color: var(--gray-500); margin-top: 2px; line-height: 1.3; }
+
+/* UPLOAD */
+.upload-area {
+  border: 2px dashed var(--gray-200); border-radius: var(--radius);
+  padding: 18px; text-align: center; cursor: pointer;
+  background: var(--gray-100); transition: all 0.15s;
+}
+.upload-area:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+.upload-icon { width: 32px; height: 32px; color: var(--gray-400); margin: 0 auto 6px; display: block; }
+.upload-label { font-size: 12px; font-weight: 600; color: var(--dark); }
+.upload-sub { font-size: 10px; color: var(--gray-400); margin-top: 3px; }
+
+/* INFO BANNER */
+.info-banner {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--blue-pale); border: 1px solid #C7D5FF;
+  border-radius: var(--radius); padding: 12px;
+  font-size: 12px; color: var(--dark); line-height: 1.5;
+}
+.info-banner svg { width: 18px; height: 18px; color: var(--blue); flex-shrink: 0; margin-top: 1px; }
+
+/* BTN */
+.btn-primary {
+  width: 100%; background: linear-gradient(135deg, #1A3DC2, #3B5BFF);
+  color: #fff; border: none; border-radius: var(--radius);
+  padding: 14px; font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 16px rgba(59,91,255,0.35);
+  margin-top: 16px;
+}
+.btn-primary:hover { opacity: 0.92; }
+.btn-primary:active { transform: scale(0.98); }
+
+/* HASIL */
+.hasil-area {
+  background: #fff; border-radius: 18px;
+  border: 1px solid var(--gray-200);
+  margin: 12px 16px 0; padding: 16px;
+  display: none;
+  box-shadow: 0 2px 12px rgba(26,61,194,0.07);
+}
+.hasil-area.show { display: block; }
+.hasil-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.hasil-title { font-size: 14px; font-weight: 800; color: var(--dark); }
+.hasil-actions { display: flex; gap: 6px; }
+.hasil-action-btn {
+  background: var(--blue-pale); border: 1px solid #C7D5FF;
+  border-radius: 8px; padding: 6px 10px;
+  font-size: 11px; font-weight: 600; color: var(--blue);
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+.hasil-action-btn svg { width: 13px; height: 13px; }
+.hasil-content {
+  font-size: 13px; line-height: 1.75; color: var(--dark);
+  white-space: pre-wrap; word-break: break-word;
+}
+.loading-state {
+  text-align: center; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--blue-pale);
+  border-top-color: var(--blue-light);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: none; align-items: flex-end; justify-content: center; z-index: 200;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: #fff; border-radius: 24px 24px 0 0;
+  padding: 20px 20px 30px; width: 100%; max-width: 430px;
+  max-height: 80vh; overflow-y: auto;
+}
+.modal-handle { width: 40px; height: 4px; background: var(--gray-200); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 17px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; }
+.judul-option {
+  padding: 12px 14px; background: var(--gray-100);
+  border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+  margin-bottom: 8px; cursor: pointer;
+  font-size: 13px; color: var(--dark); line-height: 1.4;
+  transition: all 0.15s;
+}
+.judul-option:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: #fff; border-top: 1px solid var(--gray-200);
+  display: flex; justify-content: space-around;
+  padding: 8px 0 12px; z-index: 100;
+  box-shadow: 0 -4px 20px rgba(26,61,194,0.1);
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  text-decoration: none; color: var(--gray-400);
+  font-size: 9px; font-weight: 600; padding: 2px 12px;
+}
+.nav-item svg { width: 22px; height: 22px; }
+.nav-item.active { color: var(--blue-light); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: #1a1a2e; color: #fff;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 </style>
 </head>
 <body>
 <div class="app">
+  <!-- Topnav -->
   <div class="backnav">
     <div class="backnav-left">
       <button class="back-btn" onclick="history.back()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
       </button>
       <div>
         <div class="backnav-title">Skripsi, Tesis &amp; Disertasi</div>
-        <div class="backnav-sub">Bantu susun skripsi dari judul hingga lengkap</div>
+        <div class="backnav-sub">Bantu susun dari judul hingga selesai</div>
       </div>
     </div>
-    <a href="bantuan.html" style="background:var(--gray-100);border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--dark);cursor:pointer;display:flex;align-items:center;gap:5px;text-decoration:none;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Bantuan
+    <a href="bantuan.html" class="help-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+      Bantuan
     </a>
   </div>
 
-  <div class="page-content">
-    <!-- Hero banner -->
-    <div style="margin:16px 16px 0;background:linear-gradient(135deg,#EEF2FF,#C7D5FF);border-radius:20px;padding:18px 18px 0;overflow:hidden;position:relative;min-height:130px;">
-      <h2 style="font-size:18px;font-weight:800;color:var(--blue);line-height:1.2;max-width:190px;">Buat skripsi kamu lebih mudah dan cepat bersama AI</h2>
-      <p style="font-size:12px;color:var(--gray-500);margin-top:6px;max-width:180px;">Mulai dari judul, outline, setiap bab, hingga selesai.</p>
-      <div style="position:absolute;right:0;bottom:0;width:120px;">
-        <svg viewBox="0 0 150 160" fill="none">
-          <ellipse cx="75" cy="135" rx="45" ry="28" fill="#1A2B6D"/>
-          <ellipse cx="75" cy="105" rx="32" ry="33" fill="#F5F5F5"/>
-          <ellipse cx="75" cy="67" rx="34" ry="32" fill="#F5F5F5"/>
-          <polygon points="52,53 40,32 65,48" fill="#F5F5F5"/>
-          <polygon points="98,53 110,32 85,48" fill="#F5F5F5"/>
-          <ellipse cx="63" cy="68" rx="8" ry="9" fill="#1A90FF"/>
-          <ellipse cx="87" cy="68" rx="8" ry="9" fill="#1A90FF"/>
-          <ellipse cx="63" cy="69" rx="5" ry="6" fill="#0A2060"/>
-          <ellipse cx="87" cy="69" rx="5" ry="6" fill="#0A2060"/>
-          <ellipse cx="61" cy="66" rx="2" ry="2" fill="#fff"/>
-          <ellipse cx="85" cy="66" rx="2" ry="2" fill="#fff"/>
-          <ellipse cx="75" cy="80" rx="4" ry="2.5" fill="#FFB6C1"/>
-          <path d="M67 85 Q75 90 83 85" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="56" cy="86" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
-          <ellipse cx="94" cy="86" rx="8" ry="5" fill="#FFB6C1" opacity="0.5"/>
-          <rect x="44" y="46" width="62" height="9" rx="4" fill="#1A2B6D"/>
-          <polygon points="75,30 48,46 102,46" fill="#1A2B6D"/>
-          <line x1="102" y1="46" x2="110" y2="58" stroke="#F5A623" stroke-width="2"/>
-          <rect x="107" y="58" width="7" height="9" rx="2" fill="#F5A623"/>
-          <circle cx="75" cy="122" r="12" fill="#3B5BFF"/>
-          <text x="75" y="127" text-anchor="middle" fill="#fff" font-size="10" font-family="sans-serif" font-weight="bold">a</text>
-          <!-- Laptop -->
-          <rect x="32" y="98" width="50" height="34" rx="4" fill="#374151"/>
-          <rect x="35" y="101" width="44" height="26" rx="2" fill="#3B5BFF" opacity="0.7"/>
-          <rect x="22" y="132" width="70" height="5" rx="2" fill="#374151"/>
-          <!-- Books -->
-          <rect x="100" y="105" width="28" height="8" rx="2" fill="#3B5BFF"/>
-          <rect x="100" y="97" width="28" height="8" rx="2" fill="#6366F1"/>
-          <rect x="100" y="89" width="28" height="8" rx="2" fill="#A5B4FC"/>
-        </svg>
-      </div>
+  <!-- Hero -->
+  <div class="skripsi-hero">
+    <div>
+      <h2>Buat skripsi lebih mudah bersama AI</h2>
+      <p>Dari judul, outline, hingga setiap bab — semua dibantu AI.</p>
     </div>
-
-    <!-- Step Indicator -->
-    <div class="steps">
-      <div class="step active">
-        <div class="step-circle">1</div>
-        <div class="step-label">Informasi<br>Lengkapi detail</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step">
-        <div class="step-circle">2</div>
-        <div class="step-label">Outline<br>Atur struktur</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step">
-        <div class="step-circle">3</div>
-        <div class="step-label">Pengaturan<br>Gaya &amp; format</div>
-      </div>
-      <div class="step-line"></div>
-      <div class="step">
-        <div class="step-circle">4</div>
-        <div class="step-label">Konfirmasi<br>Periksa &amp; mulai</div>
-      </div>
-    </div>
-
-    <div style="padding:0 16px;">
-      <!-- Section 1: Info -->
-      <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:14px;">1. Informasi Penelitian</div>
-
-      <div class="form-group">
-        <label class="form-label">Judul Skripsi <span style="color:var(--red);">*</span></label>
-        <div class="input-wrap">
-          <textarea class="form-textarea" id="judulSkripsi" placeholder="Masukkan judul skripsi Anda..." maxlength="200" oninput="countChar(this,'charJudul')"></textarea>
-        </div>
-        <div class="char-count"><span id="charJudul">0</span> / 200</div>
-      </div>
-
-      <!-- AI Generate or Manual -->
-      <div style="display:flex;gap:10px;margin-bottom:14px;">
-        <div class="ai-suggest-card" onclick="generateJudul()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <div>
-            <div class="ai-card-title">Buatkan Judul dengan AI</div>
-            <div class="ai-card-desc">AI akan membuatkan beberapa opsi judul</div>
-          </div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;color:var(--blue);"><path d="m9 18 6-6-6-6"/></svg>
-        </div>
-        <div class="ai-suggest-card" onclick="showToast('Gunakan judul Anda sendiri')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <div>
-            <div class="ai-card-title">Gunakan Judul Saya Sendiri</div>
-            <div class="ai-card-desc">Saya sudah punya judul sendiri</div>
-          </div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:auto;color:var(--blue);"><path d="m9 18 6-6-6-6"/></svg>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Jenis Penelitian <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
-        <div class="type-pills">
-          <button class="type-pill active" onclick="selectType(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Kuantitatif
-          </button>
-          <button class="type-pill" onclick="selectType(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Kualitatif
-          </button>
-          <button class="type-pill" onclick="selectType(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
-            R&amp;D
-          </button>
-          <button class="type-pill" onclick="selectType(this)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            Lainnya
-          </button>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Deskripsi Singkat (Opsional)</label>
-        <textarea class="form-textarea" id="deskripsi" placeholder="Jelaskan secara singkat tentang topik penelitian Anda..." maxlength="500" oninput="countChar(this,'charDesc')"></textarea>
-        <div class="char-count"><span id="charDesc">0</span> / 500</div>
-      </div>
-
-      <!-- Section 2: Upload Referensi -->
-      <div style="font-size:15px;font-weight:800;color:var(--dark);margin-bottom:10px;margin-top:4px;">2. Upload Referensi <span style="font-size:12px;font-weight:500;color:var(--gray-400);">(Opsional)</span></div>
-      <div class="upload-area" onclick="document.getElementById('fileRef').click()">
-        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-        <div class="upload-label">Upload file referensi (PDF, Word, atau TXT)</div>
-        <div class="upload-sub">Maks. 10MB per file. Bisa lebih dari 1 file</div>
-        <input type="file" id="fileRef" multiple accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFiles(this)">
-      </div>
-      <div id="fileList" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
-
-      <!-- Section 3: Target -->
-      <div style="font-size:15px;font-weight:800;color:var(--dark);margin:16px 0 10px;">3. Target &amp; Ruang Lingkup</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Target Jumlah Halaman <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
-          <select class="select-input" id="targetHalaman">
-            <option value="">– Pilih target halaman –</option>
-            <option value="30">30 halaman</option>
-            <option value="50">50 halaman</option>
-            <option value="80">80 halaman</option>
-            <option value="100">100 halaman</option>
-            <option value="120">120 halaman</option>
-            <option value="150">150+ halaman</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Batas Waktu <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></label>
-          <input type="date" class="form-input" id="deadline">
-        </div>
-      </div>
-
-      <!-- Info perhitungan -->
-      <div class="info-banner" style="margin:12px 0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#1A3DC2" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-        <div><strong>Perhitungan Halaman</strong><br>1 halaman ≈ 450 kata ≈ 720 token AI. Hasil akhir sesuai dengan paket dan sisa kuota Anda.</div>
-      </div>
-
-      <button class="btn btn-primary" onclick="lanjutOutline()" style="margin-top:16px;">
-        Lanjut ke Outline <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-      </button>
-      <div style="height:20px;"></div>
+    <div class="skripsi-hero-img">
+      <img src="img/cat-main.png" alt="Maskot">
     </div>
   </div>
 
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step1El">
+      <div class="step-circle">1</div>
+      <div class="step-label">Informasi</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step" id="step2El">
+      <div class="step-circle">2</div>
+      <div class="step-label">Generate</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="step3El">
+      <div class="step-circle">3</div>
+      <div class="step-label">Hasil</div>
+    </div>
+  </div>
+
+  <!-- FORM INFORMASI -->
+  <div class="card" id="formSection">
+    <div class="card-title">1. Informasi Penelitian</div>
+
+    <div class="form-group">
+      <div class="form-label">Judul Skripsi <span style="color:var(--red);">*</span></div>
+      <textarea class="form-textarea" id="judulSkripsi"
+        placeholder="Masukkan judul skripsi, atau biarkan kosong lalu klik 'Buatkan Judul'..."
+        maxlength="200"
+        oninput="document.getElementById('charJudul').textContent=this.value.length"></textarea>
+      <div class="char-count"><span id="charJudul">0</span> / 200</div>
+    </div>
+
+    <div class="ai-suggest-row">
+      <div class="ai-suggest-card" onclick="openModalJudul()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div>
+          <div class="ai-card-title">Buatkan Judul AI ✨</div>
+          <div class="ai-card-desc">AI buat beberapa opsi judul</div>
+        </div>
+      </div>
+      <div class="ai-suggest-card" onclick="showToast('Tulis judulmu di kolom di atas')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div>
+          <div class="ai-card-title">Judul Sendiri</div>
+          <div class="ai-card-desc">Saya sudah punya judul</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Jenis Penelitian</div>
+      <div class="type-pills">
+        <button class="type-pill active" onclick="selectType(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Kuantitatif
+        </button>
+        <button class="type-pill" onclick="selectType(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Kualitatif
+        </button>
+        <button class="type-pill" onclick="selectType(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18"/></svg>
+          R&amp;D
+        </button>
+        <button class="type-pill" onclick="selectType(this)">Lainnya</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Deskripsi / Topik Penelitian <span style="color:var(--gray-400);font-weight:400;">(opsional)</span></div>
+      <textarea class="form-textarea" id="deskripsi"
+        placeholder="Jelaskan singkat tentang topik atau latar belakang penelitianmu..."
+        maxlength="500"
+        oninput="document.getElementById('charDesc').textContent=this.value.length"></textarea>
+      <div class="char-count"><span id="charDesc">0</span> / 500</div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Bidang / Program Studi</div>
+      <select class="form-select" id="bidang">
+        <option value="">– Pilih bidang studi –</option>
+        <option>Manajemen / Bisnis</option>
+        <option>Akuntansi</option>
+        <option>Hukum</option>
+        <option>Pendidikan</option>
+        <option>Kesehatan / Farmasi</option>
+        <option>Teknik / Informatika</option>
+        <option>Ilmu Sosial / Komunikasi</option>
+        <option>Psikologi</option>
+        <option>Pertanian / Kehutanan</option>
+        <option>Ekonomi / Keuangan</option>
+        <option>Lainnya</option>
+      </select>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-group" style="margin:0;">
+        <div class="form-label">Apa yang ingin dibuat?</div>
+        <select class="form-select" id="jenisDokumen">
+          <option value="BAB 1">BAB 1 – Pendahuluan</option>
+          <option value="BAB 2">BAB 2 – Kajian Pustaka</option>
+          <option value="BAB 3">BAB 3 – Metode</option>
+          <option value="outline">Outline Lengkap</option>
+          <option value="judul">5 Opsi Judul</option>
+          <option value="abstrak">Abstrak</option>
+          <option value="rumusan">Rumusan Masalah</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <div class="form-label">Target Halaman</div>
+        <select class="form-select" id="targetHalaman">
+          <option value="10">10 halaman</option>
+          <option value="20">20 halaman</option>
+          <option value="30" selected>30 halaman</option>
+          <option value="50">50 halaman</option>
+          <option value="80">80 halaman</option>
+          <option value="100">100+ halaman</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="info-banner" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>AI akan menghasilkan konten berdasarkan informasi yang kamu isi. Semakin detail informasi, semakin baik hasilnya.</div>
+    </div>
+
+    <button class="btn-primary" onclick="generateSkripsi()">
+      ✨ Generate dengan AI
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- LOADING STATE (disembunyikan) -->
+  <div class="hasil-area" id="hasilArea">
+    <div class="loading-state" id="loadingState">
+      <div class="loading-spinner"></div>
+      <div style="font-size:14px;font-weight:700;color:var(--dark);">AI sedang menulis...</div>
+      <div style="font-size:12px;color:var(--gray-500);">Mohon tunggu, ini mungkin memakan 30–60 detik</div>
+    </div>
+
+    <div id="hasilContent" style="display:none;">
+      <div class="hasil-header">
+        <div class="hasil-title" id="hasilLabel">Hasil Generate</div>
+        <div class="hasil-actions">
+          <button class="hasil-action-btn" onclick="copyHasil()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Salin
+          </button>
+          <button class="hasil-action-btn" onclick="generateLagi()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            Generate Lagi
+          </button>
+        </div>
+      </div>
+      <div class="hasil-content" id="hasilText"></div>
+
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);">
+        <button class="btn-primary" onclick="lanjutBab()">
+          Lanjut Bab Berikutnya
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
   <nav class="bottom-nav">
-    <a href="beranda.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Beranda</span></a>
-    <a href="mahasiswa.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6L23 9zm6.82 6L12 12.72 5.18 9 12 5.28zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg><span class="nav-label">Mahasiswa</span></a>
-    <a href="tugas.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span class="nav-label">Tugas &amp; Project</span></a>
-    <a href="doktrai.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nav-label">DoktrAI</span></a>
-    <a href="profil.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profil</span></a>
+    <a href="beranda.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Beranda</span>
+    </a>
+    <a href="mahasiswa.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
+      <span>Mahasiswa</span>
+    </a>
+    <a href="tugas.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <span>Tugas</span>
+    </a>
+    <a href="doktrai.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>DoktrAI</span>
+    </a>
+    <a href="profil.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profil</span>
+    </a>
   </nav>
 </div>
 
-<!-- AI Title Modal -->
-<div class="modal-overlay" id="titleModal">
+<!-- MODAL JUDUL -->
+<div class="modal-overlay" id="modalJudul">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="font-size:17px;font-weight:800;color:var(--dark);margin-bottom:4px;">✨ Pilih Judul AI</div>
-    <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Ketik topik penelitian untuk mendapatkan saran judul:</p>
-    <div class="input-wrap" style="margin-bottom:12px;">
-      <input class="form-input" id="topikInput" placeholder="Contoh: pengaruh media sosial terhadap prestasi...">
-    </div>
-    <button class="btn btn-primary btn-sm" style="width:100%;margin-bottom:16px;" onclick="getAITitles()">Generate Judul AI ✨</button>
-    <div id="aiTitleResults"></div>
+    <div class="modal-title">✨ Generate Judul AI</div>
+    <p class="modal-sub">Masukkan topik atau bidang penelitianmu:</p>
+    <textarea class="form-textarea" id="topikInput"
+      placeholder="Contoh: pengaruh media sosial terhadap prestasi belajar mahasiswa..."></textarea>
+    <button class="btn-primary" onclick="getJudul()" style="margin-top:10px;">
+      Generate Judul ✨
+    </button>
+    <div id="modalJudulResults" style="margin-top:14px;"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<script>
-const SUPABASE_URL='https://dkpztybbcvvzatgwhano.supabase.co';
-const SUPABASE_KEY='sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm';
-function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
-function countChar(el,id){document.getElementById(id).textContent=el.value.length;}
-function selectType(btn){document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
-function handleFiles(inp){
-  const list=document.getElementById('fileList');list.innerHTML='';
-  Array.from(inp.files).forEach(f=>{
-    const div=document.createElement('div');
-    div.style.cssText='display:flex;align-items:center;gap:8px;background:var(--blue-pale);border-radius:8px;padding:8px 10px;font-size:12px;';
-    div.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A3DC2" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><span style="flex:1;color:var(--dark);font-weight:600;">${f.name}</span><span style="color:var(--gray-500);">${(f.size/1024).toFixed(0)} KB</span>`;
-    list.appendChild(div);
-  });
-}
-function generateJudul(){document.getElementById('titleModal').classList.add('open');}
-function closeModal(){document.getElementById('titleModal').classList.remove('open');}
-document.getElementById('titleModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-async function getAITitles(){
-  const topik=document.getElementById('topikInput').value.trim();
-  if(!topik){showToast('Ketik topik penelitian dulu');return;}
-  const div=document.getElementById('aiTitleResults');
-  div.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray-400);">⏳ Sedang membuat judul...</div>';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Buatkan 5 judul skripsi/penelitian dalam Bahasa Indonesia tentang topik: "${topik}". Format: JSON array dengan field "judul". Hanya JSON, tidak ada teks lain.`}]})});
-    const data=await res.json();
-    const text=data.content?.[0]?.text||'[]';
-    const clean=text.replace(/```json|```/g,'').trim();
-    const judul=JSON.parse(clean);
-    div.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">Pilih salah satu judul:</div>'+judul.map(j=>`<div onclick="pilihJudul('${j.judul.replace(/'/g,"\\'")}');closeModal();" style="padding:12px;background:var(--white);border:1.5px solid var(--gray-200);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--dark);line-height:1.4;" onmouseover="this.style.borderColor='var(--blue-light)'" onmouseout="this.style.borderColor='var(--gray-200)'">${j.judul}</div>`).join('');
-  }catch(e){
-    div.innerHTML='<div style="color:var(--red);text-align:center;padding:10px;">Gagal generate. Coba lagi.</div>';
+<script>
+if (!localStorage.getItem('ak_token')) {
+  window.location.href = 'login.html';
+}
+
+function showToast(msg, d=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), d);
+}
+
+function selectType(btn) {
+  document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function openModalJudul() {
+  document.getElementById('modalJudul').classList.add('open');
+}
+document.getElementById('modalJudul').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+async function getJudul() {
+  const topik = document.getElementById('topikInput').value.trim();
+  if (!topik) { showToast('Ketik topik dulu'); return; }
+
+  const btn = event.target;
+  btn.textContent = 'Sedang membuat judul...';
+  btn.disabled = true;
+
+  const resultsDiv = document.getElementById('modalJudulResults');
+  resultsDiv.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);">⏳ AI sedang membuat judul...</div>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `Buatkan 5 judul skripsi/penelitian dalam Bahasa Indonesia untuk topik: "${topik}". 
+Kembalikan hanya JSON array dengan format: [{"judul": "..."}]
+Jangan ada teks lain, hanya JSON.`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const juduls = JSON.parse(clean);
+
+    resultsDiv.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">Pilih salah satu:</div>';
+    juduls.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'judul-option';
+      div.textContent = item.judul;
+      div.onclick = () => {
+        document.getElementById('judulSkripsi').value = item.judul;
+        document.getElementById('charJudul').textContent = item.judul.length;
+        document.getElementById('modalJudul').classList.remove('open');
+        showToast('Judul dipilih!');
+      };
+      resultsDiv.appendChild(div);
+    });
+  } catch(e) {
+    resultsDiv.innerHTML = '<div style="color:var(--red);text-align:center;padding:10px;">Gagal generate judul. Coba lagi.</div>';
+  }
+
+  btn.textContent = 'Generate Judul ✨';
+  btn.disabled = false;
+}
+
+async function generateSkripsi() {
+  const judul = document.getElementById('judulSkripsi').value.trim();
+  const jenis = document.querySelector('.type-pill.active')?.textContent.trim() || 'Kuantitatif';
+  const deskripsi = document.getElementById('deskripsi').value.trim();
+  const bidang = document.getElementById('bidang').value;
+  const jenisDokumen = document.getElementById('jenisDokumen').value;
+  const halaman = document.getElementById('targetHalaman').value;
+
+  if (!judul && jenisDokumen !== 'judul') {
+    showToast('Isi judul skripsi terlebih dahulu');
+    return;
+  }
+
+  // Tampilkan area hasil dengan loading
+  const hasilArea = document.getElementById('hasilArea');
+  hasilArea.classList.add('show');
+  document.getElementById('loadingState').style.display = 'flex';
+  document.getElementById('hasilContent').style.display = 'none';
+  document.getElementById('hasilLabel').textContent = `Hasil: ${jenisDokumen}`;
+
+  // Scroll ke bawah
+  hasilArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Buat prompt berdasarkan pilihan
+  let prompt = '';
+  if (jenisDokumen === 'judul') {
+    prompt = `Buatkan 5 judul skripsi terbaik untuk bidang ${bidang || 'umum'} dengan jenis penelitian ${jenis}. Topik: ${deskripsi || 'umum'}. Berikan dalam format sederhana dengan nomor.`;
+  } else if (jenisDokumen === 'outline') {
+    prompt = `Buatkan outline lengkap skripsi untuk judul: "${judul}". Jenis penelitian: ${jenis}. Bidang: ${bidang || 'umum'}. ${deskripsi ? 'Deskripsi: ' + deskripsi : ''}
+
+Buat outline dari BAB 1 sampai BAB 5 beserta sub-babnya. Tulis dalam Bahasa Indonesia yang formal.`;
+  } else if (jenisDokumen === 'abstrak') {
+    prompt = `Buatkan abstrak skripsi dalam Bahasa Indonesia untuk:
+Judul: "${judul}"
+Jenis penelitian: ${jenis}
+Bidang: ${bidang || 'umum'}
+${deskripsi ? 'Deskripsi: ' + deskripsi : ''}
+
+Abstrak harus mencakup: latar belakang singkat, tujuan penelitian, metode, dan hasil yang diharapkan. Maksimal 200 kata.`;
+  } else if (jenisDokumen === 'rumusan') {
+    prompt = `Buatkan rumusan masalah dan tujuan penelitian untuk skripsi:
+Judul: "${judul}"
+Jenis penelitian: ${jenis}
+${deskripsi ? 'Deskripsi: ' + deskripsi : ''}
+
+Buat 3-4 rumusan masalah dalam bentuk pertanyaan dan tujuan penelitian yang sesuai.`;
+  } else {
+    // BAB 1, 2, atau 3
+    const babDesc = {
+      'BAB 1': 'BAB I PENDAHULUAN yang mencakup: Latar Belakang (minimal 5 paragraf), Rumusan Masalah, Tujuan Penelitian, Manfaat Penelitian, dan Sistematika Penulisan',
+      'BAB 2': 'BAB II KAJIAN PUSTAKA yang mencakup: landasan teori dari para ahli, penelitian terdahulu yang relevan, kerangka pemikiran, dan hipotesis penelitian',
+      'BAB 3': 'BAB III METODE PENELITIAN yang mencakup: jenis dan desain penelitian, populasi dan sampel, variabel penelitian, teknik pengumpulan data, dan teknik analisis data'
+    };
+
+    prompt = `Tulis ${babDesc[jenisDokumen]} untuk skripsi berikut:
+
+Judul: "${judul}"
+Jenis penelitian: ${jenis}
+Bidang studi: ${bidang || 'umum'}
+${deskripsi ? 'Deskripsi tambahan: ' + deskripsi : ''}
+Target: sekitar ${halaman} halaman untuk keseluruhan skripsi
+
+Tulis dalam Bahasa Indonesia yang formal dan akademis. Isi harus detail, substantif, dan relevan dengan judul. Jangan gunakan format markdown atau tanda pagar.`;
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `Kamu adalah asisten akademik profesional dari asistenku.pro. Kamu membantu mahasiswa Indonesia menulis karya ilmiah berkualitas.
+
+ATURAN PENULISAN PENTING:
+- Gunakan Bahasa Indonesia yang formal, baku, dan akademis
+- JANGAN gunakan tanda pagar (#) atau format markdown dalam output
+- JANGAN tulis **teks** atau *teks* — langsung saja tanpa formatting
+- Untuk judul bab atau sub-bab, tulis langsung dengan huruf kapital (contoh: "BAB I PENDAHULUAN" bukan "# BAB I")
+- Pisahkan paragraf dengan baris kosong
+- Untuk sub-bab, tulis dengan format: "1.1 Latar Belakang" (bukan "## 1.1 Latar Belakang")
+- Konten harus substantif, informatif, dan sesuai standar akademik Indonesia`,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    document.getElementById('loadingState').style.display = 'none';
+
+    if (data.content?.[0]?.text) {
+      const result = data.content[0].text;
+      document.getElementById('hasilText').textContent = result;
+      document.getElementById('hasilContent').style.display = 'block';
+
+      // Simpan untuk keperluan lanjut
+      localStorage.setItem('skripsi_hasil', result);
+      localStorage.setItem('skripsi_data', JSON.stringify({
+        judul,
+        jenis,
+        deskripsi,
+        bidang,
+        halaman,
+        jenisDokumen
+      }));
+    } else {
+      throw new Error('No content');
+    }
+  } catch(e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('hasilContent').style.display = 'block';
+    document.getElementById('hasilText').textContent = 'Gagal menghubungi AI. Pastikan koneksi internetmu aktif lalu coba lagi.';
   }
 }
-function pilihJudul(j){
-  document.getElementById('judulSkripsi').value=j;
-  document.getElementById('charJudul').textContent=j.length;
+
+function copyHasil() {
+  const text = document.getElementById('hasilText').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Teks berhasil disalin!'));
 }
-function lanjutOutline(){
-  const judul=document.getElementById('judulSkripsi').value.trim();
-  if(!judul){showToast('Isi judul skripsi terlebih dahulu');return;}
-  const jenis=document.querySelector('.type-pill.active')?.textContent.trim()||'Kuantitatif';
-  const halaman=document.getElementById('targetHalaman').value||'80';
-  localStorage.setItem('skripsi_data',JSON.stringify({judul,jenis,deskripsi:document.getElementById('deskripsi').value,halaman,deadline:document.getElementById('deadline').value}));
-  window.location.href='skripsi-outline.html';
+
+function generateLagi() {
+  generateSkripsi();
 }
-if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+
+function lanjutBab() {
+  const current = document.getElementById('jenisDokumen').value;
+  const urutan = ['BAB 1', 'BAB 2', 'BAB 3'];
+  const idx = urutan.indexOf(current);
+  if (idx < urutan.length - 1) {
+    document.getElementById('jenisDokumen').value = urutan[idx + 1];
+    showToast('Lanjut ke ' + urutan[idx + 1]);
+    generateSkripsi();
+  } else {
+    showToast('Semua bab selesai! Kamu bisa lanjut ke jurnal.');
+  }
+}
 </script>
 </body>
 </html>
