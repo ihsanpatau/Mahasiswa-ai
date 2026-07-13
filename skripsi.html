@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skripsi, Tesis & Disertasi – asistenku.pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.2/mammoth.browser.min.js"></script>
 <style>
 :root {
   --blue: #1A3DC2;
@@ -462,6 +464,32 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F4FF; color:
       </div>
     </div>
 
+    <div class="grid-2" style="margin-top:10px;">
+      <div class="form-group" style="margin:0;">
+        <div class="form-label">Spasi Baris</div>
+        <select class="form-select" id="spasiBaris">
+          <option value="1">1.0</option>
+          <option value="1.15">1.15</option>
+          <option value="1.5" selected>1.5</option>
+          <option value="2">2.0</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <div class="form-label">Nama Penulis (untuk sampul)</div>
+        <input type="text" class="form-input" id="namaPenulisSkripsi" placeholder="Nama lengkap">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:10px;">
+      <div class="form-label">Upload File Sebelumnya <span style="color:var(--gray-400);font-weight:400;">(opsional — untuk lanjut BAB berikutnya atau revisi)</span></div>
+      <div class="upload-area" onclick="document.getElementById('fileLanjutan').click()">
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <div class="upload-label" id="fileLanjutanLabel">Upload .docx atau .txt</div>
+        <div class="upload-sub">AI akan membaca isinya untuk melanjutkan atau memperbaiki</div>
+        <input type="file" id="fileLanjutan" accept=".docx,.txt" style="display:none" onchange="bacaFileLanjutan(this)">
+      </div>
+      <div id="fileLanjutanStatus" style="font-size:11px;color:var(--gray-500);margin-top:4px;"></div>
+    </div>
 
     <div class="info-banner" style="margin-top:14px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -663,8 +691,40 @@ function cekBatasHalaman(select){
     note.innerHTML = `🔒 Paket ${PLAN_LABEL[plan]} maksimal ${limit} halaman. <a href="upgrade.html" style="color:var(--blue);font-weight:700;text-decoration:underline;">Upgrade ke paket ${paketDibutuhkan}</a> untuk membuka ${val} halaman.`;
     // Kembalikan ke nilai maksimum yang diizinkan paket saat ini
     select.value = String(limit <= 10 ? 10 : (limit <= 30 ? 30 : (limit <= 80 ? 80 : 100)));
+  } else if (val > 20) {
+    note.style.display = 'block';
+    note.style.color = 'var(--gray-500)';
+    note.innerHTML = `ℹ️ Satu kali generate punya batas teknis ±6.000 kata (~20 halaman) per BAB. AI akan menulis sepanjang mungkin, tapi untuk target di atas itu hasil per-BAB mungkin tidak mencapai jumlah persis — generate BAB berikutnya untuk melanjutkan.`;
   } else {
     note.style.display = 'none';
+  }
+}
+
+let fileLanjutanText = '';
+
+async function bacaFileLanjutan(input){
+  const file = input.files[0];
+  if(!file) return;
+  document.getElementById('fileLanjutanLabel').textContent = file.name;
+  document.getElementById('fileLanjutanStatus').textContent = 'Membaca file...';
+  try{
+    if(file.name.toLowerCase().endsWith('.docx')){
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({arrayBuffer});
+      fileLanjutanText = result.value || '';
+    } else {
+      fileLanjutanText = await file.text();
+    }
+    if(!fileLanjutanText.trim()){
+      document.getElementById('fileLanjutanStatus').textContent = 'File kosong atau tidak bisa dibaca.';
+      return;
+    }
+    const wc = fileLanjutanText.trim().split(/\s+/).filter(Boolean).length;
+    document.getElementById('fileLanjutanStatus').textContent = `✓ Terbaca (${wc.toLocaleString('id-ID')} kata). AI akan melanjutkan/menyesuaikan berdasarkan isi file ini.`;
+  }catch(e){
+    console.error(e);
+    document.getElementById('fileLanjutanStatus').textContent = 'Gagal membaca file: '+e.message+'. Coba format .docx atau .txt lain.';
+    fileLanjutanText = '';
   }
 }
 
@@ -734,10 +794,12 @@ Buat 12-15 entri referensi yang relevan dengan topik di atas (kombinasi buku, ju
   } else {
     // BAB 1, 2, atau 3
     const babDesc = {
-      'BAB 1': 'BAB I PENDAHULUAN yang mencakup: Latar Belakang (minimal 5 paragraf), Rumusan Masalah, Tujuan Penelitian, Manfaat Penelitian, dan Sistematika Penulisan',
+      'BAB 1': 'BAB I PENDAHULUAN yang mencakup: Latar Belakang, Rumusan Masalah, Tujuan Penelitian, Manfaat Penelitian, dan Sistematika Penulisan',
       'BAB 2': 'BAB II KAJIAN PUSTAKA yang mencakup: landasan teori dari para ahli, penelitian terdahulu yang relevan, kerangka pemikiran, dan hipotesis penelitian',
       'BAB 3': 'BAB III METODE PENELITIAN yang mencakup: jenis dan desain penelitian, populasi dan sampel, variabel penelitian, teknik pengumpulan data, dan teknik analisis data'
     };
+    const kataPerHalaman = 300;
+    const targetKata = parseInt(halaman, 10) * kataPerHalaman;
 
     prompt = `Tulis ${babDesc[jenisDokumen]} untuk skripsi berikut:
 
@@ -745,9 +807,13 @@ Judul: "${judul}"
 Jenis penelitian: ${jenis}
 Bidang studi: ${bidang || 'umum'}
 ${deskripsi ? 'Deskripsi tambahan: ' + deskripsi : ''}
-Target: sekitar ${halaman} halaman untuk keseluruhan skripsi
 ${(outlineMode==='sendiri' && outlineCustom) ? `\nPENTING: Ikuti STRUKTUR OUTLINE berikut ini apa adanya (jangan buat sub-bab baru di luar ini), dan tulis hanya bagian yang relevan dengan ${jenisDokumen}:\n${outlineCustom}\n` : ''}
-WAJIB: Sertakan kutipan dalam teks (in-text citation) format (Nama, Tahun) untuk setiap klaim, data, teori, atau pernyataan yang membutuhkan sumber — terutama di bagian latar belakang dan kajian pustaka. Prioritaskan sumber terbitan ${new Date().getFullYear()-5}-${new Date().getFullYear()} (5 tahun terakhir); teori klasik yang lebih lama boleh dipakai bila memang relevan dan penting. Jangan menulis klaim/statistik tanpa kutipan pendukung.
+${fileLanjutanText ? `\nBerikut isi dokumen skripsi yang SUDAH ADA sebelumnya (hasil BAB sebelumnya atau draf yang perlu dilanjutkan/diperbaiki). Lanjutkan dengan gaya bahasa dan konteks yang KONSISTEN dengan ini, jangan mengulang isi yang sudah ada:\n"""\n${fileLanjutanText.substring(0,6000)}\n"""\n` : ''}
+TARGET PANJANG: tulis sepanjang mungkin mendekati ${targetKata.toLocaleString('id-ID')} kata (setara ${halaman} halaman). Kembangkan setiap sub-bab secara mendalam dan substantif untuk mencapai target ini, jangan disingkat.
+${jenisDokumen==='BAB 1' ? `\nKHUSUS LATAR BELAKANG: tulis secara DEDUKTIF dan LINEAR — mulai dari konteks paling umum/luas (isu besar/global atau nasional), menyempit ke konteks yang lebih spesifik (bidang/lokasi/objek penelitian), lalu ke masalah spesifik yang diteliti, dan tutup dengan celah penelitian (research gap) yang mengarah ke rumusan masalah. Jangan melompat-lompat antar topik yang tidak berurutan.\n` : ''}
+WAJIB: Sertakan kutipan dalam teks (in-text citation) format (Nama, Tahun) untuk setiap klaim, data, teori, atau pernyataan yang membutuhkan sumber. Prioritaskan sumber terbitan ${new Date().getFullYear()-5}-${new Date().getFullYear()} (5 tahun terakhir); teori klasik yang lebih lama boleh dipakai bila memang relevan dan penting. Jangan menulis klaim/statistik tanpa kutipan pendukung.
+
+WAJIB: Di akhir tulisan, tambahkan bagian "DAFTAR PUSTAKA" (tulis persis dengan huruf kapital seperti itu di baris tersendiri) berisi SEMUA sumber yang dikutip di atas, format APA edisi ke-7, satu referensi per baris, diurutkan berdasarkan abjad nama penulis. Jangan lewatkan bagian ini walau hanya menulis satu BAB.
 
 Tulis dalam Bahasa Indonesia yang formal dan akademis. Isi harus detail, substantif, dan relevan dengan judul. Jangan gunakan format markdown atau tanda pagar.`;
   }
@@ -806,6 +872,78 @@ function copyHasil() {
   navigator.clipboard.writeText(text).then(() => showToast('Teks berhasil disalin!'));
 }
 
+// Bangun file .docx ASLI (bukan trik HTML) memakai library docx.js — supaya bold/center/spasi
+// konsisten di semua aplikasi (Word, WPS, Google Docs), tidak cuma di browser.
+async function buildSkripsiDocxBlob(text, judul, jenis, bidang, penulis, spasi, includeCover){
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, PageBreak } = docx;
+  const lineSpacingMap = { '1':240, '1.15':276, '1.5':360, '2':480 };
+  const lineVal = lineSpacingMap[spasi] || 360;
+  const children = [];
+
+  if(includeCover){
+    children.push(new Paragraph({ children:[new TextRun({text:(judul||'SKRIPSI').toUpperCase(), bold:true, size:30})], alignment: AlignmentType.CENTER, spacing:{after:500} }));
+    children.push(new Paragraph({ children:[new TextRun('PROPOSAL SKRIPSI')], alignment: AlignmentType.CENTER }));
+    if(jenis) children.push(new Paragraph({ children:[new TextRun('Jenis Penelitian: '+jenis)], alignment: AlignmentType.CENTER }));
+    children.push(new Paragraph({ children:[new TextRun(bidang||' ')], alignment: AlignmentType.CENTER, spacing:{after:500} }));
+    children.push(new Paragraph({ children:[new TextRun('Disusun oleh:')], alignment: AlignmentType.CENTER, spacing:{before:700} }));
+    children.push(new Paragraph({ children:[new TextRun({text:penulis || '......................................', bold:true})], alignment: AlignmentType.CENTER }));
+    children.push(new Paragraph({ children:[new TextRun('NIM. ......................................')], alignment: AlignmentType.CENTER }));
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+  }
+
+  const lines = (text||'').split('\n');
+  let inPustaka = false;
+  let paraBuffer = [];
+  function flushPara(){
+    if(paraBuffer.length){
+      const joined = paraBuffer.join(' ').trim();
+      if(joined){
+        children.push(new Paragraph({
+          children:[new TextRun(joined)],
+          alignment: AlignmentType.JUSTIFIED,
+          indent: { firstLine: 720 },
+          spacing: { line: lineVal, after: 200 }
+        }));
+      }
+      paraBuffer = [];
+    }
+  }
+  lines.forEach(raw=>{
+    const line = (raw||'').trim();
+    if(!line){ flushPara(); return; }
+    if(/^DAFTAR PUSTAKA$/i.test(line)){
+      flushPara();
+      inPustaka = true;
+      children.push(new Paragraph({ children:[new TextRun({text:'DAFTAR PUSTAKA', bold:true})], alignment: AlignmentType.CENTER, spacing:{before:500, after:250} }));
+      return;
+    }
+    if(inPustaka){
+      children.push(new Paragraph({
+        children:[new TextRun(line)],
+        indent: { left:720, hanging:720 },
+        spacing: { line: lineVal, after: 160 }
+      }));
+      return;
+    }
+    if(/^BAB\s+[IVXLC]+/i.test(line)){
+      flushPara();
+      children.push(new Paragraph({ children:[new TextRun({text:line.toUpperCase(), bold:true})], alignment: AlignmentType.CENTER, spacing:{before:400} }));
+    } else if(/^[A-Z][A-Z\s]{3,59}$/.test(line) && line.split(' ').length<=6){
+      flushPara();
+      children.push(new Paragraph({ children:[new TextRun({text:line, bold:true})], alignment: AlignmentType.CENTER, spacing:{after:300} }));
+    } else if(/^\d+(\.\d+){1,2}\s+\S/.test(line)){
+      flushPara();
+      children.push(new Paragraph({ children:[new TextRun({text:line, bold:true})], spacing:{before:300, after:150} }));
+    } else {
+      paraBuffer.push(line);
+    }
+  });
+  flushPara();
+
+  const docObj = new Document({ sections: [{ children }] });
+  return await Packer.toBlob(docObj);
+}
+
 function escapeHtmlSkripsi(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // Detect BAB headers, section titles (ALL CAPS), and numbered sub-headings (1.1, 2.3, ...)
@@ -841,40 +979,50 @@ function formatSkripsiBody(text){
   return html;
 }
 
-function buildCoverHtmlSkripsi(judul, jenis, bidang){
+function buildCoverHtmlSkripsi(judul, jenis, bidang, penulis){
   return `<div style="text-align:center;padding:50px 10px 30px;">
     <div style="font-size:15px;font-weight:800;text-transform:uppercase;line-height:1.5;margin-bottom:36px;">${escapeHtmlSkripsi(judul)}</div>
     <div style="font-size:12px;margin-bottom:4px;">PROPOSAL SKRIPSI</div>
     ${jenis?`<div style="font-size:12px;">Jenis Penelitian: ${escapeHtmlSkripsi(jenis)}</div>`:''}
     ${bidang?`<div style="font-size:12px;margin-bottom:36px;">${escapeHtmlSkripsi(bidang)}</div>`:'<div style="margin-bottom:36px;"></div>'}
     <div style="font-size:12px;">Disusun oleh:</div>
-    <div style="font-size:13px;font-weight:700;">......................................</div>
+    <div style="font-size:13px;font-weight:700;">${penulis ? escapeHtmlSkripsi(penulis) : '......................................'}</div>
     <div style="font-size:11px;margin-top:2px;">NIM. ......................................</div>
   </div>`;
 }
 
-function downloadHasil(type) {
+async function downloadHasil(type) {
   const text = document.getElementById('hasilText').textContent;
   if (!text) { showToast('Belum ada hasil untuk diunduh'); return; }
   const judul = document.getElementById('judulSkripsi').value.trim() || 'Skripsi';
   const jenis = document.querySelector('.type-pill.active')?.textContent.trim() || '';
   const bidang = document.getElementById('bidang').value;
+  const penulis = document.getElementById('namaPenulisSkripsi').value.trim();
+  const spasi = document.getElementById('spasiBaris').value;
   const jenisDokumen = document.getElementById('jenisDokumen').value;
   const filename = judul.substring(0, 40).replace(/[^a-z0-9]+/gi, '_');
-
   const includeCover = ['BAB 1','BAB 2','BAB 3','outline'].includes(jenisDokumen);
-  const bodyHtml = (includeCover ? buildCoverHtmlSkripsi(judul, jenis, bidang) + '<hr style="margin:22px 0;border:none;border-top:1px dashed #ccc;">' : '')
-    + formatSkripsiBody(text);
 
-  if (type === 'pdf') {
-    const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>${judul}</title><meta charset="utf-8"><style>
-      body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.8;padding:40px;}
-    </style></head><body>${bodyHtml}</body></html>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 400);
-  } else if (type === 'word') {
+  if (type === 'word') {
+    if (typeof docx !== 'undefined') {
+      try {
+        const blob = await buildSkripsiDocxBlob(text, judul, jenis, bidang, penulis, spasi, includeCover);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename + '.docx';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('File Word (.docx) berhasil diunduh!');
+        return;
+      } catch (e) {
+        console.error('docx build error, falling back to HTML export:', e);
+        showToast('Format lengkap gagal, mengunduh versi sederhana...');
+      }
+    } else {
+      showToast('Modul Word belum siap, mengunduh versi sederhana...');
+    }
+    // Fallback: HTML-trick .doc (styling lebih terbatas, tapi tetap bisa dibuka di Word)
+    const bodyHtml = (includeCover ? buildCoverHtmlSkripsi(judul, jenis, bidang, penulis) + '<hr style="margin:22px 0;border:none;border-top:1px dashed #ccc;">' : '') + formatSkripsiBody(text);
     const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
     <head><meta charset='utf-8'><title>${judul}</title></head>
     <body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${bodyHtml}</body></html>`;
@@ -884,7 +1032,20 @@ function downloadHasil(type) {
     a.href = url; a.download = filename + '.doc';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('File Word berhasil diunduh!');
+    return;
+  }
+
+  const bodyHtml = (includeCover ? buildCoverHtmlSkripsi(judul, jenis, bidang, penulis) + '<div style="page-break-after:always;"></div>' : '') + formatSkripsiBody(text);
+
+  if (type === 'pdf') {
+    const lineHeightCss = {'1':'1.0','1.15':'1.15','1.5':'1.5','2':'2.0'}[spasi] || '1.5';
+    const win = window.open('', '_blank');
+    win.document.write(`<html><head><title>${judul}</title><meta charset="utf-8"><style>
+      body{font-family:'Times New Roman',serif;font-size:12pt;line-height:${lineHeightCss};padding:40px;}
+    </style></head><body>${bodyHtml}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
   } else {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
