@@ -80,7 +80,27 @@
 function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
 function selectPill(btn){btn.closest('.type-pills').querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
 function switchMode(btn,mode){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('mode-baru').style.display=mode==='baru'?'block':'none';document.getElementById('mode-konversi').style.display=mode==='konversi'?'block':'none';}
-function generate(){showToast('Memproses jurnal...');setTimeout(()=>window.location.href='hasil-tugas.html',1500);}
+function generate(){
+  const judul=document.querySelector('#mode-baru .form-input')?.value.trim();
+  const bidang=document.querySelector('#mode-baru .type-pills:nth-of-type(1) .type-pill.active')?.textContent||document.querySelectorAll('#mode-baru .type-pills .type-pill.active')[0]?.textContent||'Umum';
+  const gaya=document.querySelectorAll('#mode-baru .type-pills .type-pill.active')[1]?.textContent||'SINTA';
+  const abstrakInput=document.querySelector('#mode-baru .form-textarea')?.value.trim();
+  const isKonversi=document.getElementById('mode-konversi').style.display!=='none';
+
+  let prompt;
+  if(isKonversi){
+    const jurnalTarget=document.querySelector('#mode-konversi .form-input')?.value.trim();
+    prompt=`Buatkan sebuah jurnal akademik lengkap gaya ${jurnalTarget?('untuk '+jurnalTarget):'SINTA'} hasil konversi dari naskah skripsi (asumsikan naskah berisi penelitian ilmiah standar mahasiswa Indonesia). Sertakan: Judul, Abstrak (ID & EN), Pendahuluan, Metode, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka. Tulis dalam Bahasa Indonesia akademik.`;
+  } else {
+    if(!judul){showToast('Isi judul jurnal terlebih dahulu');return;}
+    prompt=`Buatkan jurnal akademik lengkap dengan format ${gaya} untuk bidang ilmu ${bidang}. Judul: "${judul}". ${abstrakInput?('Ringkasan penelitian: '+abstrakInput):''}\nSertakan: Judul, Abstrak (Bahasa Indonesia & Inggris), Kata Kunci, Pendahuluan, Metode Penelitian, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka. Tulis dalam Bahasa Indonesia yang formal dan akademis.`;
+  }
+
+  localStorage.setItem('task_prompt', judul || (isKonversi ? 'Jurnal dari Skripsi' : 'Jurnal Akademik'));
+  localStorage.setItem('task_full_prompt', prompt);
+  showToast('Memproses jurnal dengan AI...');
+  setTimeout(()=>window.location.href='hasil-tugas.html',600);
+}
 if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
 </script>
 </body>

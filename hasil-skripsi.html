@@ -261,9 +261,18 @@ if(outline.length){
     </div>
   `).join('<div style="border-top:1px solid var(--gray-100);margin:8px 0;"></div>');
 }
-// Ringkasan
-if(data.judul){
-  document.getElementById('ringkasanText').textContent=`Penelitian ini berjudul "${data.judul}". Penelitian ini menggunakan metode ${data.jenis||'kuantitatif'} untuk menganalisis topik yang telah ditentukan. Hasil penelitian menunjukkan temuan-temuan signifikan yang dapat bermanfaat bagi pengembangan ilmu pengetahuan di bidang terkait.`;
+// Ringkasan & isi lengkap (pakai hasil AI beneran kalau ada)
+const skripsiHasil=localStorage.getItem('skripsi_hasil')||'';
+if(skripsiHasil){
+  document.getElementById('ringkasanText').textContent=skripsiHasil.substring(0,500)+(skripsiHasil.length>500?'...':'');
+  const wc=skripsiHasil.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('totalKata').textContent=wc.toLocaleString('id-ID')+' kata';
+  const isiDiv=document.createElement('div');
+  isiDiv.style.cssText='font-size:13px;color:var(--gray-700);line-height:1.7;white-space:pre-wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-100);';
+  isiDiv.textContent=skripsiHasil;
+  document.getElementById('tab-ringkasan').appendChild(isiDiv);
+} else if(data.judul){
+  document.getElementById('ringkasanText').textContent=`Penelitian ini berjudul "${data.judul}". Penelitian ini menggunakan metode ${data.jenis||'kuantitatif'} untuk menganalisis topik yang telah ditentukan. Belum ada isi lengkap tersimpan — buat dari halaman Skripsi atau Konfirmasi Generate terlebih dahulu.`;
 }
 function switchTab(tab, btn){
   document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('active'));
@@ -271,7 +280,36 @@ function switchTab(tab, btn){
   ['preview','outline','ringkasan','info'].forEach(t=>document.getElementById('tab-'+t).style.display='none');
   document.getElementById('tab-'+tab).style.display='block';
 }
-function downloadFile(type){showToast(`Mengunduh ${type}... (Segera hadir)`);}
+function downloadFile(type){
+  const text = localStorage.getItem('skripsi_hasil') || '';
+  if(!text){ showToast('Belum ada konten skripsi tersimpan. Buat dari halaman Skripsi dulu.'); return; }
+  const judul = (data.judul || 'Skripsi').substring(0,40).replace(/[^a-z0-9]+/gi,'_');
+  const bodyHtml = text.split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,'<br>').replace(/</g,'&lt;')}</p>`).join('');
+
+  if(type==='PDF'){
+    const win=window.open('','_blank');
+    win.document.write(`<html><head><title>${judul}</title><meta charset="utf-8"><style>body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.8;padding:40px;text-align:justify;}p{margin:0 0 14px;text-indent:1.25cm;}</style></head><body>${bodyHtml}</body></html>`);
+    win.document.close(); win.focus();
+    setTimeout(()=>win.print(),400);
+  } else if(type==='Word'){
+    const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${judul}</title></head><body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${bodyHtml}</body></html>`;
+    const blob=new Blob(['\ufeff',html],{type:'application/msword'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=judul+'.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File Word berhasil diunduh!');
+  } else if(type==='TXT'){
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=judul+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File TXT berhasil diunduh!');
+  } else {
+    showToast(type+' export belum didukung, gunakan Word/PDF/TXT untuk saat ini.');
+  }
+}
 function showMenu(){showToast('Menu aksi');}
 </script>
 </body>

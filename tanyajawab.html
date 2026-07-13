@@ -149,10 +149,11 @@ async function sendQA(){
   addMsg('user',msg);
   showTypingQA();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:'Kamu adalah asisten akademik AI dari asistenku.pro. Jawab pertanyaan seputar skripsi, tesis, penelitian, metodologi, dan penulisan akademik dalam Bahasa Indonesia. Jawab dengan jelas, terstruktur, dan berikan contoh praktis jika perlu.',messages:qaChatHistory})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'Kamu adalah asisten akademik AI dari asistenku.pro. Jawab pertanyaan seputar skripsi, tesis, penelitian, metodologi, dan penulisan akademik dalam Bahasa Indonesia. Jawab dengan jelas, terstruktur, dan berikan contoh praktis jika perlu.',messages:qaChatHistory})});
     const data=await res.json();
     document.getElementById('typingQA')?.remove();
-    const reply=data.content?.[0]?.text||'Maaf, terjadi kesalahan.';
+    if(!res.ok){ addMsg('bot', data.error||'Gagal terhubung ke server.'); return; }
+    const reply=data.text||'Maaf, terjadi kesalahan.';
     addMsg('bot',reply);
   }catch(e){document.getElementById('typingQA')?.remove();addMsg('bot','Gagal terhubung ke AI. Periksa koneksi internet Anda.');}
 }
@@ -163,9 +164,10 @@ async function doKoreksi(){
   const jenis=document.querySelector('.type-pills .type-pill.active')?.textContent||'Tata Bahasa';
   showToast('Menganalisis teks...');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Koreksi teks berikut untuk ${jenis} dalam Bahasa Indonesia. Berikan:\n1. Teks yang sudah dikoreksi (tandai perubahan dengan [SEBELUM→SESUDAH])\n2. Penjelasan singkat setiap koreksi\n\nTeks: "${text}"`}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Koreksi teks berikut untuk ${jenis} dalam Bahasa Indonesia. Berikan:\n1. Teks yang sudah dikoreksi (tandai perubahan dengan [SEBELUM→SESUDAH])\n2. Penjelasan singkat setiap koreksi\n\nTeks: "${text}"`}]})});
     const data=await res.json();
-    const result=data.content?.[0]?.text||'';
+    if(!res.ok){ showToast(data.error||'Gagal terhubung ke server'); return; }
+    const result=data.text||'';
     const parts=result.split(/\d\.\s+(?:Teks|Penjelasan)/i);
     document.getElementById('koreksiText').innerHTML=(parts[1]||result).trim().replace(/\[(.*?)→(.*?)\]/g,'<span class="diff-old">$1</span> <span class="diff-new">$2</span>').replace(/\n/g,'<br>');
     document.getElementById('koreksiExplain').innerHTML=(parts[2]||'Silakan periksa hasil koreksi di atas.').trim().replace(/\n/g,'<br>');

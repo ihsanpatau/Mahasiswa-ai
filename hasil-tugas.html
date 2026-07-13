@@ -197,23 +197,23 @@
     <div style="padding:0 16px 14px;">
       <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">Download Dokumen</div>
       <div style="display:flex;gap:8px;overflow-x:auto;">
-        <div onclick="showToast('Mengunduh Word...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+        <div onclick="downloadHasilTugas('word')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
           <div style="width:48px;height:44px;background:#2B579A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">W</div>
           <div style="font-size:10px;color:var(--gray-500);">Word (.docx)</div>
         </div>
-        <div onclick="showToast('Mengunduh PDF...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+        <div onclick="downloadHasilTugas('pdf')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
           <div style="width:48px;height:44px;background:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PDF</div>
           <div style="font-size:10px;color:var(--gray-500);">PDF</div>
         </div>
-        <div onclick="showToast('Mengunduh PPT...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+        <div onclick="downloadHasilTugas('ppt')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
           <div style="width:48px;height:44px;background:#D97706;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PPT</div>
           <div style="font-size:10px;color:var(--gray-500);">PowerPoint</div>
         </div>
-        <div onclick="showToast('Mengunduh Excel...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+        <div onclick="downloadHasilTugas('xls')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
           <div style="width:48px;height:44px;background:#16A34A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">XLS</div>
           <div style="font-size:10px;color:var(--gray-500);">Excel</div>
         </div>
-        <div onclick="showToast('Mengunduh TXT...')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+        <div onclick="downloadHasilTugas('txt')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
           <div style="width:48px;height:44px;background:#6B7280;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">TXT</div>
           <div style="font-size:10px;color:var(--gray-500);">TXT</div>
         </div>
@@ -248,20 +248,63 @@ if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
 const now=new Date();
 document.getElementById('hasilTanggalTugas').textContent=`${now.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'][now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} WIB`;
 const prompt=localStorage.getItem('task_prompt');
-if(prompt){document.getElementById('hasilJudulTugas').textContent=prompt.substring(0,30)+(prompt.length>30?'...':'');document.getElementById('namaFileTugas').textContent=prompt.substring(0,20).replace(/\s/g,'_')+'.docx';document.getElementById('previewTitleTugas').textContent=prompt.toUpperCase();document.getElementById('ringkasanTugas').textContent=`AI telah memproses tugas "${prompt}" dengan hasil yang baik dan lengkap sesuai permintaan Anda.`;}
+const fullPromptOverride=localStorage.getItem('task_full_prompt');
+if(prompt){document.getElementById('hasilJudulTugas').textContent=prompt.substring(0,30)+(prompt.length>30?'...':'');document.getElementById('namaFileTugas').textContent=prompt.substring(0,20).replace(/\s/g,'_')+'.docx';document.getElementById('previewTitleTugas').textContent=prompt.toUpperCase();document.getElementById('ringkasanTugas').textContent='⏳ AI sedang memproses tugasmu, mohon tunggu...';}
+
+let hasilTugasFull = '';
 
 // Auto-generate content
 async function generateContent(){
   const p=localStorage.getItem('task_prompt');
   if(!p)return;
+  const promptToSend = fullPromptOverride || `Kerjakan tugas berikut dalam Bahasa Indonesia. Tulis lengkap: seluruh isi/hasil tugasnya (bukan ringkasan), lalu di baris paling akhir tambahkan satu baris ringkasan diawali dengan tanda '---RINGKASAN---'. Tugas: "${p}". Mulai langsung dengan konten, tanpa preamble.`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Kerjakan tugas berikut dalam Bahasa Indonesia dan buat ringkasan singkat (2-3 kalimat) hasilnya: "${p}". Mulai langsung dengan konten, tanpa preamble.`}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:promptToSend}]})});
     const data=await res.json();
-    const text=data.content?.[0]?.text||'';
-    if(text) document.getElementById('ringkasanTugas').textContent=text.substring(0,300)+'...';
-  }catch(e){}
+    if(!res.ok){ throw new Error(data.error||'Gagal terhubung ke server'); }
+    const full=data.text||'';
+    const parts=full.split('---RINGKASAN---');
+    const text=(parts[1]||parts[0]).trim();
+    hasilTugasFull = parts[0].trim() || full;
+    localStorage.setItem('task_result', hasilTugasFull);
+    if(text) document.getElementById('ringkasanTugas').textContent=text.substring(0,300)+(text.length>300?'...':'');
+  }catch(e){
+    document.getElementById('ringkasanTugas').textContent='Gagal menghasilkan tugas. Periksa koneksi internet lalu coba lagi dari halaman sebelumnya.';
+    showToast('Gagal terhubung ke AI');
+  }
 }
 generateContent();
+
+function downloadHasilTugas(type){
+  const text = hasilTugasFull || localStorage.getItem('task_result') || '';
+  if(!text){ showToast('Konten masih diproses, tunggu sebentar lagi'); return; }
+  const judul = (prompt||'Tugas').substring(0,40).replace(/[^a-z0-9]+/gi,'_');
+  const bodyHtml = text.split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,'<br>').replace(/</g,'&lt;')}</p>`).join('');
+
+  if(type==='pdf'){
+    const win=window.open('','_blank');
+    win.document.write(`<html><head><title>${judul}</title><meta charset="utf-8"><style>body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.8;padding:40px;text-align:justify;}p{margin:0 0 14px;}</style></head><body>${bodyHtml}</body></html>`);
+    win.document.close(); win.focus();
+    setTimeout(()=>win.print(),400);
+  } else if(type==='word'){
+    const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${judul}</title></head><body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${bodyHtml}</body></html>`;
+    const blob=new Blob(['\ufeff',html],{type:'application/msword'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=judul+'.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File Word berhasil diunduh!');
+  } else if(type==='txt'){
+    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=judul+'.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File TXT berhasil diunduh!');
+  } else {
+    showToast(type.toUpperCase()+' export belum didukung, gunakan Word/PDF/TXT untuk saat ini.');
+  }
+}
 
 function switchTab(tab,btn){
   document.querySelectorAll('.tab-item').forEach(b=>{b.classList.remove('active');b.style.color='';b.style.borderBottomColor='';});

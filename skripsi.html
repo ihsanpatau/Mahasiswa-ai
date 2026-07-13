@@ -466,6 +466,21 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F4FF; color:
       </div>
       <div class="hasil-content" id="hasilText"></div>
 
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="hasil-action-btn" onclick="downloadHasil('word')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M12 15l-4-4M12 15l4-4"/><path d="M20 21H4a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2z"/></svg>
+          Unduh Word
+        </button>
+        <button class="hasil-action-btn" onclick="downloadHasil('pdf')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/></svg>
+          Cetak PDF
+        </button>
+        <button class="hasil-action-btn" onclick="downloadHasil('txt')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Unduh TXT
+        </button>
+      </div>
+
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-200);">
         <button class="btn-primary" onclick="lanjutBab()">
           Lanjut Bab Berikutnya
@@ -553,12 +568,10 @@ async function getJudul() {
   resultsDiv.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);">⏳ AI sedang membuat judul...</div>';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 800,
         messages: [{
           role: 'user',
           content: `Buatkan 5 judul skripsi/penelitian dalam Bahasa Indonesia untuk topik: "${topik}". 
@@ -569,7 +582,8 @@ Jangan ada teks lain, hanya JSON.`
     });
 
     const data = await res.json();
-    const text = data.content?.[0]?.text || '[]';
+    if (!res.ok) throw new Error(data.error || 'Gagal terhubung ke server');
+    const text = data.text || '[]';
     const clean = text.replace(/```json|```/g, '').trim();
     const juduls = JSON.parse(clean);
 
@@ -660,12 +674,10 @@ Tulis dalam Bahasa Indonesia yang formal dan akademis. Isi harus detail, substan
   }
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
         system: `Kamu adalah asisten akademik profesional dari asistenku.pro. Kamu membantu mahasiswa Indonesia menulis karya ilmiah berkualitas.
 
 ATURAN PENULISAN PENTING:
@@ -682,9 +694,10 @@ ATURAN PENULISAN PENTING:
 
     const data = await res.json();
     document.getElementById('loadingState').style.display = 'none';
+    if (!res.ok) throw new Error(data.error || 'Gagal terhubung ke server');
 
-    if (data.content?.[0]?.text) {
-      const result = data.content[0].text;
+    if (data.text) {
+      const result = data.text;
       document.getElementById('hasilText').textContent = result;
       document.getElementById('hasilContent').style.display = 'block';
 
@@ -711,6 +724,44 @@ ATURAN PENULISAN PENTING:
 function copyHasil() {
   const text = document.getElementById('hasilText').textContent;
   navigator.clipboard.writeText(text).then(() => showToast('Teks berhasil disalin!'));
+}
+
+function downloadHasil(type) {
+  const text = document.getElementById('hasilText').textContent;
+  if (!text) { showToast('Belum ada hasil untuk diunduh'); return; }
+  const judul = document.getElementById('judulSkripsi').value.trim() || 'Skripsi';
+  const filename = judul.substring(0, 40).replace(/[^a-z0-9]+/gi, '_');
+  const bodyHtml = text.split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g, '<br>').replace(/</g, '&lt;')}</p>`).join('');
+
+  if (type === 'pdf') {
+    const win = window.open('', '_blank');
+    win.document.write(`<html><head><title>${judul}</title><meta charset="utf-8"><style>
+      body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.8;padding:40px;text-align:justify;}
+      p{margin:0 0 14px;text-indent:1.25cm;}
+    </style></head><body>${bodyHtml}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+  } else if (type === 'word') {
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>${judul}</title></head>
+    <body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${bodyHtml}</body></html>`;
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename + '.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File Word berhasil diunduh!');
+  } else {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename + '.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('File TXT berhasil diunduh!');
+  }
 }
 
 function generateLagi() {

@@ -92,9 +92,10 @@ async function doParafrase(){
   if(!text){showToast('Masukkan teks yang ingin diparafrase');return;}
   showToast('Memparafrase teks...');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Parafrasekan teks berikut dalam Bahasa Indonesia dengan tingkat perubahan ${level()} dan gaya bahasa ${style()}. Pastikan makna tetap sama tapi kalimat berbeda signifikan untuk menghindari plagiarisme. Langsung tulis hasil parafrase tanpa penjelasan:\n\n${text}`}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Parafrasekan teks berikut dalam Bahasa Indonesia dengan tingkat perubahan ${level()} dan gaya bahasa ${style()}. Pastikan makna tetap sama tapi kalimat berbeda signifikan untuk menghindari plagiarisme. Langsung tulis hasil parafrase tanpa penjelasan:\n\n${text}`}]})});
     const data=await res.json();
-    const result=data.content?.[0]?.text||'';
+    if(!res.ok){ throw new Error(data.error||'Gagal terhubung ke server'); }
+    const result=data.text||'';
     document.getElementById('resultText').innerHTML=result.replace(/\n/g,'<br>');
     const change=Math.floor(Math.random()*20)+65;
     document.getElementById('simScore').textContent=(100-change)+'%';

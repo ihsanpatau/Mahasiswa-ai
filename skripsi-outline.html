@@ -159,9 +159,10 @@ async function regenerateOutline(){
   if(!data.judul){showToast('Data judul tidak ditemukan');return;}
   document.getElementById('outlineList').innerHTML='<div style="text-align:center;padding:30px;color:var(--gray-400);">⏳ Membuat outline dengan AI...</div>';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Buatkan outline skripsi untuk judul: "${data.judul}", jenis: ${data.jenis||'Kuantitatif'}. Buat 5 BAB dengan masing-masing 4 sub-bab. Format JSON array: [{num:"BAB I", title:"...", subs:["...","...","...","..."]}]. Hanya JSON.`}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Buatkan outline skripsi untuk judul: "${data.judul}", jenis: ${data.jenis||'Kuantitatif'}. Buat 5 BAB dengan masing-masing 4 sub-bab. Format JSON array: [{num:"BAB I", title:"...", subs:["...","...","...","..."]}]. Hanya JSON.`}]})});
     const d2=await res.json();
-    const txt=d2.content?.[0]?.text||'[]';
+    if(!res.ok) throw new Error(d2.error||'Gagal terhubung ke server');
+    const txt=d2.text||'[]';
     const clean=txt.replace(/```json|```/g,'').trim();
     renderOutline(JSON.parse(clean));
     showToast('Outline berhasil dibuat ✓');

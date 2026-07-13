@@ -103,9 +103,10 @@ ABSTRACT_ENG:
 [Abstract in English 150-250 words]
 Keywords: [5 keywords]`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
-    const result=data.content?.[0]?.text||'';
+    if(!res.ok){ throw new Error(data.error||'Gagal terhubung ke server'); }
+    const result=data.text||'';
     const indoMatch=result.match(/ABSTRAK_INDO:\n([\s\S]*?)(?=ABSTRACT_ENG:|$)/);
     const engMatch=result.match(/ABSTRACT_ENG:\n([\s\S]*?)$/);
     document.getElementById('abstrakIndo').innerHTML=(indoMatch?.[1]||result.split('\n\n')[0]||result).trim().replace(/\n/g,'<br>');

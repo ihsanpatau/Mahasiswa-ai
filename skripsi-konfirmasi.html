@@ -127,22 +127,50 @@ const steps=[
   {pct:100,msg:'Finalisasi dokumen...'},
 ];
 
-function startGenerate(){
+function updateProgress(i){
+  const s=steps[Math.min(i,steps.length-1)];
+  document.getElementById('generateProgress').style.width=s.pct+'%';
+  document.getElementById('progressPct').textContent=s.pct+'%';
+  document.getElementById('generateStatus').textContent=s.msg;
+}
+
+async function generateBab(babLabel, babDesc){
+  const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    system:'Kamu adalah asisten akademik profesional dari asistenku.pro. Tulis dalam Bahasa Indonesia formal dan akademis. JANGAN gunakan tanda pagar (#) atau format markdown.',
+    messages:[{role:'user',content:`Tulis ${babDesc} untuk skripsi berjudul: "${data.judul||'Penelitian'}". Jenis penelitian: ${data.jenis||'Kuantitatif'}. Tulis lengkap dan substantif.`}]
+  })});
+  const d=await res.json();
+  if(!res.ok) throw new Error(d.error||'Gagal terhubung ke server');
+  return d.text||'';
+}
+
+async function startGenerate(){
   document.getElementById('btnGenerate').style.display='none';
   document.getElementById('generatingView').style.display='block';
-  let i=0;
-  function next(){
-    if(i>=steps.length){
-      setTimeout(()=>window.location.href='hasil-skripsi.html',800);
-      return;
+  const babList=[
+    ['BAB I','BAB I PENDAHULUAN (Latar Belakang, Rumusan Masalah, Tujuan, Manfaat Penelitian)'],
+    ['BAB II','BAB II TINJAUAN PUSTAKA (landasan teori, penelitian terdahulu, kerangka berpikir, hipotesis)'],
+    ['BAB III','BAB III METODE PENELITIAN (jenis penelitian, populasi & sampel, teknik pengumpulan & analisis data)'],
+    ['BAB IV','BAB IV HASIL DAN PEMBAHASAN (gambaran umum, hasil penelitian, pembahasan)'],
+    ['BAB V','BAB V PENUTUP (simpulan, saran)'],
+  ];
+  let fullText='';
+  try{
+    for(let i=0;i<babList.length;i++){
+      updateProgress(i);
+      const [label,desc]=babList[i];
+      const text=await generateBab(label,desc);
+      fullText+=(fullText?'\n\n':'')+text;
     }
-    const s=steps[i++];
-    document.getElementById('generateProgress').style.width=s.pct+'%';
-    document.getElementById('progressPct').textContent=s.pct+'%';
-    document.getElementById('generateStatus').textContent=s.msg;
-    setTimeout(next,1400);
+    updateProgress(steps.length-1);
+    localStorage.setItem('skripsi_hasil', fullText);
+    setTimeout(()=>window.location.href='hasil-skripsi.html',600);
+  }catch(e){
+    document.getElementById('generateStatus').textContent='Gagal menghubungi AI: '+e.message;
+    showToast('Gagal generate skripsi. Coba lagi.');
+    document.getElementById('btnGenerate').style.display='block';
+    document.getElementById('generatingView').style.display='none';
   }
-  next();
 }
 </script>
 </body>

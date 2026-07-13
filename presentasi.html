@@ -108,9 +108,10 @@ async function generatePPT(){
   const konten=document.getElementById('kontenPPT').value.trim();
   showToast('Membuat outline presentasi...');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Buatkan outline ${jumlah} slide presentasi untuk ${tujuan} dengan topik: "${topik}".${konten?' Konten: '+konten.substring(0,500):''}\n\nFormat JSON array: [{"num":1,"title":"Judul Slide","points":["Poin 1","Poin 2","Poin 3"]}]\nHanya JSON, tidak ada teks lain.`}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Buatkan outline ${jumlah} slide presentasi untuk ${tujuan} dengan topik: "${topik}".${konten?' Konten: '+konten.substring(0,500):''}\n\nFormat JSON array: [{"num":1,"title":"Judul Slide","points":["Poin 1","Poin 2","Poin 3"]}]\nHanya JSON, tidak ada teks lain.`}]})});
     const data=await res.json();
-    const text=data.content?.[0]?.text||'[]';
+    if(!res.ok){ throw new Error(data.error||'Gagal terhubung ke server'); }
+    const text=data.text||'[]';
     const clean=text.replace(/\`\`\`json|\`\`\`/g,'').trim();
     slides=JSON.parse(clean);
     renderSlides(slides);
