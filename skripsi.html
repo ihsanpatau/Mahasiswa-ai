@@ -312,7 +312,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F4FF; color:
       <p>Dari judul, outline, hingga setiap bab — semua dibantu AI.</p>
     </div>
     <div class="skripsi-hero-img">
-      <img src="img/cat-main.png" alt="Maskot">
+      <img src="cat-main.png" alt="Maskot">
     </div>
   </div>
 
@@ -734,6 +734,18 @@ function pilihModeOutline(mode){
   document.getElementById('outlineSendiriWrap').style.display = mode==='sendiri' ? 'block' : 'none';
 }
 
+function setStep(n){
+  for(let i=1;i<=3;i++){
+    const el=document.getElementById('step'+i+'El');
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  }
+  const line1=document.getElementById('line1'), line2=document.getElementById('line2');
+  line1.style.background = n>1 ? '#10B981' : '';
+  line2.style.background = n>2 ? '#10B981' : '';
+}
+
 async function generateSkripsi() {
   const judul = document.getElementById('judulSkripsi').value.trim();
   const jenis = document.querySelector('.type-pill.active')?.textContent.trim() || 'Kuantitatif';
@@ -755,6 +767,7 @@ async function generateSkripsi() {
   document.getElementById('loadingState').style.display = 'flex';
   document.getElementById('hasilContent').style.display = 'none';
   document.getElementById('hasilLabel').textContent = `Hasil: ${jenisDokumen}`;
+  setStep(2);
 
   // Scroll ke bawah
   hasilArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -846,6 +859,7 @@ ATURAN PENULISAN PENTING:
       const result = data.text;
       document.getElementById('hasilText').textContent = result;
       document.getElementById('hasilContent').style.display = 'block';
+      setStep(3);
 
       // Simpan untuk keperluan lanjut
       localStorage.setItem('skripsi_hasil', result);
@@ -864,6 +878,7 @@ ATURAN PENULISAN PENTING:
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('hasilContent').style.display = 'block';
     document.getElementById('hasilText').textContent = 'Gagal menghubungi AI. Pastikan koneksi internetmu aktif lalu coba lagi.';
+    setStep(1);
   }
 }
 
