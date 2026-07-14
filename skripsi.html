@@ -1033,51 +1033,70 @@ ${deskripsi ? 'Deskripsi: ' + deskripsi : ''}
 
 Buat 12-15 entri referensi yang relevan dengan topik di atas (kombinasi buku, jurnal, dan sumber resmi/pemerintah). Prioritaskan tahun terbit ${tahunSekarang - 5}-${tahunSekarang} (5 tahun terakhir), boleh menyertakan beberapa sumber teori klasik yang lebih lama bila memang relevan. Urutkan berdasarkan abjad nama penulis. Tulis dalam format APA yang benar (Nama Penulis. (Tahun). Judul karya. Nama Penerbit/Jurnal.). Tulis judul karya apa adanya tanpa tanda bintang atau markdown apapun. Satu referensi per baris.`;
   } else {
-    // BAB 1-5
+    // BAB 1-5 — sistem PRIORITAS (bukan persentase tetap): poin utama boleh
+    // "makan" kata sesuai kebutuhan (mis. makin banyak kutipan di Latar Belakang),
+    // poin sekunder menyesuaikan dari SISA kata yang tersisa, dan Daftar Pustaka
+    // dihitung dari kutipan yang BENAR-BENAR dipakai di poin utama — bukan angka
+    // yang ditebak di awal lalu dipaksakan.
     const babInfo = {
       'BAB 1': {
         judulBab: 'BAB I PENDAHULUAN',
-        poin: [
-          { nama: 'Latar Belakang', bobot: 0.40, catatan: 'tulis DEDUKTIF dan LINEAR — dari konteks umum/global, menyempit ke spesifik, lalu ke research gap yang mengarah ke rumusan masalah. Bagian ini paling panjang karena harus membangun argumen bertahap.' },
-          { nama: 'Rumusan Masalah', bobot: 0.15, catatan: '3-4 pertanyaan penelitian, ringkas dan tajam' },
-          { nama: 'Tujuan Penelitian', bobot: 0.15, catatan: 'selaras 1:1 dengan tiap rumusan masalah, ringkas' },
-          { nama: 'Manfaat Penelitian', bobot: 0.15, catatan: 'manfaat teoretis dan praktis, ringkas — tidak perlu diuraikan panjang' },
-          { nama: 'Sistematika Penulisan', bobot: 0.15, catatan: 'ringkasan 1 paragraf per BAB, paling ringkas dari semua poin' }
+        semuaPoin: ['Latar Belakang', 'Rumusan Masalah', 'Tujuan Penelitian', 'Manfaat Penelitian', 'Sistematika Penulisan'],
+        utama: [
+          { nama: 'Latar Belakang', catatan: 'tulis DEDUKTIF dan LINEAR — dari konteks umum/global, menyempit ke spesifik, lalu ke research gap yang mengarah ke rumusan masalah. Sertakan kutipan (Nama, Tahun) sebanyak yang argumennya butuhkan — ini bagian TERPENTING bab ini, boleh paling panjang.' }
+        ],
+        sekunder: [
+          { nama: 'Rumusan Masalah', catatan: 'WAJIB ditulis sebagai LIST BERNOMOR, satu pertanyaan per baris (format "1. ...", "2. ...", dst) — JANGAN digabung jadi satu paragraf memakai kata "Pertama/Kedua/Ketiga"' },
+          { nama: 'Tujuan Penelitian', catatan: 'WAJIB ditulis sebagai LIST BERNOMOR selaras 1:1 dengan tiap rumusan masalah (format "1. ...", "2. ...", dst) — JANGAN digabung jadi satu paragraf' },
+          { nama: 'Manfaat Penelitian', catatan: 'manfaat teoretis dan praktis, seringkas mungkin' },
+          { nama: 'Sistematika Penulisan', catatan: '1 kalimat ringkas per BAB, paling ringkas dari semua poin' }
         ]
       },
       'BAB 2': {
         judulBab: 'BAB II KAJIAN PUSTAKA',
-        poin: [
-          { nama: 'Landasan Teori (dari para ahli)', bobot: 0.45, catatan: 'paling luas — uraikan teori utama dan teori pendukung dengan kutipan' },
-          { nama: 'Penelitian Terdahulu yang Relevan', bobot: 0.25, catatan: 'minimal 3-4 penelitian relevan, ringkas per penelitian' },
-          { nama: 'Kerangka Pemikiran', bobot: 0.15, catatan: 'ringkas, boleh naratif menjelaskan alur logika antar variabel' },
-          { nama: 'Hipotesis Penelitian', bobot: 0.15, catatan: 'ringkas, satu-dua kalimat per hipotesis' }
+        semuaPoin: ['Landasan Teori', 'Penelitian Terdahulu yang Relevan', 'Kerangka Pemikiran', 'Hipotesis Penelitian'],
+        utama: [
+          { nama: 'Landasan Teori (dari para ahli)', catatan: 'ini bagian TERPENTING bab ini — uraikan teori utama dan teori pendukung selengkap yang dibutuhkan, dengan kutipan (Nama, Tahun) sebanyak argumennya perlukan' }
+        ],
+        sekunder: [
+          { nama: 'Penelitian Terdahulu yang Relevan', catatan: 'ringkas per penelitian, cukup 3-4 penelitian' },
+          { nama: 'Kerangka Pemikiran', catatan: 'ringkas, boleh naratif menjelaskan alur logika antar variabel' },
+          { nama: 'Hipotesis Penelitian', catatan: 'ringkas, WAJIB ditulis sebagai LIST BERNOMOR (format "H1: ...", "H2: ...") jika lebih dari satu hipotesis' }
         ]
       },
       'BAB 3': {
         judulBab: 'BAB III METODE PENELITIAN',
-        poin: [
-          { nama: 'Jenis dan Desain Penelitian', bobot: 0.15, catatan: 'ringkas' },
-          { nama: 'Populasi dan Sampel', bobot: 0.25, catatan: 'termasuk teknik sampling dan justifikasi ukuran sampel' },
-          { nama: 'Variabel Penelitian', bobot: 0.15, catatan: 'definisi operasional tiap variabel, ringkas' },
-          { nama: 'Teknik Pengumpulan Data', bobot: 0.25, catatan: 'instrumen, cara pengambilan data' },
-          { nama: 'Teknik Analisis Data', bobot: 0.20, catatan: 'uji statistik/analisis yang dipakai' }
+        semuaPoin: ['Jenis dan Desain Penelitian', 'Populasi dan Sampel', 'Variabel Penelitian', 'Teknik Pengumpulan Data', 'Teknik Analisis Data'],
+        utama: [
+          { nama: 'Populasi dan Sampel', catatan: 'jelaskan teknik sampling DAN tulis rumus penentuan sampel yang relevan (mis. Rumus Slovin untuk populasi besar) di baris tersendiri dengan format persis "Rumus: n = N / (1 + N.e\u00b2)" lalu jelaskan tiap simbolnya' },
+          { nama: 'Teknik Analisis Data', catatan: 'WAJIB tulis rumus/uji statistik yang benar-benar dipakai sesuai jenis penelitian (mis. Rumus: regresi linier sederhana Y = a + bX, atau uji-t, uji validitas-reliabilitas, dsb) di baris tersendiri dengan format "Rumus: ...", lalu jelaskan maknanya' }
+        ],
+        sekunder: [
+          { nama: 'Jenis dan Desain Penelitian', catatan: 'ringkas' },
+          { nama: 'Variabel Penelitian', catatan: 'definisi operasional tiap variabel, ringkas, boleh format list bernomor' },
+          { nama: 'Teknik Pengumpulan Data', catatan: 'instrumen dan cara pengambilan data, ringkas' }
         ]
       },
       'BAB 4': {
         judulBab: 'BAB IV HASIL DAN PEMBAHASAN',
-        poin: [
-          { nama: 'Gambaran Umum Objek Penelitian', bobot: 0.15, catatan: 'ringkas' },
-          { nama: 'Hasil Analisis Data (dengan tabel pendukung)', bobot: 0.40, catatan: 'sertakan tabel distribusi responden, statistik deskriptif, hasil uji' },
-          { nama: 'Pembahasan', bobot: 0.45, catatan: 'paling luas — kaitkan hasil dengan teori/penelitian terdahulu di BAB 2' }
+        semuaPoin: ['Gambaran Umum Objek Penelitian', 'Hasil Analisis Data', 'Pembahasan'],
+        utama: [
+          { nama: 'Hasil Analisis Data (dengan tabel pendukung)', catatan: 'sertakan tabel distribusi responden, statistik deskriptif, hasil uji — sedetail yang datanya butuhkan' },
+          { nama: 'Pembahasan', catatan: 'ini bagian TERPENTING bab ini — kaitkan tiap temuan dengan teori/penelitian terdahulu di BAB 2 (kutip lagi sumber yang relevan), sedalam yang argumennya perlukan' }
+        ],
+        sekunder: [
+          { nama: 'Gambaran Umum Objek Penelitian', catatan: 'ringkas' }
         ]
       },
       'BAB 5': {
         judulBab: 'BAB V PENUTUP',
-        poin: [
-          { nama: 'Kesimpulan', bobot: 0.50, catatan: 'jawab tiap rumusan masalah satu per satu' },
-          { nama: 'Keterbatasan Penelitian', bobot: 0.20, catatan: 'ringkas' },
-          { nama: 'Saran', bobot: 0.30, catatan: 'saran praktis dan saran penelitian lanjutan' }
+        semuaPoin: ['Kesimpulan', 'Keterbatasan Penelitian', 'Saran'],
+        utama: [
+          { nama: 'Kesimpulan', catatan: 'ini bagian TERPENTING bab ini — WAJIB dijawab per rumusan masalah, format LIST BERNOMOR selaras dengan rumusan masalah di BAB 1 (format "1. ...", "2. ...")' }
+        ],
+        sekunder: [
+          { nama: 'Keterbatasan Penelitian', catatan: 'ringkas' },
+          { nama: 'Saran', catatan: 'saran praktis dan saran penelitian lanjutan, boleh list bernomor, ringkas' }
         ]
       }
     };
@@ -1088,20 +1107,10 @@ Buat 12-15 entri referensi yang relevan dengan topik di atas (kombinasi buku, ju
     const cfg = PAKET_CONFIG[plan] || PAKET_CONFIG.gratis;
     const isMaksimum = parseInt(halaman, 10) >= cfg.maks;
 
-    // Perkirakan jumlah sumber pustaka dari panjang target, lalu SISAKAN jatah katanya
-    // DULUAN sebelum membagi sisa kata ke tiap poin narasi — supaya daftar pustaka
-    // tidak pernah kehabisan ruang dan terpotong di akhir.
-    const estimasiSumber = Math.max(5, Math.min(20, Math.round(targetKata / 180)));
-    const kataPerEntriPustaka = 30;
-    const kataPustaka = estimasiSumber * kataPerEntriPustaka;
-    const kataNarasi = Math.max(targetKata - kataPustaka, Math.round(targetKata * 0.65));
-
     const info = babInfo[jenisDokumen];
-    const rincianPoin = info.poin.map(p => {
-      const kata = Math.round(kataNarasi * p.bobot);
-      return `- ${p.nama}: \u00b1${kata.toLocaleString('id-ID')} kata (${p.catatan})`;
-    }).join('\n');
-    const babDescText = `${info.judulBab} yang mencakup: ${info.poin.map(p=>p.nama).join(', ')}`;
+    const daftarUtama = info.utama.map(p => `- ${p.nama}: ${p.catatan}`).join('\n');
+    const daftarSekunder = info.sekunder.map(p => `- ${p.nama}: ${p.catatan}`).join('\n');
+    const babDescText = `${info.judulBab} yang mencakup: ${info.semuaPoin.join(', ')}`;
 
     prompt = `Tulis ${babDescText} untuk skripsi berikut:
 
@@ -1111,18 +1120,23 @@ Bidang studi: ${bidang || 'umum'}
 ${deskripsi ? 'Deskripsi tambahan: ' + deskripsi : ''}
 ${(outlineMode==='sendiri' && outlineCustom) ? `\nPENTING: Ikuti STRUKTUR OUTLINE berikut ini apa adanya, tulis hanya bagian yang relevan dengan ${jenisDokumen}:\n${outlineCustom}\n` : ''}
 ${tabelInstruksi}${fileLanjutanText ? `\nBerikut isi dokumen skripsi yang SUDAH ADA (lanjutkan konsisten, jangan ulangi):\n\"\"\"\n${fileLanjutanText.substring(0,6000)}\n\"\"\"\n` : ''}
-TARGET PANJANG TOTAL: ${targetKata.toLocaleString('id-ID')} kata (\u00b1${halaman} halaman, spasi 1.5 TNR 12pt) \u2014 ini batas MAKSIMAL, boleh sedikit di bawahnya, JANGAN melebihinya.
+TARGET PANJANG TOTAL: \u00b1${targetKata.toLocaleString('id-ID')} kata (\u00b1${halaman} halaman, spasi 1.5 TNR 12pt) \u2014 INI SUDAH TERMASUK DAFTAR PUSTAKA, bukan tambahan di luar itu. ${isMaksimum ? 'Kembangkan semaksimal mungkin sampai mendekati target ini — batas maksimum paket pengguna.' : 'Karena target tidak terlalu panjang, kelola kata secara CERMAT mengikuti urutan prioritas di bawah.'}
 
-JATAH KATA PER POIN (WAJIB DIIKUTI PERSIS, jangan melebihi jatah tiap poin \u2014 ini sudah dihitung supaya semua poin + DAFTAR PUSTAKA muat tanpa terpotong):
-${rincianPoin}
-- DAFTAR PUSTAKA: sisakan \u00b1${kataPustaka.toLocaleString('id-ID')} kata untuk \u00b1${estimasiSumber} entri pustaka (\u00b1${kataPerEntriPustaka} kata/entri) \u2014 ini WAJIB dihitung sebagai bagian dari total, bukan tambahan di luar target
+CARA MEMBAGI KATA \u2014 ikuti URUTAN ini secara internal sebelum/selagi menulis, JANGAN membagi rata ke semua poin:
+
+LANGKAH 1 \u2014 POIN UTAMA (prioritas tertinggi, kembangkan secukupnya sesuai kebutuhan argumen/data, TAPI tetap sadar batas total di atas):
+${daftarUtama}
+
+LANGKAH 2 \u2014 setelah poin utama selesai, hitung berapa banyak sumber (Nama, Tahun) yang SUDAH kamu kutip di poin utama \u2014 itulah isi DAFTAR PUSTAKA nanti (tiap sumber \u00b125-35 kata dalam format APA lengkap). Sisihkan perkiraan kata untuk itu.
+
+LANGKAH 3 \u2014 POIN SEKUNDER (prioritas rendah, gunakan SISA kata yang tersisa dari target total dikurangi poin utama & Daftar Pustaka \u2014 tulis SESINGKAT mungkin, jangan sampai bikin total melebihi target):
+${daftarSekunder}
 
 ATURAN KETAT:
-- SEMUA poin di atas WAJIB ada dan LENGKAP \u2014 jangan hilangkan satu pun
-- Patuhi jatah kata tiap poin di atas SEBELUM mulai menulis \u2014 anggap ini sebagai rencana/outline internal yang kamu ikuti, jangan menulis satu poin terlalu panjang sampai poin/daftar pustaka setelahnya kehabisan ruang
-- ${isMaksimum ? 'Kembangkan semaksimal mungkin sesuai jatah di atas \u2014 ini batas maksimum paket pengguna' : `Karena target hanya ${halaman} halaman, tulis tiap poin RINGKAS namun substantif sesuai jatah katanya masing-masing`}
-- DAFTAR PUSTAKA tidak boleh berhenti di tengah entri atau di tengah kalimat \u2014 setiap sumber yang disebut di badan teks WAJIB muncul utuh (nama, tahun, judul, penerbit/jurnal lengkap) di DAFTAR PUSTAKA. Jika saat menulis ternyata ruang menipis, PERSINGKAT poin narasi yang belum ditulis, JANGAN memotong DAFTAR PUSTAKA
-WAJIB: Kutipan (Nama, Tahun) untuk setiap klaim/data/teori. Prioritaskan sumber ${new Date().getFullYear()-5}-${new Date().getFullYear()}.
+- SEMUA poin WAJIB ada dan LENGKAP \u2014 poin sekunder tetap harus utuh walau singkat, tidak boleh dihilangkan
+- Poin sekunder yang diminta berformat LIST BERNOMOR (lihat catatan tiap poin) WAJIB ditulis satu item per baris dengan format "1. ...", "2. ...", dst \u2014 JANGAN ditulis sebagai satu paragraf memakai kata "Pertama, Kedua, Ketiga"
+- DAFTAR PUSTAKA tidak boleh berhenti di tengah entri atau di tengah kalimat \u2014 setiap sumber yang disebut di badan teks WAJIB muncul utuh (nama, tahun, judul, penerbit/jurnal lengkap). Jika saat menulis poin sekunder ternyata kata mulai menipis, PERSINGKAT poin sekunder yang belum ditulis, JANGAN memotong DAFTAR PUSTAKA
+WAJIB: Kutipan (Nama, Tahun) untuk setiap klaim/data/teori di poin utama. Prioritaskan sumber ${new Date().getFullYear()-5}-${new Date().getFullYear()}.
 WAJIB: Akhiri dengan bagian DAFTAR PUSTAKA (huruf kapital) berisi semua sumber, format APA edisi ke-7, urut abjad, dan pastikan ini adalah bagian TERAKHIR yang selesai ditulis secara utuh sebelum jawabanmu berakhir.
 Tulis dalam Bahasa Indonesia formal dan akademis. Jangan gunakan format markdown atau tanda pagar.`;
   }
@@ -1314,6 +1328,13 @@ function renderHasilHTML(text) {
       return;
     }
 
+    // Rumus statistik (mis. BAB 3): "Rumus: n = N / (1+Ne^2)"
+    if (/^rumus\s*:/i.test(trimmed)) {
+      flushPara(); flushBullets(); flushNumbered();
+      html += `<div class="para" style="text-align:center;font-style:italic;">${applyInline(esc(trimmed))}</div>`;
+      return;
+    }
+
     // Bullet: - atau * atau •
     if (/^[-*•]\s+/.test(trimmed)) {
       flushPara(); flushNumbered();
@@ -1431,6 +1452,23 @@ async function buildSkripsiDocxBlob(text, judul, jenis, bidang, penulis, spasi, 
     } else if(/^\d+(\.\d+){1,2}\s+\S/.test(line)){
       flushPara();
       children.push(new Paragraph({ children:[new TextRun({text:line, bold:true})], spacing:{before:300, after:150} }));
+    } else if(/^rumus\s*:/i.test(line)){
+      flushPara();
+      children.push(new Paragraph({ children:[new TextRun({text:line, italics:true})], alignment: AlignmentType.CENTER, spacing:{before:200, after:200} }));
+    } else if(/^[-*•]\s+/.test(line)){
+      flushPara();
+      children.push(new Paragraph({
+        children:[new TextRun('•  '+line.replace(/^[-*•]\s+/,''))],
+        indent: { left: 720 },
+        spacing: { line: lineVal, after: 120 }
+      }));
+    } else if(/^[0-9a-z]+[.)]\s+/.test(line) && line.length < 250){
+      flushPara();
+      children.push(new Paragraph({
+        children:[new TextRun(line)],
+        indent: { left: 720, hanging: 360 },
+        spacing: { line: lineVal, after: 120 }
+      }));
     } else {
       paraBuffer.push(line);
     }
@@ -1518,6 +1556,15 @@ function formatSkripsiBody(text){
     } else if(/^\d+(\.\d+){1,2}\s+\S/.test(line)){
       flushPara();
       html += `<div style="font-weight:700;font-size:13px;margin:14px 0 6px;">${escapeHtmlSkripsi(line)}</div>`;
+    } else if(/^rumus\s*:/i.test(line)){
+      flushPara();
+      html += `<div style="text-align:center;font-style:italic;margin:14px 0;">${escapeHtmlSkripsi(line)}</div>`;
+    } else if(/^[-*•]\s+/.test(line)){
+      flushPara();
+      html += `<p style="margin:0 0 6px 1.25cm;text-align:justify;">• ${escapeHtmlSkripsi(line.replace(/^[-*•]\s+/,''))}</p>`;
+    } else if(/^[0-9a-z]+[.)]\s+/.test(line) && line.length < 250){
+      flushPara();
+      html += `<p style="margin:0 0 6px 1.25cm;text-align:justify;">${escapeHtmlSkripsi(line)}</p>`;
     } else {
       paraBuffer.push(line);
     }
