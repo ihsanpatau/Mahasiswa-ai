@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jurnal – asistenku.pro</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+.file-slot{border:1.5px dashed var(--gray-300,#D1D5DB);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s;}
+.file-slot:hover{border-color:var(--brand-light);background:var(--brand-50);}
+.file-slot.filled{border-style:solid;border-color:var(--green);background:#ECFDF5;}
+.file-slot-icon{width:36px;height:36px;border-radius:8px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.file-slot.filled .file-slot-icon{background:var(--green);color:#fff;}
+.file-slot-text{flex:1;min-width:0;}
+.file-slot-title{font-size:13px;font-weight:700;color:var(--dark);}
+.file-slot-sub{font-size:11px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+</style>
 </head>
 <body>
 <div class="app">
@@ -28,10 +40,11 @@
         <button class="tab-btn active" onclick="switchMode(this,'baru')">Buat Jurnal Baru</button>
         <button class="tab-btn" onclick="switchMode(this,'konversi')">Konversi dari Skripsi</button>
       </div>
+
       <div id="mode-baru">
-        <div class="form-group"><label class="form-label">Judul Jurnal <span style="color:var(--red)">*</span></label><input type="text" class="form-input" placeholder="Masukkan judul jurnal..."></div>
+        <div class="form-group"><label class="form-label">Judul Jurnal <span style="color:var(--red)">*</span></label><input type="text" id="judulBaru" class="form-input" placeholder="Masukkan judul jurnal..."></div>
         <div class="form-group"><label class="form-label">Bidang Ilmu</label>
-          <div class="type-pills">
+          <div class="type-pills" id="pillsBidang">
             <button class="type-pill active" onclick="selectPill(this)">Manajemen</button>
             <button class="type-pill" onclick="selectPill(this)">Hukum</button>
             <button class="type-pill" onclick="selectPill(this)">Pendidikan</button>
@@ -41,29 +54,42 @@
           </div>
         </div>
         <div class="form-group"><label class="form-label">Gaya Jurnal</label>
-          <div class="type-pills">
+          <div class="type-pills" id="pillsGaya">
             <button class="type-pill active" onclick="selectPill(this)">SINTA</button>
             <button class="type-pill" onclick="selectPill(this)">Scopus</button>
             <button class="type-pill" onclick="selectPill(this)">IEEE</button>
             <button class="type-pill" onclick="selectPill(this)">APA</button>
           </div>
         </div>
-        <div class="form-group"><label class="form-label">Abstrak / Ringkasan Penelitian (Opsional)</label><textarea class="form-textarea" placeholder="Jelaskan penelitian Anda secara singkat..." rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">Abstrak / Ringkasan Penelitian (Opsional)</label><textarea id="abstrakBaru" class="form-textarea" placeholder="Jelaskan penelitian Anda secara singkat..." rows="3"></textarea></div>
       </div>
+
       <div id="mode-konversi" style="display:none;">
-        <div class="form-group"><label class="form-label">Upload File Skripsi/Naskah</label>
-          <div class="upload-area" onclick="document.getElementById('jurnalFile').click()">
-            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-            <div class="upload-label">Upload PDF, Word, atau TXT</div>
-            <div class="upload-sub">Maks. 10MB</div>
-            <input type="file" id="jurnalFile" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="showToast('File: '+this.files[0]?.name)">
+        <div class="form-group">
+          <label class="form-label">1. Upload File Skripsi/Naskah <span style="color:var(--red)">*</span></label>
+          <div id="slotSkripsi" class="file-slot" onclick="document.getElementById('fileSkripsi').click()">
+            <div class="file-slot-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="file-slot-text"><div class="file-slot-title" id="titleSkripsi">Pilih file skripsi (PDF/DOCX/TXT)</div><div class="file-slot-sub" id="subSkripsi">Maks. 10MB, isi akan dibaca penuh oleh AI</div></div>
+            <input type="file" id="fileSkripsi" accept=".pdf,.docx,.txt" style="display:none" onchange="onPickFile(this,'skripsi')">
           </div>
         </div>
-        <div class="form-group"><label class="form-label">Jurnal Target (Opsional)</label><input type="text" class="form-input" placeholder="Contoh: Jurnal Manajemen Indonesia"></div>
+        <div class="form-group">
+          <label class="form-label">2. Upload File Template Jurnal (Opsional, disarankan)</label>
+          <div id="slotTemplate" class="file-slot" onclick="document.getElementById('fileTemplate').click()">
+            <div class="file-slot-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="file-slot-text"><div class="file-slot-title" id="titleTemplate">Pilih file template jurnal (PDF/DOCX/TXT)</div><div class="file-slot-sub" id="subTemplate">AI akan meniru struktur & format bagian dari file ini</div></div>
+            <input type="file" id="fileTemplate" accept=".pdf,.docx,.txt" style="display:none" onchange="onPickFile(this,'template')">
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Jurnal Target (Opsional)</label><input type="text" id="jurnalTarget" class="form-input" placeholder="Contoh: Jurnal Manajemen Indonesia"></div>
+        <div style="background:#EFF6FF;border-radius:10px;padding:10px 12px;font-size:11px;color:#1E40AF;line-height:1.5;margin-bottom:4px;">
+          Isi kedua file akan diekstrak langsung di perangkatmu lalu dikirim ke AI. Jurnal hasil konversi akan mengikuti struktur bagian dari file template (jika diunggah), dan isinya diambil/diringkas dari naskah skripsi — bukan dikarang bebas.
+        </div>
       </div>
-      <button class="btn btn-green" onclick="generate()" style="margin-top:4px;">
+
+      <button class="btn btn-green" id="btnGenerate" onclick="generate()" style="margin-top:4px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Generate Jurnal dengan AI
+        <span id="btnGenerateLabel">Generate Jurnal dengan AI</span>
       </button>
     </div>
   </div>
@@ -77,34 +103,139 @@
 </div>
 <div class="toast" id="toast"></div>
 <script>
+if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
+
 function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
 function selectPill(btn){btn.closest('.type-pills').querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
 function switchMode(btn,mode){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('mode-baru').style.display=mode==='baru'?'block':'none';document.getElementById('mode-konversi').style.display=mode==='konversi'?'block':'none';}
-function generate(){
-  const judul=document.querySelector('#mode-baru .form-input')?.value.trim();
-  const bidang=document.querySelector('#mode-baru .type-pills:nth-of-type(1) .type-pill.active')?.textContent||document.querySelectorAll('#mode-baru .type-pills .type-pill.active')[0]?.textContent||'Umum';
-  const gaya=document.querySelectorAll('#mode-baru .type-pills .type-pill.active')[1]?.textContent||'SINTA';
-  const abstrakInput=document.querySelector('#mode-baru .form-textarea')?.value.trim();
-  const isKonversi=document.getElementById('mode-konversi').style.display!=='none';
 
-  let prompt;
-  if(isKonversi){
-    const jurnalTarget=document.querySelector('#mode-konversi .form-input')?.value.trim();
-    prompt=`Buatkan sebuah jurnal akademik lengkap gaya ${jurnalTarget?('untuk '+jurnalTarget):'SINTA'} hasil konversi dari naskah skripsi (asumsikan naskah berisi penelitian ilmiah standar mahasiswa Indonesia). Sertakan: Judul, Abstrak (ID & EN), Pendahuluan, Metode, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka. Tulis dalam Bahasa Indonesia akademik.`;
-  } else {
-    if(!judul){showToast('Isi judul jurnal terlebih dahulu');return;}
-    prompt=`Buatkan jurnal akademik lengkap dengan format ${gaya} untuk bidang ilmu ${bidang}. Judul: "${judul}". ${abstrakInput?('Ringkasan penelitian: '+abstrakInput):''}\nSertakan: Judul, Abstrak (Bahasa Indonesia & Inggris), Kata Kunci, Pendahuluan, Metode Penelitian, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka. Tulis dalam Bahasa Indonesia yang formal dan akademis.`;
-  }
+// ===== File handling (skripsi & template) =====
+const filesState={ skripsi:null, template:null };
 
-  localStorage.removeItem('task_result');
-  localStorage.removeItem('task_result_structured');
-  localStorage.removeItem('task_type');
-  localStorage.setItem('task_prompt', judul || (isKonversi ? 'Jurnal dari Skripsi' : 'Jurnal Akademik'));
-  localStorage.setItem('task_full_prompt', prompt);
-  showToast('Memproses jurnal dengan AI...');
-  setTimeout(()=>window.location.href='hasil-tugas.html',600);
+function onPickFile(input, slot){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>10*1024*1024){ showToast('Ukuran file maksimal 10MB'); input.value=''; return; }
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(!['pdf','docx','txt'].includes(ext)){ showToast('Format harus PDF, DOCX, atau TXT'); input.value=''; return; }
+  filesState[slot]=file;
+  const wrap=document.getElementById(slot==='skripsi'?'slotSkripsi':'slotTemplate');
+  const title=document.getElementById(slot==='skripsi'?'titleSkripsi':'titleTemplate');
+  const sub=document.getElementById(slot==='skripsi'?'subSkripsi':'subTemplate');
+  wrap.classList.add('filled');
+  title.textContent=file.name;
+  sub.textContent=(file.size/1024/1024).toFixed(2)+' MB • siap dibaca AI';
+  showToast('File dipilih: '+file.name);
 }
-if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
+
+// Ekstrak teks dari PDF/DOCX/TXT langsung di browser (tanpa upload ke server pihak ketiga)
+async function extractFileText(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='txt'){
+    return await file.text();
+  }
+  if(ext==='docx'){
+    if(!window.mammoth) throw new Error('Modul pembaca DOCX gagal dimuat. Cek koneksi internet.');
+    const arrayBuffer=await file.arrayBuffer();
+    const result=await window.mammoth.extractRawText({arrayBuffer});
+    return result.value || '';
+  }
+  if(ext==='pdf'){
+    if(!window.pdfjsLib) throw new Error('Modul pembaca PDF gagal dimuat. Cek koneksi internet.');
+    const arrayBuffer=await file.arrayBuffer();
+    const pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
+    let text='';
+    const maxPages=Math.min(pdf.numPages,60);
+    for(let i=1;i<=maxPages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text += content.items.map(it=>it.str).join(' ') + '\n';
+    }
+    return text;
+  }
+  throw new Error('Format file tidak didukung.');
+}
+
+function truncate(t,max){ t=(t||'').trim(); return t.length>max ? t.slice(0,max)+'\n...(dipotong, naskah asli lebih panjang)...' : t; }
+
+const CHART_TABLE_INSTRUCTION = `
+Selain teks, lengkapi jurnal dengan elemen visual berikut jika relevan dengan datanya:
+- Sertakan minimal 1 tabel data menggunakan format tabel markdown standar (pakai tanda "|" antar kolom, baris pertama header).
+- Sertakan minimal 1 grafik/chart dengan menuliskan blok kode berpagar tiga backtick berlabel "chart" berisi JSON valid persis seperti contoh ini (ganti isinya sesuai data penelitian):
+\`\`\`chart
+{"type":"bar","title":"Judul Grafik","labels":["Kategori A","Kategori B","Kategori C"],"datasets":[{"label":"Nilai","data":[10,20,15]}]}
+\`\`\`
+  Gunakan "type":"bar" untuk perbandingan kategori, "line" untuk tren/waktu, atau "pie" untuk proporsi.
+- Jika membantu menjelaskan kerangka konsep/model penelitian, sertakan juga 1 diagram sederhana dalam blok kode berpagar tiga backtick berlabel "svg" berisi kode SVG diagram (kotak dan panah antar variabel).
+Jangan jelaskan blok-blok ini di teks biasa, cukup sisipkan blok kodenya di posisi yang sesuai (biasanya di bagian Hasil dan Pembahasan).`;
+
+async function generate(){
+  const isKonversi=document.getElementById('mode-konversi').style.display!=='none';
+  const btn=document.getElementById('btnGenerate');
+  const btnLabel=document.getElementById('btnGenerateLabel');
+
+  if(isKonversi){
+    if(!filesState.skripsi){ showToast('Upload file skripsi/naskah terlebih dahulu'); return; }
+    btn.disabled=true; btnLabel.textContent='Membaca file...';
+    let skripsiText, templateText='';
+    try{
+      skripsiText=await extractFileText(filesState.skripsi);
+      if(!skripsiText || skripsiText.trim().length<30){ throw new Error('Isi file skripsi tidak terbaca atau kosong. Coba format lain (PDF/DOCX/TXT).'); }
+      if(filesState.template){
+        templateText=await extractFileText(filesState.template);
+      }
+    }catch(e){
+      showToast(e.message||'Gagal membaca file');
+      btn.disabled=false; btnLabel.textContent='Generate Jurnal dengan AI';
+      return;
+    }
+
+    const jurnalTarget=document.getElementById('jurnalTarget').value.trim();
+    const prompt = `Kamu adalah asisten penulisan jurnal akademik untuk mahasiswa Indonesia. Buatkan SATU jurnal ilmiah lengkap hasil konversi dari naskah skripsi di bawah ini${jurnalTarget?(', ditujukan untuk '+jurnalTarget):''}.
+
+=== ISI NASKAH SKRIPSI (sumber utama, gunakan isinya, jangan mengarang di luar ini) ===
+${truncate(skripsiText,14000)}
+
+${templateText? `=== TEMPLATE / CONTOH FORMAT JURNAL TARGET (ikuti struktur bagian & gaya penulisannya) ===
+${truncate(templateText,8000)}` : '(Tidak ada file template, gunakan format standar jurnal SINTA: Judul, Abstrak ID & EN, Kata Kunci, Pendahuluan, Metode, Hasil dan Pembahasan, Kesimpulan, Daftar Pustaka.)'}
+
+INSTRUKSI:
+1. Ringkas dan susun ulang isi naskah skripsi menjadi format artikel jurnal, ikuti urutan/nama bagian dari template jika ada.
+2. Sertakan Judul, Abstrak (Bahasa Indonesia & Inggris), Kata Kunci, Pendahuluan, Metode Penelitian, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka.
+3. Tulis dalam Bahasa Indonesia akademik formal.
+${CHART_TABLE_INSTRUCTION}`;
+
+    localStorage.removeItem('task_result');
+    localStorage.removeItem('task_result_structured');
+    localStorage.setItem('task_type','jurnal');
+    localStorage.setItem('task_prompt', jurnalTarget || 'Jurnal dari Skripsi');
+    localStorage.setItem('task_full_prompt', prompt);
+    btnLabel.textContent='Memproses dengan AI...';
+    showToast('Memproses jurnal dengan AI...');
+    setTimeout(()=>window.location.href='hasil-tugas.html',400);
+
+  } else {
+    const judul=document.getElementById('judulBaru').value.trim();
+    if(!judul){ showToast('Isi judul jurnal terlebih dahulu'); return; }
+    const bidang=document.querySelector('#pillsBidang .type-pill.active')?.textContent||'Umum';
+    const gaya=document.querySelector('#pillsGaya .type-pill.active')?.textContent||'SINTA';
+    const abstrakInput=document.getElementById('abstrakBaru').value.trim();
+
+    const prompt=`Buatkan jurnal akademik lengkap dengan format ${gaya} untuk bidang ilmu ${bidang}. Judul: "${judul}". ${abstrakInput?('Ringkasan penelitian: '+abstrakInput):''}
+Sertakan: Judul, Abstrak (Bahasa Indonesia & Inggris), Kata Kunci, Pendahuluan, Metode Penelitian, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka. Tulis dalam Bahasa Indonesia yang formal dan akademis.
+${CHART_TABLE_INSTRUCTION}`;
+
+    localStorage.removeItem('task_result');
+    localStorage.removeItem('task_result_structured');
+    localStorage.setItem('task_type','jurnal');
+    localStorage.setItem('task_prompt', judul);
+    localStorage.setItem('task_full_prompt', prompt);
+    btn.disabled=true; btnLabel.textContent='Memproses dengan AI...';
+    showToast('Memproses jurnal dengan AI...');
+    setTimeout(()=>window.location.href='hasil-tugas.html',400);
+  }
+}
 </script>
 </body>
 </html>
