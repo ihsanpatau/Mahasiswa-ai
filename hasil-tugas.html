@@ -181,8 +181,113 @@
 <script>
 function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
 
+// ===== Chart & diagram builder (blok ```chart``` dan ```svg``` dari AI) =====
+function escSvgText(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function sanitizeSvg(svg){
+  svg = String(svg||'').replace(/<script[\s\S]*?<\/script>/gi,'');
+  svg = svg.replace(/\son\w+="[^"]*"/gi,'').replace(/\son\w+='[^']*'/gi,'');
+  svg = svg.replace(/(href|xlink:href)\s*=\s*"javascript:[^"]*"/gi,'');
+  if(!/^\s*<svg[\s>]/i.test(svg)) return '<div style="font-size:11px;color:#B91C1C;">[Kode SVG tidak valid]</div>';
+  return svg;
+}
+
+function buildChartSVG(spec){
+  try{
+    const w=340,h=210,pad={l:36,r:12,t:24,b:32};
+    const type=(spec.type||'bar').toLowerCase();
+    const labels=spec.labels||[];
+    const datasets=(spec.datasets&&spec.datasets.length)?spec.datasets:[{label:spec.label||'',data:spec.data||[]}];
+    const colors=['#3B5BFF','#16A34A','#D97706','#DC2626','#7C3AED','#0EA5E9'];
+    const titleHtml=spec.title?`<div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:2px;">${escSvgText(spec.title)}</div>`:'';
+
+    if(type==='pie'||type==='donut'){
+      const data=(datasets[0].data||[]).map(Number);
+      const total=data.reduce((a,b)=>a+(b||0),0)||1;
+      const cx=w/2, cy=h/2+6, r=68;
+      let angleStart=-Math.PI/2, paths='', legend='';
+      data.forEach((v,i)=>{
+        const frac=(v||0)/total;
+        const angleEnd=angleStart+frac*Math.PI*2;
+        const x1=cx+r*Math.cos(angleStart), y1=cy+r*Math.sin(angleStart);
+        const x2=cx+r*Math.cos(angleEnd), y2=cy+r*Math.sin(angleEnd);
+        const large=frac>0.5?1:0;
+        paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large} 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${colors[i%colors.length]}" stroke="#fff" stroke-width="1.5"/>`;
+        legend+=`<div style="display:flex;align-items:center;gap:4px;font-size:10px;"><span style="width:9px;height:9px;background:${colors[i%colors.length]};display:inline-block;border-radius:2px;"></span>${escSvgText(labels[i]||('Data '+(i+1)))} (${(frac*100).toFixed(1)}%)</div>`;
+        angleStart=angleEnd;
+      });
+      return `<div style="margin:14px 0;">${titleHtml}<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:320px;display:block;margin:0 auto;">${paths}</svg><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px;">${legend}</div></div>`;
+    }
+
+    const allVals=datasets.flatMap(d=>(d.data||[]).map(Number).filter(v=>isFinite(v)));
+    const maxV=Math.max(1,...(allVals.length?allVals:[1]));
+    const plotW=w-pad.l-pad.r, plotH=h-pad.t-pad.b;
+    const n=Math.max(labels.length, ...datasets.map(d=>(d.data||[]).length), 1);
+    const groupW=plotW/n;
+    let grid='';
+    for(let g=0;g<=4;g++){
+      const y=pad.t+plotH-(g/4)*plotH;
+      grid+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${w-pad.r}" y2="${y.toFixed(1)}" stroke="#E5E7EB" stroke-width="1"/><text x="${pad.l-4}" y="${(y+3).toFixed(1)}" font-size="8" fill="#6B7280" text-anchor="end">${Math.round(g/4*maxV)}</text>`;
+    }
+    let shapes='', legend='';
+    if(type==='line'){
+      datasets.forEach((d,di)=>{
+        const pts=(d.data||[]).map((v,i)=>{
+          const x=pad.l+groupW*(i+0.5);
+          const y=pad.t+plotH-(Number(v||0)/maxV)*plotH;
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        }).join(' ');
+        shapes+=`<polyline points="${pts}" fill="none" stroke="${colors[di%colors.length]}" stroke-width="2"/>`;
+        (d.data||[]).forEach((v,i)=>{
+          const x=pad.l+groupW*(i+0.5), y=pad.t+plotH-(Number(v||0)/maxV)*plotH;
+          shapes+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" fill="${colors[di%colors.length]}"/>`;
+        });
+        if(d.label) legend+=`<div style="display:flex;align-items:center;gap:4px;font-size:10px;"><span style="width:9px;height:9px;background:${colors[di%colors.length]};display:inline-block;border-radius:2px;"></span>${escSvgText(d.label)}</div>`;
+      });
+    } else {
+      const barW=Math.max(4,(groupW*0.7)/datasets.length);
+      datasets.forEach((d,di)=>{
+        (d.data||[]).forEach((v,i)=>{
+          const x=pad.l+groupW*i+groupW*0.15+di*barW;
+          const barH=(Number(v||0)/maxV)*plotH;
+          const y=pad.t+plotH-barH;
+          shapes+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${colors[di%colors.length]}" rx="2"/>`;
+        });
+        if(d.label) legend+=`<div style="display:flex;align-items:center;gap:4px;font-size:10px;"><span style="width:9px;height:9px;background:${colors[di%colors.length]};display:inline-block;border-radius:2px;"></span>${escSvgText(d.label)}</div>`;
+      });
+    }
+    let xlabels='';
+    labels.forEach((l,i)=>{
+      const x=pad.l+groupW*(i+0.5);
+      xlabels+=`<text x="${x.toFixed(1)}" y="${h-pad.b+12}" font-size="8" fill="#374151" text-anchor="middle">${escSvgText(String(l).substring(0,10))}</text>`;
+    });
+    return `<div style="margin:14px 0;">${titleHtml}<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:360px;display:block;margin:0 auto;background:#fff;">${grid}${shapes}${xlabels}</svg>${legend?`<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:2px;">${legend}</div>`:''}</div>`;
+  }catch(e){
+    return '<div style="font-size:11px;color:#B91C1C;">[Gagal menampilkan grafik: data tidak valid]</div>';
+  }
+}
+
+// Ekstrak blok ```chart``` dan ```svg``` dari teks AI, ganti dengan placeholder baris tersendiri
+function extractVisualBlocks(text){
+  const blocks=[];
+  let out = String(text||'');
+  out = out.replace(/```chart\s*([\s\S]*?)```/gi, (m, body) => {
+    let html;
+    try{ html = buildChartSVG(JSON.parse(body.trim())); }
+    catch(e){ html = '<div style="font-size:11px;color:#B91C1C;">[Gagal memuat data grafik]</div>'; }
+    blocks.push(html);
+    return `\n@@VBLOCK_${blocks.length-1}@@\n`;
+  });
+  out = out.replace(/```svg\s*([\s\S]*?)```/gi, (m, body) => {
+    blocks.push(`<div style="margin:14px 0;text-align:center;">${sanitizeSvg(body.trim())}</div>`);
+    return `\n@@VBLOCK_${blocks.length-1}@@\n`;
+  });
+  return { text: out, blocks };
+}
+
 // Render teks AI jadi HTML rapi (shared dengan skripsi.html)
-function renderHasilHTML(text) {
+function renderHasilHTML(rawText) {
+  const { text, blocks } = extractVisualBlocks(rawText);
   const lines = text.split('\n');
   let html = '', paraBuffer = [], bulletBuffer = [], numberedBuffer = [];
   let inTable = false, tableRows = [], tableTitle = '';
@@ -197,6 +302,8 @@ function renderHasilHTML(text) {
     if(/^\|.+\|/.test(trimmed)){flushPara();flushBullets();flushNumbered();if(/^\|[\s\-:]+\|/.test(trimmed))return;inTable=true;tableRows.push(trimmed.replace(/^\||\|$/g,''));return;}
     if(inTable)flushTable();
     if(!trimmed){flushPara();flushBullets();flushNumbered();return;}
+    const vblockM=trimmed.match(/^@@VBLOCK_(\d+)@@$/);
+    if(vblockM){flushPara();flushBullets();flushNumbered();if(inTable)flushTable();html+=blocks[parseInt(vblockM[1],10)]||'';return;}
     const tabelM=trimmed.match(/^(Tabel\s+\d[\d.]*[\s.]+.+)/i);if(tabelM&&!inTable){tableTitle=tabelM[1];return;}
     if(/^(BAB\s+[IVXLC0-9]+)/i.test(trimmed)){flushPara();flushBullets();flushNumbered();html+=`<div style="font-size:15px;font-weight:800;text-align:center;margin:22px 0 6px;text-transform:uppercase;">${esc(trimmed.replace(/^#+\s*/,''))}</div>`;return;}
     const h1=trimmed.match(/^#\s+(.+)/),h2=trimmed.match(/^##\s+(.+)/),h3=trimmed.match(/^###\s+(.+)/);
