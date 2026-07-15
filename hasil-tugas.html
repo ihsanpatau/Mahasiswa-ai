@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hasil Tugas – asistenku.pro</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -129,39 +131,12 @@
       </div>
     </div>
 
-    <!-- Tombol unduh utama sesuai format yang dipilih di halaman sebelumnya -->
-    <div id="downloadUtamaWrap" style="padding:0 16px 10px;display:none;">
+    <!-- Tombol unduh utama sesuai format yang dipilih di halaman sebelumnya (satu-satunya link unduhan) -->
+    <div id="downloadUtamaWrap" style="padding:0 16px 14px;display:none;">
       <button id="btnDownloadUtama" class="btn btn-green" style="width:100%;" onclick="downloadHasilTugas(window.__formatUtama==='teks'?'txt':window.__formatUtama)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span id="btnDownloadUtamaLabel">File Anda siap — Unduh</span>
       </button>
-    </div>
-
-    <!-- Download -->
-    <div style="padding:0 16px 14px;">
-      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;" id="downloadLainLabel">Download Dokumen</div>
-      <div style="display:flex;gap:8px;overflow-x:auto;">
-        <div onclick="downloadHasilTugas('word')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-          <div style="width:48px;height:44px;background:#2B579A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">W</div>
-          <div style="font-size:10px;color:var(--gray-500);">Word (.docx)</div>
-        </div>
-        <div onclick="downloadHasilTugas('pdf')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-          <div style="width:48px;height:44px;background:#DC2626;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PDF</div>
-          <div style="font-size:10px;color:var(--gray-500);">PDF</div>
-        </div>
-        <div onclick="downloadHasilTugas('ppt')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-          <div style="width:48px;height:44px;background:#D97706;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">PPT</div>
-          <div style="font-size:10px;color:var(--gray-500);">PowerPoint</div>
-        </div>
-        <div onclick="downloadHasilTugas('xls')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-          <div style="width:48px;height:44px;background:#16A34A;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">XLS</div>
-          <div style="font-size:10px;color:var(--gray-500);">Excel</div>
-        </div>
-        <div onclick="downloadHasilTugas('txt')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-          <div style="width:48px;height:44px;background:#6B7280;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">TXT</div>
-          <div style="font-size:10px;color:var(--gray-500);">TXT</div>
-        </div>
-      </div>
     </div>
 
     <!-- Action Buttons -->
@@ -347,8 +322,6 @@ window.__formatUtama = localStorage.getItem('task_output_format') || 'word';
   const info = formatLabelMap[f] || formatLabelMap.word;
   const btn = document.getElementById('btnDownloadUtamaLabel');
   if(btn) btn.textContent = `File Anda siap — Unduh sebagai ${info.icon} ${info.label}`;
-  const lain = document.getElementById('downloadLainLabel');
-  if(lain) lain.textContent = 'Format lain (opsional)';
 })();
 
 function setBanner(state, msg){
@@ -531,17 +504,43 @@ async function generateContent(){
     return full;
   }
 
-  try{
-    let full = await callAI(basePrompt);
+  async function callAI(promptText){
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:promptText}]})});
+    const data=await res.json();
+    if(!res.ok){ throw new Error(data.error || `Server error (${res.status})`); }
+    const full=(data.text||'').trim();
+    if(!full){ throw new Error('AI mengembalikan hasil kosong.'); }
+    const stopReason = data.raw && data.raw.stop_reason;
+    return { text: full, stopReason };
+  }
 
+  // Kalau AI kepotong karena limit token (stop_reason==='max_tokens'), minta AI melanjutkan
+  // persis dari kalimat terakhir, lalu gabungkan — supaya hasil akhirnya benar-benar lengkap,
+  // bukan cuma sepotong. Maks 3 kali sambung supaya tidak berlangsung tanpa batas.
+  async function callAIWithContinuation(promptText){
+    let { text, stopReason } = await callAI(promptText);
+    let tries = 0;
+    while (stopReason === 'max_tokens' && tries < 3) {
+      tries++;
+      const ekor = text.slice(-800);
+      const lanjutPrompt = `Ini permintaan tugas sebelumnya:\n"${promptText}"\n\nJawabanmu tadi TERPOTONG karena kepanjangan. Ini adalah akhir dari teks yang sudah kamu tulis:\n"""${ekor}"""\n\nLANJUTKAN PERSIS dari kata terakhir di atas sampai benar-benar selesai (jangan mengulang bagian yang sudah ada, jangan menulis ulang dari awal, jangan beri komentar/pengantar apapun, langsung sambung kalimatnya).`;
+      const cont = await callAI(lanjutPrompt);
+      text += cont.text;
+      stopReason = cont.stopReason;
+    }
+    return text;
+  }
+
+  try{
     if(taskType==='makalah'){
+      let full = (await callAI(basePrompt)).text;
       let doc;
       try{
         doc = parseAIJson(full);
       }catch(parseErr){
         // Auto-retry once with a stricter instruction
         try{
-          full = await callAI(basePrompt + '\n\nPENTING: Balas HANYA dengan JSON valid tanpa satupun teks/komentar/blok kode di luar JSON tersebut.');
+          full = (await callAI(basePrompt + '\n\nPENTING: Balas HANYA dengan JSON valid tanpa satupun teks/komentar/blok kode di luar JSON tersebut.')).text;
           doc = parseAIJson(full);
         }catch(retryErr){
           throw new Error('AI tidak mengembalikan format makalah yang valid setelah 2 percobaan. Klik "Coba Lagi".');
@@ -551,6 +550,7 @@ async function generateContent(){
       localStorage.setItem('task_result_structured', JSON.stringify(doc));
       renderMakalah(doc, meta);
     } else {
+      const full = await callAIWithContinuation(basePrompt);
       const parts=full.split('---RINGKASAN---');
       const ringkasan=(parts[1]||'').trim();
       const bodyText = parts[0].trim() || full;
@@ -565,7 +565,176 @@ async function generateContent(){
 }
 generateContent();
 
-function downloadHasilTugas(type){
+// ===== Chart PNG rasterizer (untuk disisipkan ke file .docx asli) =====
+// Pakai Chart.js langsung dari spec yang sama dengan blok ```chart``` AI, supaya hasilnya
+// benar-benar berupa gambar chart di dalam file Word, bukan cuma tabel/teks polos.
+function buildChartPngFromSpec(spec){
+  try{
+    if(typeof Chart==='undefined') return null;
+    const type=(spec.type||'bar').toLowerCase();
+    const chartType = (type==='donut') ? 'doughnut' : (type==='pie' ? 'pie' : (type==='line' ? 'line' : 'bar'));
+    const labels=spec.labels||[];
+    const datasets=(spec.datasets&&spec.datasets.length)?spec.datasets:[{label:spec.label||'',data:spec.data||[]}];
+    const palette=['#3B5BFF','#16A34A','#D97706','#DC2626','#7C3AED','#0EA5E9'];
+    const dsFormatted = datasets.map((d,i)=>({
+      label: d.label||`Data ${i+1}`,
+      data: (d.data||[]).map(Number),
+      backgroundColor: (chartType==='pie'||chartType==='doughnut') ? palette : palette[i%palette.length],
+      borderColor: palette[i%palette.length],
+      fill: chartType==='line' ? false : true
+    }));
+    const canvas=document.createElement('canvas');
+    canvas.width=560; canvas.height=320;
+    canvas.style.position='fixed'; canvas.style.left='-9999px';
+    document.body.appendChild(canvas);
+    const chart=new Chart(canvas.getContext('2d'),{
+      type: chartType,
+      data:{ labels, datasets: dsFormatted },
+      options:{ responsive:false, animation:false,
+        plugins:{ title:{ display:!!spec.title, text:spec.title||'' }, legend:{ display: dsFormatted.length>1 || chartType==='pie' || chartType==='doughnut' } },
+        scales: (chartType==='pie'||chartType==='doughnut') ? {} : { y:{ beginAtZero:true } }
+      }
+    });
+    const url=canvas.toDataURL('image/png');
+    chart.destroy(); canvas.remove();
+    return url;
+  }catch(e){ console.error('Gagal membuat chart PNG:', e); return null; }
+}
+
+function dataUrlToUint8ArrayGeneric(dataUrl){
+  const base64=dataUrl.split(',')[1];
+  const binary=atob(base64);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+
+// Bangun file .docx ASLI (bukan trik HTML→.doc) memakai library docx.js, sama seperti di
+// halaman Skripsi — supaya heading, bold, tabel, dan chart benar-benar rapi & konsisten
+// di Word/WPS/Office manapun, bukan tampil sebagai teks polos yang ditempel.
+async function buildGenericDocxBlob(rawText, judulDok){
+  if(typeof docx==='undefined') throw new Error('Modul Word (docx.js) belum siap, cek koneksi internet lalu coba lagi.');
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, Table, TableRow, TableCell, WidthType, ShadingType, ImageRun } = docx;
+
+  // Pisahkan blok ```chart``` dan ```svg``` dulu (svg tidak dirender ke Word, diganti catatan singkat)
+  const chartSpecs=[];
+  let text=String(rawText||'').replace(/```chart\s*([\s\S]*?)```/gi,(m,body)=>{
+    try{ chartSpecs.push(JSON.parse(body.trim())); }catch(e){ chartSpecs.push(null); }
+    return `\n@@DOCX_CHART_${chartSpecs.length-1}@@\n`;
+  });
+  text=text.replace(/```svg\s*([\s\S]*?)```/gi,()=>'\n[Diagram tersedia di versi PDF]\n');
+
+  const children=[];
+  let paraBuffer=[], bulletBuffer=[], numberedBuffer=[];
+  let inTable=false, tableRows=[], tableTitle='';
+
+  function applyInlineRuns(str, baseOpts={}){
+    // Pecah **bold** jadi beberapa TextRun, sisanya teks biasa
+    const parts=String(str).split(/(\*\*[^*]+\*\*)/g).filter(p=>p!=='');
+    return parts.map(p=>{
+      const boldMatch=p.match(/^\*\*([^*]+)\*\*$/);
+      if(boldMatch) return new TextRun({ text: boldMatch[1], bold:true, ...baseOpts });
+      return new TextRun({ text:p, ...baseOpts });
+    });
+  }
+  function flushPara(){
+    if(paraBuffer.length){
+      const joined=paraBuffer.join(' ').trim();
+      if(joined) children.push(new Paragraph({ children: applyInlineRuns(joined), alignment: AlignmentType.JUSTIFIED, spacing:{after:200,line:360}, indent:{firstLine:480} }));
+      paraBuffer=[];
+    }
+  }
+  function flushBullets(){
+    bulletBuffer.forEach(b=> children.push(new Paragraph({ children: applyInlineRuns(b), bullet:{level:0}, spacing:{after:100} })) );
+    bulletBuffer=[];
+  }
+  function flushNumbered(){
+    numberedBuffer.forEach((b,i)=> children.push(new Paragraph({ children: applyInlineRuns(b), numbering:{reference:'generic-num',level:0}, spacing:{after:100} })) );
+    numberedBuffer=[];
+  }
+  function flushTable(){
+    if(tableRows.length){
+      if(tableTitle) children.push(new Paragraph({ children:[new TextRun({text:tableTitle, bold:true})], alignment:AlignmentType.CENTER, spacing:{before:200,after:100} }));
+      const rows=tableRows.map((rowStr,ri)=>{
+        const cells=rowStr.split('|').map(c=>c.trim()).filter(c=>c!=='');
+        return new TableRow({ children: cells.map(c=> new TableCell({
+          width:{size:Math.floor(9000/Math.max(1,cells.length)), type:WidthType.DXA},
+          shading: ri===0 ? {type:ShadingType.SOLID, color:'E5E7EB', fill:'E5E7EB'} : undefined,
+          children:[ new Paragraph({ alignment:AlignmentType.CENTER, children:[new TextRun({text:c, bold:ri===0})] }) ]
+        })) });
+      });
+      children.push(new Table({ width:{size:9000,type:WidthType.DXA}, rows }));
+      children.push(new Paragraph({ text:'', spacing:{after:200} }));
+      tableRows=[]; tableTitle='';
+    }
+    inTable=false;
+  }
+
+  const lines=text.split('\n');
+  for(const raw of lines){
+    const trimmed=raw.trim();
+
+    const chartPh=trimmed.match(/^@@DOCX_CHART_(\d+)@@$/);
+    if(chartPh){
+      flushPara(); flushBullets(); flushNumbered(); if(inTable) flushTable();
+      const spec=chartSpecs[parseInt(chartPh[1],10)];
+      if(spec){
+        const png=buildChartPngFromSpec(spec);
+        if(png){
+          children.push(new Paragraph({ alignment:AlignmentType.CENTER, spacing:{before:100},
+            children:[ new ImageRun({ data: dataUrlToUint8ArrayGeneric(png), transformation:{width:420,height:240} }) ] }));
+          if(spec.title) children.push(new Paragraph({ children:[new TextRun({text:spec.title, italics:true, size:18})], alignment:AlignmentType.CENTER, spacing:{after:300} }));
+        }
+      }
+      continue;
+    }
+
+    if(/^\|.+\|/.test(trimmed)){
+      flushPara(); flushBullets(); flushNumbered();
+      if(/^\|[\s\-:]+\|/.test(trimmed)) continue;
+      inTable=true; tableRows.push(trimmed.replace(/^\||\|$/g,''));
+      continue;
+    }
+    if(inTable) flushTable();
+    if(!trimmed){ flushPara(); flushBullets(); flushNumbered(); continue; }
+
+    const tabelM=trimmed.match(/^(Tabel\s+\d[\d.]*[\s.]+.+)/i);
+    if(tabelM && !inTable){ tableTitle=tabelM[1]; continue; }
+
+    if(/^(BAB\s+[IVXLC0-9]+)/i.test(trimmed)){
+      flushPara(); flushBullets(); flushNumbered();
+      children.push(new Paragraph({ children:[new TextRun({text:trimmed.replace(/^#+\s*/,''), bold:true, size:28})], alignment:AlignmentType.CENTER, spacing:{before:400,after:150} }));
+      continue;
+    }
+    const h1=trimmed.match(/^#\s+(.+)/), h2=trimmed.match(/^##\s+(.+)/), h3=trimmed.match(/^###\s+(.+)/);
+    if(h1){ flushPara(); flushBullets(); flushNumbered(); children.push(new Paragraph({ children:[new TextRun({text:h1[1], bold:true, size:28})], alignment:AlignmentType.CENTER, spacing:{before:400,after:150} })); continue; }
+    if(h2){ flushPara(); flushBullets(); flushNumbered(); children.push(new Paragraph({ children:[new TextRun({text:h2[1], bold:true, size:24})], spacing:{before:300,after:120} })); continue; }
+    if(h3){ flushPara(); flushBullets(); flushNumbered(); children.push(new Paragraph({ children:[new TextRun({text:h3[1], bold:true, size:22})], spacing:{before:250,after:100} })); continue; }
+    if(/^\d+(\.\d+){1,3}\s+\S/.test(trimmed)){
+      flushPara(); flushBullets(); flushNumbered();
+      children.push(new Paragraph({ children:[new TextRun({text:trimmed, bold:true, size:24})], spacing:{before:280,after:120} }));
+      continue;
+    }
+    if(/^[A-Z][A-Z\s\d]{3,79}$/.test(trimmed) && trimmed.split(' ').length<=8 && !/[.,!?;:()]/.test(trimmed)){
+      flushPara(); flushBullets(); flushNumbered();
+      children.push(new Paragraph({ children:[new TextRun({text:trimmed, bold:true, size:24})], spacing:{before:280,after:120} }));
+      continue;
+    }
+    if(/^[-*•]\s+/.test(trimmed)){ flushPara(); flushNumbered(); bulletBuffer.push(trimmed.replace(/^[-*•]\s+/,'')); continue; }
+    if(/^[0-9a-z]+[.)]\s+/.test(trimmed) && trimmed.length<200){ flushPara(); flushBullets(); numberedBuffer.push(trimmed.replace(/^[0-9a-z]+[.)]\s+/,'')); continue; }
+    flushBullets(); flushNumbered(); paraBuffer.push(trimmed);
+  }
+  flushPara(); flushBullets(); flushNumbered(); if(inTable) flushTable();
+
+  const doc=new Document({
+    numbering:{ config:[{ reference:'generic-num', levels:[{level:0, format:'decimal', text:'%1.', alignment:AlignmentType.START, style:{paragraph:{indent:{left:480,hanging:240}}}}] }] },
+    styles:{ default:{ document:{ run:{ font:'Times New Roman', size:24 } } } },
+    sections:[{ properties:{}, children: children.length ? children : [new Paragraph('')] }]
+  });
+  return await Packer.toBlob(doc);
+}
+
+async function downloadHasilTugas(type){
   const judul = (prompt||'Tugas').substring(0,40).replace(/[^a-z0-9]+/gi,'_');
 
   if(taskType==='makalah'){
@@ -577,13 +746,15 @@ function downloadHasilTugas(type){
       win.document.close(); win.focus();
       setTimeout(()=>win.print(),400);
     } else if(type==='word'){
-      const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${judul}</title></head><body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${fullDocHtml}</body></html>`;
-      const blob=new Blob(['\ufeff',html],{type:'application/msword'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download=judul+'.doc';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('File Word berhasil diunduh!');
+      try{
+        showToast('Menyiapkan file Word...');
+        const blob = await buildGenericDocxBlob(makalahParts.plain, judul);
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=judul+'.docx';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('File Word berhasil diunduh!');
+      }catch(e){ console.error(e); showToast('Gagal membuat file Word: '+e.message); }
     } else if(type==='txt'){
       const blob=new Blob([makalahParts.plain],{type:'text/plain;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -603,6 +774,9 @@ function downloadHasilTugas(type){
   // Pakai parser yang sama dengan Preview Dokumen (heading, bold, tabel, chart) —
   // sebelumnya file unduhan pakai pemecah paragraf polos sehingga tanda markdown (#, **, dst)
   // ikut terbawa mentah dan tabel/chart tidak ikut ke file.
+  // Pakai parser yang sama dengan Preview Dokumen (heading, bold, tabel, chart) untuk PDF —
+  // sebelumnya file unduhan pakai pemecah paragraf polos sehingga tanda markdown (#, **, dst)
+  // ikut terbawa mentah dan tabel/chart tidak ikut ke file.
   const bodyHtml = renderHasilHTML(text);
 
   if(type==='pdf'){
@@ -611,13 +785,15 @@ function downloadHasilTugas(type){
     win.document.close(); win.focus();
     setTimeout(()=>win.print(),400);
   } else if(type==='word'){
-    const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>${judul}</title></head><body style="font-family:'Times New Roman';font-size:12pt;line-height:1.8;">${bodyHtml}</body></html>`;
-    const blob=new Blob(['\ufeff',html],{type:'application/msword'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download=judul+'.doc';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('File Word berhasil diunduh!');
+    try{
+      showToast('Menyiapkan file Word...');
+      const blob = await buildGenericDocxBlob(text, judul);
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=judul+'.docx';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('File Word berhasil diunduh!');
+    }catch(e){ console.error(e); showToast('Gagal membuat file Word: '+e.message); }
   } else if(type==='txt'){
     const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
     const url=URL.createObjectURL(blob);

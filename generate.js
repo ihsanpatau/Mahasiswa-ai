@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
     }
 
     const finalSystem = system
-      ? system
+      ? `${system}\n\n${GAYA_PENULISAN}`
       : GAYA_PENULISAN;
 
     const body = {

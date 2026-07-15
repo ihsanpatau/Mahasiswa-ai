@@ -102,6 +102,14 @@
         </button>
       </div>
       <div id="attachedFile" style="display:none;margin-top:8px;padding:6px 10px;background:var(--green-pale);border-radius:8px;font-size:12px;color:var(--green);font-weight:600;"></div>
+      <div style="margin-top:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:6px;">Format Hasil Akhir</div>
+        <div class="type-pills" id="formatTugasPills">
+          <button class="type-pill active" onclick="pilihFormatTugas(this,'word')" data-format="word">📄 Word</button>
+          <button class="type-pill" onclick="pilihFormatTugas(this,'pdf')" data-format="pdf">📕 PDF</button>
+          <button class="type-pill" onclick="pilihFormatTugas(this,'teks')" data-format="teks">📝 Teks</button>
+        </div>
+      </div>
     </div>
 
     <!-- Contoh Perintah -->
@@ -198,6 +206,12 @@
 <div class="toast" id="toast"></div>
 <script>
 function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+let formatTugasTerpilih='word';
+function pilihFormatTugas(btn,format){
+  document.querySelectorAll('#formatTugasPills .type-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  formatTugasTerpilih=format;
+}
 if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
 function fillExample(el){document.getElementById('taskInput').value=el.textContent.replace(/"/g,'');}
 function handleTaskFile(inp){
@@ -224,6 +238,7 @@ async function kirimTugas(){
   localStorage.removeItem('task_type');
   localStorage.removeItem('task_full_prompt');
   localStorage.setItem('task_prompt',task);
+  localStorage.setItem('task_output_format', formatTugasTerpilih);
   setTimeout(()=>window.location.href='hasil-tugas.html',1500);
 }
 </script>
