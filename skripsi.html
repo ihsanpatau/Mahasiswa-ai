@@ -271,6 +271,10 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F4FF; color:
   font-size: 12px; font-weight: 700; text-align: center;
   color: var(--dark); margin-bottom: 4px;
 }
+.hasil-content .ai-table-source {
+  font-size: 11px; font-style: italic; text-align: left;
+  color: var(--gray-400); margin: 4px 0 16px;
+}
 .hasil-content strong, .hasil-content b {
   font-weight: 700; color: var(--dark);
 }
@@ -1108,7 +1112,7 @@ Buat 12-15 entri referensi yang relevan dengan topik di atas (kombinasi buku, ju
     let tabelInstruksi = '';
     if (tabelWajibBab4 || permintaanEksplisitTabel) {
       const jumlahTabel = tabelWajibBab4 ? 'minimal 2-3 tabel data pendukung (misalnya distribusi responden, statistik deskriptif, atau ringkasan hasil uji)' : 'minimal 1 tabel data pendukung yang relevan dengan isi bagian ini';
-      tabelInstruksi = `\nWAJIB sertakan ${jumlahTabel}, menggunakan format PERSIS berikut (jangan pakai format tabel lain, jangan pakai markdown pipe biasa):\n[TABEL]\nJudul Tabel\nKolom1 | Kolom2 | Kolom3\nBaris1 | Angka | Angka\nBaris2 | Angka | Angka\n[/TABEL]\nIsi data dengan angka/perkiraan yang masuk akal dan konsisten dengan narasi (bukan data kosong), agar tabel benar-benar terisi DAN bisa otomatis digambarkan sebagai chart (kolom pertama = label kategori, kolom berikutnya = nilai numerik).\n`;
+      tabelInstruksi = `\nWAJIB sertakan ${jumlahTabel}, menggunakan format PERSIS berikut (jangan pakai format tabel lain, jangan pakai markdown pipe biasa):\n[TABEL]\nJudul Tabel\nSumber: keterangan sumber data (misal "Data primer diolah oleh peneliti, ${new Date().getFullYear()}" jika data hasil olahan sendiri, atau "Badan Pusat Statistik (${new Date().getFullYear()})" / nama instansi-tahun jika mengutip data sekunder)\nKolom1 | Kolom2 | Kolom3\nBaris1 | Angka | Angka\nBaris2 | Angka | Angka\n[/TABEL]\nBaris "Sumber:" WAJIB selalu ada di setiap tabel, ini standar penulisan ilmiah — jangan sampai tabel tanpa keterangan sumber. Isi data dengan angka/perkiraan yang masuk akal dan konsisten dengan narasi (bukan data kosong), agar tabel benar-benar terisi DAN bisa otomatis digambarkan sebagai chart (kolom pertama = label kategori, kolom berikutnya = nilai numerik).\n`;
     }
     const kataPerHalaman = 300;
     const targetKata = parseInt(halaman, 10) * kataPerHalaman;
@@ -1176,7 +1180,7 @@ ATURAN PENULISAN PENTING:
     if (!res.ok) throw new Error(data.error || 'Gagal terhubung ke server');
 
     if (data.text) {
-      const result = data.text;
+      const result = renumberTables(data.text, jenisDokumen);
       const hasilEl = document.getElementById('hasilText');
       hasilEl.dataset.rawText = result; // simpan teks asli untuk copy/download
       hasilEl.innerHTML = renderHasilHTML(result); // render rapi bergaya akademik
@@ -1362,6 +1366,7 @@ function renderHasilHTML(text) {
           html += '<tr>' + row.map(c => ri === 0 ? `<th>${esc(c)}</th>` : `<td>${applyInline(esc(c))}</td>`).join('') + '</tr>';
         });
         html += '</table></div>';
+        if (t.sumber) html += `<div class="ai-table-source">Sumber: ${esc(t.sumber)}</div>`;
         const chartUrl = buildChartDataUrlFromTable(t);
         if (chartUrl) {
           html += `<div style="text-align:center;margin:10px 0 18px;"><img src="${chartUrl}" alt="Grafik ${esc(t.judul || '')}" style="max-width:100%;height:auto;border:1px solid #E5E7EB;border-radius:8px;"></div>`;
@@ -1502,7 +1507,8 @@ async function buildSkripsiDocxBlob(text, judul, jenis, bidang, penulis, spasi, 
     const out = [];
     if(t.judul) out.push(new Paragraph({ children:[new TextRun({text:t.judul, bold:true})], alignment: AlignmentType.CENTER, spacing:{before:300,after:100} }));
     out.push(new Table({ width:{size:9000, type:WidthType.DXA}, rows }));
-    out.push(new Paragraph({ text:'', spacing:{after:200} }));
+    if(t.sumber) out.push(new Paragraph({ children:[new TextRun({text:'Sumber: '+t.sumber, italics:true, size:18})], alignment: AlignmentType.LEFT, spacing:{before:80,after:150} }));
+    else out.push(new Paragraph({ text:'', spacing:{after:200} }));
     // Sisipkan chart otomatis (jika kolom tabel ada angkanya) tepat di bawah tabel
     const chartUrl = buildChartDataUrlFromTable(t);
     if(chartUrl){
@@ -1626,11 +1632,39 @@ function extractTabelBlocks(text){
     const lines = inner.trim().split('\n').map(l=>l.trim()).filter(Boolean);
     if(!lines.length) return '';
     const judul = lines[0].includes('|') ? '' : lines.shift();
+    let sumber = '';
+    if(lines.length && /^sumber\s*:/i.test(lines[0])){
+      sumber = lines.shift().replace(/^sumber\s*:\s*/i,'').trim();
+    }
     const rows = lines.map(l => l.split('|').map(c=>c.trim()));
-    tables.push({ judul, rows });
+    tables.push({ judul, sumber, rows });
     return `[[TABEL_${tables.length-1}]]`;
   });
   return { cleaned, tables };
+}
+
+// Nomori ulang tabel secara konsisten ("Tabel <no BAB>.<urutan>") dan pastikan SETIAP tabel
+// selalu punya baris "Sumber:" — kalau AI lupa menuliskannya, kita kasih keterangan default
+// yang wajar secara ilmiah, supaya tidak ada tabel polos tanpa judul/sumber.
+function renumberTables(text, jenisDokumen){
+  const babMatch = String(jenisDokumen || '').match(/BAB\s*(\d+)/i);
+  const babNum = babMatch ? babMatch[1] : '1';
+  let idx = 0;
+  return text.replace(/\[TABEL\]([\s\S]*?)\[\/TABEL\]/g, (match, inner) => {
+    const lines = inner.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return match;
+    idx++;
+    let judul = lines[0].includes('|') ? '' : lines.shift();
+    let sumber = '';
+    if (lines.length && /^sumber\s*:/i.test(lines[0])) {
+      sumber = lines.shift().replace(/^sumber\s*:\s*/i, '').trim();
+    }
+    judul = judul.replace(/^tabel\s+[\d.]+[\s.:\-]*/i, '').trim();
+    if (!sumber) sumber = `Data primer diolah oleh peneliti, ${new Date().getFullYear()}`;
+    const newJudul = `Tabel ${babNum}.${idx}. ${judul || 'Data Penelitian'}`;
+    const body = [newJudul, `Sumber: ${sumber}`, ...lines].join('\n');
+    return `[TABEL]\n${body}\n[/TABEL]`;
+  });
 }
 
 function escapeHtmlSkripsi(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1662,6 +1696,7 @@ function formatSkripsiBody(text){
       out += '</tr>';
     });
     out += '</table>';
+    if(t.sumber) out += `<div style="font-size:10px;font-style:italic;color:#666;text-align:left;margin-bottom:14px;">Sumber: ${escapeHtmlSkripsi(t.sumber)}</div>`;
     return out;
   }
   lines.forEach(raw=>{
@@ -1732,7 +1767,11 @@ async function buildFileBlob(type) {
     const wb = XLSX.utils.book_new();
     if (tables.length) {
       tables.forEach((t, i) => {
-        const ws = XLSX.utils.aoa_to_sheet(t.rows);
+        const aoa = [];
+        if (t.judul) aoa.push([t.judul]);
+        aoa.push(...t.rows);
+        if (t.sumber) { aoa.push([]); aoa.push(['Sumber: ' + t.sumber]); }
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
         XLSX.utils.book_append_sheet(wb, ws, (t.judul || `Tabel ${i+1}`).substring(0,28).replace(/[\\\/\?\*\[\]:]/g,''));
       });
     } else {
