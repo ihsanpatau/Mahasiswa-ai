@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.2/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --blue: #1A3DC2;
@@ -1213,7 +1213,8 @@ ATURAN PENULISAN PENTING:
 // dipakai sebagai dataset batang. Dipakai baik di preview browser maupun di file Word.
 function buildChartDataUrlFromTable(t) {
   try {
-    if (typeof Chart === 'undefined' || !t || !t.rows || t.rows.length < 2) return null;
+    if (typeof Chart === 'undefined') { console.warn('Chart.js belum termuat — chart otomatis dilewati.'); return null; }
+    if (!t || !t.rows || t.rows.length < 2) return null;
     const header = t.rows[0];
     const dataRows = t.rows.slice(1).filter(r => r.length === header.length);
     if (!dataRows.length || header.length < 2) return null;
