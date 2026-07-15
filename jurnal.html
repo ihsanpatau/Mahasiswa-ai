@@ -81,7 +81,7 @@
             <input type="file" id="fileTemplate" accept=".pdf,.docx,.txt" style="display:none" onchange="onPickFile(this,'template')">
           </div>
         </div>
-        <div class="form-group"><label class="form-label">Jurnal Target (Opsional)</label><input type="text" id="jurnalTarget" class="form-input" placeholder="Contoh: Jurnal Manajemen Indonesia"></div>
+        <div class="form-group"><label class="form-label">Catatan / Instruksi Tambahan (Opsional)</label><textarea id="catatanTambahan" class="form-textarea" rows="3" placeholder="Contoh: buat sekitar 8 halaman, fokus ke bagian metode dan hasil, gaya penulisan lebih ringkas, atau target jurnal tertentu (mis. Jurnal Manajemen Indonesia)"></textarea></div>
         <div style="background:#EFF6FF;border-radius:10px;padding:10px 12px;font-size:11px;color:#1E40AF;line-height:1.5;margin-bottom:4px;">
           Isi kedua file akan diekstrak langsung di perangkatmu lalu dikirim ke AI. Jurnal hasil konversi akan mengikuti struktur bagian dari file template (jika diunggah), dan isinya diambil/diringkas dari naskah skripsi — bukan dikarang bebas.
         </div>
@@ -191,8 +191,8 @@ async function generate(){
       return;
     }
 
-    const jurnalTarget=document.getElementById('jurnalTarget').value.trim();
-    const prompt = `Kamu adalah asisten penulisan jurnal akademik untuk mahasiswa Indonesia. Buatkan SATU jurnal ilmiah lengkap hasil konversi dari naskah skripsi di bawah ini${jurnalTarget?(', ditujukan untuk '+jurnalTarget):''}.
+    const catatanTambahan=document.getElementById('catatanTambahan').value.trim();
+    const prompt = `Kamu adalah asisten penulisan jurnal akademik untuk mahasiswa Indonesia. Buatkan SATU jurnal ilmiah lengkap hasil konversi dari naskah skripsi di bawah ini.
 
 === ISI NASKAH SKRIPSI (sumber utama, gunakan isinya, jangan mengarang di luar ini) ===
 ${truncate(skripsiText,14000)}
@@ -204,12 +204,13 @@ INSTRUKSI:
 1. Ringkas dan susun ulang isi naskah skripsi menjadi format artikel jurnal, ikuti urutan/nama bagian dari template jika ada.
 2. Sertakan Judul, Abstrak (Bahasa Indonesia & Inggris), Kata Kunci, Pendahuluan, Metode Penelitian, Hasil dan Pembahasan, Kesimpulan, dan Daftar Pustaka.
 3. Tulis dalam Bahasa Indonesia akademik formal.
+${catatanTambahan? `4. CATATAN TAMBAHAN DARI PENGGUNA (WAJIB diikuti selama tidak bertentangan dengan instruksi lain di atas, misal soal jumlah halaman, gaya penulisan, fokus bagian tertentu, atau jurnal tujuan): ${catatanTambahan}` : ''}
 ${CHART_TABLE_INSTRUCTION}`;
 
     localStorage.removeItem('task_result');
     localStorage.removeItem('task_result_structured');
     localStorage.setItem('task_type','jurnal');
-    localStorage.setItem('task_prompt', jurnalTarget || 'Jurnal dari Skripsi');
+    localStorage.setItem('task_prompt', catatanTambahan || 'Jurnal dari Skripsi');
     localStorage.setItem('task_full_prompt', prompt);
     btnLabel.textContent='Memproses dengan AI...';
     showToast('Memproses jurnal dengan AI...');
