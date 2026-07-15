@@ -549,17 +549,35 @@ async function generateContent(){
 
   try{
     if(taskType==='makalah'){
-      let full = (await callAI(basePrompt)).text;
+      let res = await callAI(basePrompt);
+      let full = res.text;
       let doc;
       try{
+        if(res.stopReason==='max_tokens') throw new Error('Terpotong (max_tokens)');
         doc = parseAIJson(full);
       }catch(parseErr){
-        // Auto-retry once with a stricter instruction
+        // Kalau JSON-nya kepotong karena limit token (makalah panjang, mis. pilihan 20-25 halaman),
+        // minta AI menyambung PERSIS dari karakter terakhir alih-alih mulai ulang dari nol —
+        // ini penyebab utama kegagalan "gagal terus" pada makalah dengan halaman besar.
+        let tries=0;
+        while(res.stopReason==='max_tokens' && tries<3){
+          tries++;
+          const ekor=full.slice(-600);
+          const lanjutPrompt=`Kamu tadi sedang menulis JSON makalah ini, tapi TERPOTONG karena kepanjangan. Ini akhir dari JSON yang sudah kamu tulis (jangan ulangi):\n"""${ekor}"""\n\nLANJUTKAN PERSIS dari karakter terakhir di atas sampai JSON-nya benar-benar lengkap dan valid (tutup semua kurung/kutip yang belum ditutup). Jangan menulis ulang dari awal, jangan beri komentar apapun, langsung sambung karakternya.`;
+          res = await callAI(lanjutPrompt);
+          full += res.text;
+        }
         try{
-          full = (await callAI(basePrompt + '\n\nPENTING: Balas HANYA dengan JSON valid tanpa satupun teks/komentar/blok kode di luar JSON tersebut.')).text;
           doc = parseAIJson(full);
-        }catch(retryErr){
-          throw new Error('AI tidak mengembalikan format makalah yang valid setelah 2 percobaan. Klik "Coba Lagi".');
+        }catch(stillErr){
+          // Auto-retry sekali lagi dari nol dengan instruksi lebih ketat (fallback terakhir)
+          try{
+            res = await callAI(basePrompt + '\n\nPENTING: Balas HANYA dengan JSON valid tanpa satupun teks/komentar/blok kode di luar JSON tersebut. Jika makalah panjang, ringkas isi tiap sub-bab secukupnya asalkan JSON tetap valid dan lengkap.');
+            full = res.text;
+            doc = parseAIJson(full);
+          }catch(retryErr){
+            throw new Error('AI tidak mengembalikan format makalah yang valid setelah beberapa percobaan. Coba pilih jumlah halaman yang lebih kecil, atau klik "Coba Lagi".');
+          }
         }
       }
       const meta = JSON.parse(localStorage.getItem('makalah_meta')||'{}');
