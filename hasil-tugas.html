@@ -523,9 +523,13 @@ async function generateContent(){
   async function callAI(promptText){
     const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:promptText}]})});
     const data=await res.json();
-    if(!res.ok){ throw new Error(data.error || `Server error (${res.status})`); }
+    if(!res.ok){
+      const e = new Error(data.error || `Server error (${res.status})`);
+      e.isApiError = true; // beda dengan error parsing JSON — jangan diretry dengan cara yang sama
+      throw e;
+    }
     const full=(data.text||'').trim();
-    if(!full){ throw new Error('AI mengembalikan hasil kosong.'); }
+    if(!full){ const e=new Error('AI mengembalikan hasil kosong.'); e.isApiError=true; throw e; }
     const stopReason = data.raw && data.raw.stop_reason;
     return { text: full, stopReason };
   }
@@ -564,7 +568,7 @@ async function generateContent(){
           tries++;
           const ekor=full.slice(-600);
           const lanjutPrompt=`Kamu tadi sedang menulis JSON makalah ini, tapi TERPOTONG karena kepanjangan. Ini akhir dari JSON yang sudah kamu tulis (jangan ulangi):\n"""${ekor}"""\n\nLANJUTKAN PERSIS dari karakter terakhir di atas sampai JSON-nya benar-benar lengkap dan valid (tutup semua kurung/kutip yang belum ditutup). Jangan menulis ulang dari awal, jangan beri komentar apapun, langsung sambung karakternya.`;
-          res = await callAI(lanjutPrompt);
+          res = await callAI(lanjutPrompt); // kalau ini gagal karena API error asli, langsung lempar ke luar (lihat catch di bawah)
           full += res.text;
         }
         try{
@@ -576,6 +580,7 @@ async function generateContent(){
             full = res.text;
             doc = parseAIJson(full);
           }catch(retryErr){
+            if(retryErr.isApiError) throw retryErr; // error API asli (billing/auth/network) — tampilkan apa adanya
             throw new Error('AI tidak mengembalikan format makalah yang valid setelah beberapa percobaan. Coba pilih jumlah halaman yang lebih kecil, atau klik "Coba Lagi".');
           }
         }
