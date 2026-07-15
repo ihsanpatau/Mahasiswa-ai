@@ -452,16 +452,20 @@ function buildMakalahParts(doc, meta){
     + '<hr style="margin:18px 0;border:none;border-top:1px dashed #ccc;">'
     + kataPengantarHtml + babHtml + pustakaHtml;
 
-  let plain = `${judul}\n\nMAKALAH\n${bidang?bidang+'\n':''}\nDisusun oleh: ${penulis}\n\n`;
-  plain += 'DAFTAR ISI\nKata Pengantar\n';
+  // Marker @@PAGEBREAK@@ diterjemahkan buildGenericDocxBlob jadi page-break asli di Word,
+  // supaya sampul, daftar isi, kata pengantar, tiap BAB, dan daftar pustaka masing-masing
+  // mulai di halaman baru (sebelumnya semua nyambung jadi satu aliran teks tanpa pemisah).
+  let plain = `${judul}\n\nMAKALAH\n${bidang?bidang+'\n':''}\nDisusun oleh: ${penulis}\n\n@@PAGEBREAK@@\n`;
+  plain += 'DAFTAR ISI\n\nKata Pengantar\n';
   babDefs.forEach(b=>{ plain+=`${b.nomor} ${b.judul}\n`; (b.sub||[]).forEach(s=>plain+='  '+s.judul+'\n'); });
-  plain += 'Daftar Pustaka\n\n';
-  plain += 'KATA PENGANTAR\n'+(doc.kata_pengantar||'')+'\n\n';
+  plain += 'Daftar Pustaka\n\n@@PAGEBREAK@@\n';
+  plain += 'KATA PENGANTAR\n'+(doc.kata_pengantar||'')+'\n\n@@PAGEBREAK@@\n';
   babDefs.forEach(b=>{
     plain += `${b.nomor}\n${b.judul}\n\n`;
     (b.sub||[]).forEach(s=>{ plain += s.judul+'\n'+(s.isi||'')+'\n\n'; });
+    plain += '@@PAGEBREAK@@\n';
   });
-  plain += 'DAFTAR PUSTAKA\n'+pustaka.join('\n');
+  plain += 'DAFTAR PUSTAKA\n\n'+pustaka.join('\n\n');
 
   return {previewHtml, plain, coverHtml, daftarIsiHtml, kataPengantarHtml, babHtml, pustakaHtml, judul};
 }
@@ -653,7 +657,7 @@ function dataUrlToUint8ArrayGeneric(dataUrl){
 // di Word/WPS/Office manapun, bukan tampil sebagai teks polos yang ditempel.
 async function buildGenericDocxBlob(rawText, judulDok){
   if(typeof docx==='undefined') throw new Error('Modul Word (docx.js) belum siap, cek koneksi internet lalu coba lagi.');
-  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, Table, TableRow, TableCell, WidthType, ShadingType, ImageRun } = docx;
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, Table, TableRow, TableCell, WidthType, ShadingType, ImageRun, PageBreak } = docx;
 
   // Pisahkan blok ```chart``` dan ```svg``` dulu (svg tidak dirender ke Word, diganti catatan singkat)
   const chartSpecs=[];
@@ -666,20 +670,32 @@ async function buildGenericDocxBlob(rawText, judulDok){
   const children=[];
   let paraBuffer=[], bulletBuffer=[], numberedBuffer=[];
   let inTable=false, tableRows=[], tableTitle='';
+  let inDaftarPustaka=false; // dipakai untuk format hanging indent ala APA di Daftar Pustaka
 
   function applyInlineRuns(str, baseOpts={}){
-    // Pecah **bold** jadi beberapa TextRun, sisanya teks biasa
-    const parts=String(str).split(/(\*\*[^*]+\*\*)/g).filter(p=>p!=='');
+    // Pecah **bold** dan *italic* jadi TextRun terpisah, sisanya teks biasa.
+    // Urutan regex penting: cek **bold** dulu (dua bintang), baru *italic* (satu bintang),
+    // supaya **teks** tidak salah kebaca sebagai *< kosong >* + teks + *< kosong >*.
+    const parts=String(str).split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(p=>p!=='');
     return parts.map(p=>{
       const boldMatch=p.match(/^\*\*([^*]+)\*\*$/);
       if(boldMatch) return new TextRun({ text: boldMatch[1], bold:true, ...baseOpts });
+      const italicMatch=p.match(/^\*([^*]+)\*$/);
+      if(italicMatch) return new TextRun({ text: italicMatch[1], italics:true, ...baseOpts });
       return new TextRun({ text:p, ...baseOpts });
     });
   }
   function flushPara(){
     if(paraBuffer.length){
       const joined=paraBuffer.join(' ').trim();
-      if(joined) children.push(new Paragraph({ children: applyInlineRuns(joined), alignment: AlignmentType.JUSTIFIED, spacing:{after:200,line:360}, indent:{firstLine:480} }));
+      if(joined){
+        if(inDaftarPustaka){
+          // Format APA: baris pertama rata kiri (tanpa indent), baris lanjutan menjorok (hanging indent)
+          children.push(new Paragraph({ children: applyInlineRuns(joined), alignment: AlignmentType.LEFT, spacing:{after:200,line:360}, indent:{left:480,hanging:480} }));
+        } else {
+          children.push(new Paragraph({ children: applyInlineRuns(joined), alignment: AlignmentType.JUSTIFIED, spacing:{after:200,line:360}, indent:{firstLine:480} }));
+        }
+      }
       paraBuffer=[];
     }
   }
@@ -713,6 +729,12 @@ async function buildGenericDocxBlob(rawText, judulDok){
   for(const raw of lines){
     const trimmed=raw.trim();
 
+    if(trimmed==='@@PAGEBREAK@@'){
+      flushPara(); flushBullets(); flushNumbered(); if(inTable) flushTable();
+      children.push(new Paragraph({ children:[new PageBreak()] }));
+      continue;
+    }
+
     const chartPh=trimmed.match(/^@@DOCX_CHART_(\d+)@@$/);
     if(chartPh){
       flushPara(); flushBullets(); flushNumbered(); if(inTable) flushTable();
@@ -745,6 +767,7 @@ async function buildGenericDocxBlob(rawText, judulDok){
 
     if(/^(BAB\s+[IVXLC0-9]+)/i.test(trimmed)){
       flushPara(); flushBullets(); flushNumbered();
+      inDaftarPustaka=false;
       children.push(new Paragraph({ children:[new TextRun({text:trimmed.replace(/^#+\s*/,''), bold:true, size:28})], alignment:AlignmentType.CENTER, spacing:{before:400,after:150} }));
       continue;
     }
@@ -759,7 +782,8 @@ async function buildGenericDocxBlob(rawText, judulDok){
     }
     if(/^[A-Z][A-Z\s\d]{3,79}$/.test(trimmed) && trimmed.split(' ').length<=8 && !/[.,!?;:()]/.test(trimmed)){
       flushPara(); flushBullets(); flushNumbered();
-      children.push(new Paragraph({ children:[new TextRun({text:trimmed, bold:true, size:24})], spacing:{before:280,after:120} }));
+      if(/^daftar\s+pustaka$/i.test(trimmed)) inDaftarPustaka=true;
+      children.push(new Paragraph({ children:[new TextRun({text:trimmed, bold:true, size:24})], alignment:AlignmentType.CENTER, spacing:{before:280,after:120} }));
       continue;
     }
     if(/^[-*•]\s+/.test(trimmed)){ flushPara(); flushNumbered(); bulletBuffer.push(trimmed.replace(/^[-*•]\s+/,'')); continue; }
