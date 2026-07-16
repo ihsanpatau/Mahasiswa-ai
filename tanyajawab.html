@@ -127,8 +127,11 @@
   </nav>
 </div>
 <div class="toast" id="toast"></div>
-<style>.attach-btn{background:var(--gray-100);border:none;border-radius:var(--radius,10px);color:var(--dark);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+<style>.attach-btn{background:var(--gray-100);border:none;border-radius:var(--radius,10px);color:var(--dark);cursor:pointer;display:flex;align-items:center;justify-content:center;width:40px;height:40px;}
 .attach-btn:hover{background:var(--gray-200);}
+.send-btn{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.send-btn:hover{filter:brightness(1.1);}
+.send-btn svg{width:18px;height:18px;color:#fff;}
 @keyframes typingBounce{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}</style>
 <script>
 if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
