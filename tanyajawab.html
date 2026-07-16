@@ -3,17 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tanya Jawab & Koreksi – asistenku.pro</title>
+<title>Tanya Jawab & Belajar – asistenku.pro</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 .app{display:flex;flex-direction:column;height:100vh;}
 .chat-area{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
 .mode-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);}
 .mode-tab{flex:1;padding:10px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-400);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;}
 .mode-tab.active{color:var(--blue-light);border-bottom-color:var(--blue-light);}
-.correction-area{padding:16px;flex:1;overflow-y:auto;}
-.diff-old{background:#FEE2E2;text-decoration:line-through;border-radius:3px;padding:0 2px;color:#991B1B;}
-.diff-new{background:#DCFCE7;border-radius:3px;padding:0 2px;color:#166534;font-weight:600;}
+.belajar-area{padding:16px;flex:1;overflow-y:auto;}
+
+/* File attach chip (used in both tabs) */
+.file-chip{display:flex;align-items:center;gap:8px;background:var(--blue-pale,#EEF2FF);border:1px solid var(--gray-200);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--dark);margin-bottom:8px;}
+.file-chip .fname{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-chip .fremove{cursor:pointer;color:var(--gray-400);font-weight:700;padding:0 4px;}
+.upload-box{border:2px dashed var(--gray-200);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;}
+.upload-box:hover{border-color:var(--blue-light);background:var(--gray-50,#F9FAFB);}
+.upload-box .icon{font-size:26px;margin-bottom:6px;}
+.upload-box .title{font-size:13px;font-weight:700;color:var(--dark);}
+.upload-box .sub{font-size:11px;color:var(--gray-500);margin-top:2px;}
+.genre-grid{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0;}
+.genre-chip{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius-full,999px);padding:8px 13px;font-size:12px;font-weight:600;color:var(--dark);cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+.genre-chip:hover{border-color:var(--blue-light);color:var(--blue-light);}
+.genre-chip.active{border-color:var(--blue-light);background:var(--brand-50,#EEF2FF);color:var(--blue-light);}
+.belajar-result{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:14px;margin-top:14px;font-size:13px;line-height:1.8;color:var(--gray-700);}
 </style>
 </head>
 <body>
@@ -21,7 +36,7 @@
   <div class="backnav">
     <div class="backnav-left">
       <button class="back-btn" onclick="history.back()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg></button>
-      <div><div class="backnav-title">Tanya Jawab & Koreksi</div><div class="backnav-sub">AI akademik & cek tata bahasa</div></div>
+      <div><div class="backnav-title">Tanya Jawab & Belajar</div><div class="backnav-sub">AI akademik & belajar dari file</div></div>
     </div>
   </div>
 
@@ -31,9 +46,9 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Tanya Jawab
     </button>
-    <button class="mode-tab" id="tabKoreksi" onclick="switchMode('koreksi')">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      Koreksi Tata Bahasa
+    <button class="mode-tab" id="tabBelajar" onclick="switchMode('belajar')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M12 20h9"/><path d="M4 19h4l10.5-10.5a2.121 2.121 0 0 0-3-3L5 16v3"/><path d="M14.5 3.5l4.5 4.5"/></svg>
+      Belajar
     </button>
   </div>
 
@@ -43,7 +58,7 @@
       <div style="text-align:center;padding:20px;">
         <div style="font-size:32px;margin-bottom:8px;">🎓</div>
         <div style="font-size:15px;font-weight:700;color:var(--dark);">Tanya Apa Saja!</div>
-        <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">Pertanyaan akademik, metodologi, penulisan, atau apapun seputar skripsi dan penelitian.</p>
+        <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">Pertanyaan akademik, metodologi, penulisan, atau unggah file dan tanyakan isinya.</p>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
         <button onclick="sendQuick('Bagaimana cara menulis latar belakang yang baik?')" class="quick-reply">Cara menulis latar belakang</button>
@@ -53,7 +68,12 @@
       </div>
     </div>
     <div class="chat-input-area">
+      <div id="qaFileChip"></div>
       <div class="chat-input-row">
+        <button class="attach-btn" title="Unggah file" onclick="document.getElementById('qaFileInput').click()" style="flex-shrink:0;padding:10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <input type="file" id="qaFileInput" style="display:none" accept=".txt,.md,.csv,.pdf,.docx" onchange="handleQAFile(this)">
         <textarea class="chat-input" id="qaInput" placeholder="Tanya seputar akademik & penelitian..." rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendQA();}"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
@@ -64,40 +84,48 @@
     </div>
   </div>
 
-  <!-- Koreksi Mode -->
-  <div id="koreksiMode" style="display:none;flex:1;overflow:hidden;display:flex;flex-direction:column;">
-    <div class="correction-area" id="koreksiContent">
-      <div class="form-group">
-        <label class="form-label">Teks yang Ingin Dikoreksi <span style="color:var(--red)">*</span></label>
-        <textarea class="form-textarea" id="koreksiInput" placeholder="Tempel paragraf atau kalimat yang ingin dicek tata bahasanya..." rows="6"></textarea>
+  <!-- Belajar Mode -->
+  <div id="belajarMode" style="display:none;flex:1;overflow:hidden;display:flex;flex-direction:column;">
+    <div class="belajar-area" id="belajarContent">
+
+      <div id="belajarFileChip"></div>
+      <div class="upload-box" id="belajarUploadBox" onclick="document.getElementById('belajarFileInput').click()">
+        <div class="icon">📄</div>
+        <div class="title">Unggah File untuk Dipelajari</div>
+        <div class="sub">PDF, Word (.docx), atau teks (.txt) — AI akan membaca isinya</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Jenis Koreksi</label>
-        <div class="type-pills">
-          <button class="type-pill active" onclick="selectPill(this)">Tata Bahasa</button>
-          <button class="type-pill" onclick="selectPill(this)">EYD & Ejaan</button>
-          <button class="type-pill" onclick="selectPill(this)">Gaya Akademik</button>
-          <button class="type-pill" onclick="selectPill(this)">Semua</button>
+      <input type="file" id="belajarFileInput" style="display:none" accept=".txt,.md,.csv,.pdf,.docx" onchange="handleBelajarFile(this)">
+
+      <div class="form-group" style="margin-top:16px;">
+        <label class="form-label">Pilih Genre Belajar</label>
+        <div class="genre-grid" id="genreGrid">
+          <button class="genre-chip active" data-prompt="Buat rangkuman pembelajaran yang padat dan mudah dipahami dari isi file ini, lengkap dengan poin-poin penting.">📝 Rangkuman Pembelajaran</button>
+          <button class="genre-chip" data-prompt="Buat daftar pertanyaan dan jawaban yang mungkin ditanyakan saat sidang/presentasi berdasarkan isi file ini, lengkap dengan jawabannya.">🎤 Tanya Jawab Sidang</button>
+          <button class="genre-chip" data-prompt="Buat kartu flashcard (pertanyaan singkat dan jawaban singkat) untuk membantu menghafal poin-poin penting dari isi file ini.">🃏 Flashcard Belajar</button>
+          <button class="genre-chip" data-prompt="Buat soal latihan beserta kunci jawaban dan pembahasan berdasarkan isi file ini.">✏️ Soal Latihan</button>
+          <button class="genre-chip" data-prompt="Jelaskan konsep-konsep utama dalam file ini dengan bahasa yang sederhana, seolah menjelaskan ke pemula.">💡 Penjelasan Konsep</button>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="doKoreksi()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        Koreksi Sekarang
+
+      <div class="form-group">
+        <label class="form-label">Tanya Apa Saja Tentang File Ini <span style="color:var(--gray-400);font-weight:500;">(opsional)</span></label>
+        <textarea class="form-textarea" id="belajarQuestion" placeholder="Contoh: Jelaskan bab 2 dari file ini, atau tanya apa saja tentang isi file..." rows="3"></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="belajarSubmitBtn" onclick="doBelajar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M4 19h4l10.5-10.5a2.121 2.121 0 0 0-3-3L5 16v3"/></svg>
+        Mulai Belajar
       </button>
-      <div id="koreksiResult" style="display:none;margin-top:16px;">
-        <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px;">Hasil Koreksi:</div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:14px;margin-bottom:10px;">
-          <div id="koreksiText" style="font-size:13px;line-height:1.8;"></div>
-        </div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:12px;padding:14px;">
-          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;">Penjelasan Koreksi:</div>
-          <div id="koreksiExplain" style="font-size:12px;color:var(--gray-700);line-height:1.6;"></div>
-        </div>
+
+      <div id="belajarResultWrap" style="display:none;">
+        <div style="font-size:14px;font-weight:700;color:var(--dark);margin:16px 0 8px;">Hasil:</div>
+        <div class="belajar-result" id="belajarResult"></div>
         <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="btn btn-secondary btn-sm" onclick="copyKoreksi()">Salin Hasil</button>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('koreksiResult').style.display='none'">Koreksi Lagi</button>
+          <button class="btn btn-secondary btn-sm" onclick="copyBelajar()">Salin Hasil</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('belajarResultWrap').style.display='none'">Belajar Lagi</button>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -110,19 +138,82 @@
   </nav>
 </div>
 <div class="toast" id="toast"></div>
+<style>.attach-btn{background:var(--gray-100);border:none;border-radius:var(--radius,10px);color:var(--dark);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.attach-btn:hover{background:var(--gray-200);}
+@keyframes typingBounce{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}</style>
 <script>
+if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
 function showToast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
-function selectPill(btn){btn.closest('.type-pills').querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');}
 if(!localStorage.getItem('ak_token')){window.location.href='login.html';}
 
 function switchMode(mode){
   document.getElementById('qaMode').style.display=mode==='qa'?'flex':'none';
-  document.getElementById('koreksiMode').style.display=mode==='koreksi'?'flex':'none';
+  document.getElementById('belajarMode').style.display=mode==='belajar'?'flex':'none';
   document.getElementById('tabQA').classList.toggle('active',mode==='qa');
-  document.getElementById('tabKoreksi').classList.toggle('active',mode==='koreksi');
+  document.getElementById('tabBelajar').classList.toggle('active',mode==='belajar');
 }
 
+/* ---------- File reading helper (shared) ---------- */
+const MAX_FILE_CHARS = 15000;
+async function readFileAsText(file){
+  const name=file.name.toLowerCase();
+  if(name.endsWith('.pdf')){
+    if(!window.pdfjsLib) throw new Error('Pembaca PDF belum siap, coba lagi.');
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let text='';
+    const maxPages=Math.min(pdf.numPages,40);
+    for(let i=1;i<=maxPages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text+=content.items.map(it=>it.str).join(' ')+'\n\n';
+      if(text.length>MAX_FILE_CHARS)break;
+    }
+    return text;
+  }
+  if(name.endsWith('.docx')){
+    if(!window.mammoth) throw new Error('Pembaca Word belum siap, coba lagi.');
+    const buf=await file.arrayBuffer();
+    const result=await mammoth.extractRawText({arrayBuffer:buf});
+    return result.value||'';
+  }
+  if(name.endsWith('.txt')||name.endsWith('.md')||name.endsWith('.csv')){
+    return await file.text();
+  }
+  throw new Error('Format file belum didukung. Gunakan PDF, DOCX, atau TXT.');
+}
+function truncateText(t){
+  if(!t)return '';
+  t=t.trim();
+  return t.length>MAX_FILE_CHARS ? t.slice(0,MAX_FILE_CHARS)+'\n\n[...isi terpotong karena terlalu panjang...]' : t;
+}
+
+/* ---------- QA Mode ---------- */
 let qaChatHistory=[];
+let qaFileText='';
+let qaFileName='';
+async function handleQAFile(inp){
+  const file=inp.files[0];
+  if(!file)return;
+  const chip=document.getElementById('qaFileChip');
+  chip.innerHTML=`<div class="file-chip">📎 <span class="fname">Membaca ${file.name}...</span></div>`;
+  try{
+    const text=await readFileAsText(file);
+    qaFileText=truncateText(text);
+    qaFileName=file.name;
+    chip.innerHTML=`<div class="file-chip">📎 <span class="fname">${file.name}</span><span class="fremove" onclick="removeQAFile()">✕</span></div>`;
+    showToast('File siap! Silakan tanya apa saja tentang file ini.');
+  }catch(e){
+    chip.innerHTML='';
+    qaFileText='';qaFileName='';
+    showToast(e.message||'Gagal membaca file');
+  }
+  inp.value='';
+}
+function removeQAFile(){
+  qaFileText='';qaFileName='';
+  document.getElementById('qaFileChip').innerHTML='';
+}
 function addMsg(role,text){
   const area=document.getElementById('qaChat');
   const now=new Date();
@@ -148,8 +239,12 @@ async function sendQA(){
   inp.value='';inp.style.height='auto';
   addMsg('user',msg);
   showTypingQA();
+  let system='Kamu adalah asisten akademik AI dari asistenku.pro. Jawab pertanyaan seputar skripsi, tesis, penelitian, metodologi, dan penulisan akademik dalam Bahasa Indonesia. Jawab dengan jelas, terstruktur, dan berikan contoh praktis jika perlu.';
+  if(qaFileText){
+    system+=`\n\nPengguna telah mengunggah file bernama "${qaFileName}". Berikut isi filenya, gunakan sebagai konteks utama untuk menjawab pertanyaan pengguna jika relevan:\n\n${qaFileText}`;
+  }
   try{
-    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'Kamu adalah asisten akademik AI dari asistenku.pro. Jawab pertanyaan seputar skripsi, tesis, penelitian, metodologi, dan penulisan akademik dalam Bahasa Indonesia. Jawab dengan jelas, terstruktur, dan berikan contoh praktis jika perlu.',messages:qaChatHistory})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:system,messages:qaChatHistory})});
     const data=await res.json();
     document.getElementById('typingQA')?.remove();
     if(!res.ok){ addMsg('bot', data.error||'Gagal terhubung ke server.'); return; }
@@ -158,26 +253,69 @@ async function sendQA(){
   }catch(e){document.getElementById('typingQA')?.remove();addMsg('bot','Gagal terhubung ke AI. Periksa koneksi internet Anda.');}
 }
 function sendQuick(msg){document.getElementById('qaInput').value=msg;sendQA();}
-async function doKoreksi(){
-  const text=document.getElementById('koreksiInput').value.trim();
-  if(!text){showToast('Masukkan teks yang ingin dikoreksi');return;}
-  const jenis=document.querySelector('.type-pills .type-pill.active')?.textContent||'Tata Bahasa';
-  showToast('Menganalisis teks...');
+
+/* ---------- Belajar Mode ---------- */
+let belajarFileText='';
+let belajarFileName='';
+let selectedGenrePrompt=document.querySelector('#genreGrid .genre-chip')?.getAttribute('data-prompt')||'';
+
+document.getElementById('genreGrid').addEventListener('click',function(e){
+  const btn=e.target.closest('.genre-chip');
+  if(!btn)return;
+  this.querySelectorAll('.genre-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  selectedGenrePrompt=btn.getAttribute('data-prompt');
+});
+
+async function handleBelajarFile(inp){
+  const file=inp.files[0];
+  if(!file)return;
+  const chip=document.getElementById('belajarFileChip');
+  const box=document.getElementById('belajarUploadBox');
+  chip.innerHTML=`<div class="file-chip">📎 <span class="fname">Membaca ${file.name}...</span></div>`;
   try{
-    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Koreksi teks berikut untuk ${jenis} dalam Bahasa Indonesia. Berikan:\n1. Teks yang sudah dikoreksi (tandai perubahan dengan [SEBELUM→SESUDAH])\n2. Penjelasan singkat setiap koreksi\n\nTeks: "${text}"`}]})});
+    const text=await readFileAsText(file);
+    belajarFileText=truncateText(text);
+    belajarFileName=file.name;
+    chip.innerHTML=`<div class="file-chip">📎 <span class="fname">${file.name}</span><span class="fremove" onclick="removeBelajarFile()">✕</span></div>`;
+    box.style.display='none';
+    showToast('File siap dipelajari!');
+  }catch(e){
+    chip.innerHTML='';
+    belajarFileText='';belajarFileName='';
+    showToast(e.message||'Gagal membaca file');
+  }
+  inp.value='';
+}
+function removeBelajarFile(){
+  belajarFileText='';belajarFileName='';
+  document.getElementById('belajarFileChip').innerHTML='';
+  document.getElementById('belajarUploadBox').style.display='block';
+}
+async function doBelajar(){
+  if(!belajarFileText){showToast('Unggah file terlebih dahulu');return;}
+  const question=document.getElementById('belajarQuestion').value.trim();
+  const instruction=question||selectedGenrePrompt;
+  const btn=document.getElementById('belajarSubmitBtn');
+  btn.disabled=true;
+  showToast('Sedang memproses file...');
+  const system=`Kamu adalah asisten belajar AI dari asistenku.pro. Pengguna mengunggah file bernama "${belajarFileName}" untuk dipelajari. Berikut isi filenya:\n\n${belajarFileText}\n\nGunakan isi file di atas sebagai satu-satunya sumber utama untuk menjawab permintaan pengguna, jawab dalam Bahasa Indonesia yang jelas dan mudah dipahami.`;
+  try{
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:system,messages:[{role:'user',content:instruction}]})});
     const data=await res.json();
+    btn.disabled=false;
     if(!res.ok){ showToast(data.error||'Gagal terhubung ke server'); return; }
     const result=data.text||'';
-    const parts=result.split(/\d\.\s+(?:Teks|Penjelasan)/i);
-    document.getElementById('koreksiText').innerHTML=(parts[1]||result).trim().replace(/\[(.*?)→(.*?)\]/g,'<span class="diff-old">$1</span> <span class="diff-new">$2</span>').replace(/\n/g,'<br>');
-    document.getElementById('koreksiExplain').innerHTML=(parts[2]||'Silakan periksa hasil koreksi di atas.').trim().replace(/\n/g,'<br>');
-    document.getElementById('koreksiResult').style.display='block';
-    document.getElementById('koreksiResult').scrollIntoView({behavior:'smooth'});
-    showToast('Koreksi selesai! ✓');
-  }catch(e){showToast('Gagal. Coba lagi.');}
+    document.getElementById('belajarResult').innerHTML=result.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    document.getElementById('belajarResultWrap').style.display='block';
+    document.getElementById('belajarResultWrap').scrollIntoView({behavior:'smooth'});
+    showToast('Selesai! ✓');
+  }catch(e){
+    btn.disabled=false;
+    showToast('Gagal. Coba lagi.');
+  }
 }
-function copyKoreksi(){navigator.clipboard.writeText(document.getElementById('koreksiText').innerText).then(()=>showToast('Disalin!'));}
+function copyBelajar(){navigator.clipboard.writeText(document.getElementById('belajarResult').innerText).then(()=>showToast('Disalin!'));}
 </script>
-<style>@keyframes typingBounce{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}</style>
 </body>
 </html>
