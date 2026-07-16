@@ -221,8 +221,26 @@ area.scrollTop=area.scrollHeight;
 }
 
 // ======================================================
+// Nama pemilik/pencipta aplikasi ini. Kalau ada yang menanyakan
+// siapa pemilik/pembuat/pencipta/developer AI atau aplikasi ini,
+// dijawab langsung di sini (tidak perlu tanya ke server) supaya
+// jawabannya selalu konsisten dan tetap tampil walau server error.
+// ======================================================
+const NAMA_PEMILIK = 'Muh. Ihsan Patau, S.E';
+const REGEX_IDENTITAS = /(siapa\s+(yang\s+)?(membuat|menciptakan|mengembangkan|punya|pemilik|pembuat|pencipta|developer|owner)|pemilik(mu| aplikasi| ai)?|pencipta(mu| aplikasi| ai)?|pembuat(mu| aplikasi| ai)?|siapa\s+(itu\s+)?(developer|owner)|dibuat\s+oleh\s+siapa|punya\s+siapa)/i;
+
+function jawabanIdentitas(msg){
+  if(REGEX_IDENTITAS.test(msg)){
+    return `Aplikasi dan AI ini dimiliki dan diciptakan oleh **${NAMA_PEMILIK}**. Ada lagi yang bisa saya bantu?`;
+  }
+  return null;
+}
+
+// ======================================================
 // FUNGSI INI YANG DIPERBAIKI: sekarang memanggil backend
-// /api/generate.js (bukan langsung ke api.anthropic.com)
+// /api/generate.js (bukan langsung ke api.anthropic.com), dengan
+// penanganan error yang lebih jelas supaya DoktrAI tidak "diam saja"
+// kalau terjadi masalah di server.
 // ======================================================
 async function sendMessage(){
 const inp=document.getElementById('chatInput');
@@ -231,16 +249,34 @@ if(!msg)return;
 inp.value='';inp.style.height='auto';
 document.getElementById('quickReplies').style.display='none';
 addMsg('user',msg.replace(/\n/g,'<br>'),msg);
+
+// Jawab langsung pertanyaan seputar identitas pemilik/pencipta,
+// tanpa perlu memanggil server sama sekali.
+const jawabLangsung=jawabanIdentitas(msg);
+if(jawabLangsung){
+  showTyping();
+  setTimeout(()=>{
+    document.getElementById('typingIndicator')?.remove();
+    addMsg('bot',formatKontenChat(jawabLangsung),jawabLangsung);
+  },500);
+  return;
+}
+
 showTyping();
 try{
 const res=await fetch('/api/generate',{
 method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
-system:'Kamu adalah DoktrAI, asisten AI dari asistenku.pro. Kamu membantu menjawab pertanyaan seputar akademik, penelitian, penulisan, kesehatan, hukum, bisnis, dan karier dalam Bahasa Indonesia. Jawab dengan ramah, informatif, dan terstruktur.',
+system:`Kamu adalah DoktrAI, asisten AI dari asistenku.pro. Kamu membantu menjawab pertanyaan seputar akademik, penelitian, penulisan, kesehatan, hukum, bisnis, dan karier dalam Bahasa Indonesia. Jawab dengan ramah, informatif, dan terstruktur. Aplikasi dan AI ini dimiliki serta diciptakan oleh ${NAMA_PEMILIK}; jika ditanya siapa pemilik, pencipta, pembuat, atau developer aplikasi/AI ini, jawab dengan nama tersebut.`,
 messages:chatHistory.filter(m=>m.role!=='system')
 })
 });
-const data=await res.json();
+let data;
+try{
+  data=await res.json();
+}catch(parseErr){
+  throw new Error('Server tidak mengembalikan jawaban yang valid (kemungkinan endpoint /api/generate belum aktif atau ANTHROPIC_API_KEY belum diatur di server).');
+}
 document.getElementById('typingIndicator')?.remove();
 if(!res.ok){ throw new Error(data.error||'Gagal terhubung ke server'); }
 const reply=data.text||'Maaf, terjadi kesalahan. Coba lagi.';
@@ -248,7 +284,8 @@ const html=formatKontenChat(reply);
 addMsg('bot',html,reply);
 }catch(e){
 document.getElementById('typingIndicator')?.remove();
-const err='Maaf, gagal terhubung ke AI. Pastikan koneksi internet Anda aktif dan coba lagi.';
+console.error('DoktrAI error:', e);
+const err='Maaf, gagal terhubung ke AI ('+(e.message||'kesalahan tidak diketahui')+'). Pastikan koneksi internet Anda aktif dan coba lagi.';
 addMsg('bot',err,err);
 }
 }
