@@ -33,10 +33,6 @@
     </div>
     <div id="inputSection" style="padding:16px;">
       <div class="form-group">
-        <label class="form-label">Topik / Judul Presentasi <span style="color:var(--red)">*</span></label>
-        <input type="text" class="form-input" id="topikPPT" placeholder="Contoh: Pengaruh Digital Marketing terhadap Keputusan Pembelian">
-      </div>
-      <div class="form-group">
         <label class="form-label">Tujuan Presentasi</label>
         <div class="type-pills" id="pillsTujuan">
           <button class="type-pill active" onclick="selectPill(this)">Sidang Skripsi</button>
@@ -47,12 +43,12 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Tema Desain Slide</label>
+        <label class="form-label">Template Desain</label>
         <div class="type-pills" id="pillsTema">
-          <button class="type-pill active" onclick="selectPill(this)" data-tema="navy">🔵 Navy Akademik</button>
-          <button class="type-pill" onclick="selectPill(this)" data-tema="teal">🟢 Teal Modern</button>
-          <button class="type-pill" onclick="selectPill(this)" data-tema="gold">🟡 Gold Korporat</button>
-          <button class="type-pill" onclick="selectPill(this)" data-tema="magenta">🟣 Magenta Kreatif</button>
+          <button class="type-pill active" onclick="selectPill(this)" data-tema="modern">🔷 Modern</button>
+          <button class="type-pill" onclick="selectPill(this)" data-tema="sederhana">⬜ Sederhana</button>
+          <button class="type-pill" onclick="selectPill(this)" data-tema="elegan">🟨 Elegan</button>
+          <button class="type-pill" onclick="selectPill(this)" data-tema="bold">🟥 Bold Korporat</button>
         </div>
       </div>
       <div class="form-group">
@@ -67,10 +63,6 @@
       <div class="form-group">
         <label class="form-label">Instruksi / Perintah Tambahan (Opsional)</label>
         <textarea class="form-textarea" id="instruksiPPT" rows="3" placeholder="Isi sesuai kemauan Anda, misalnya: &quot;fokus ke bagian hasil dan pembahasan&quot;, &quot;bahasa Inggris&quot;, &quot;tambahkan slide metodologi lebih detail&quot;, &quot;nada santai untuk presentasi bisnis&quot;, dsb."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Konten / Ringkasan (Opsional)</label>
-        <textarea class="form-textarea" id="kontenPPT" placeholder="Tempel ringkasan atau poin penting yang harus ada dalam presentasi..." rows="4"></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Upload Dokumen Referensi (Opsional)</label>
@@ -158,26 +150,29 @@ async function extractFileTextPPT(file){
 }
 
 // ===== Tema desain (dipakai baik untuk preview warna maupun file .pptx asli) =====
-const TEMA_WARNA = {
-  navy:    { bg:'0F1E3D', accent:'3B82F6', accent2:'93C5FD', text:'0F172A', light:'F0F5FF' },
-  teal:    { bg:'0F3D3A', accent:'14B8A6', accent2:'5EEAD4', text:'0F172A', light:'EFFEFB' },
-  gold:    { bg:'1F1B12', accent:'D97706', accent2:'FCD34D', text:'1F2937', light:'FFFBEB' },
-  magenta: { bg:'3D0F2E', accent:'DB2777', accent2:'F9A8D4', text:'1F2937', light:'FDF2F8' },
+// ===== Template desain — masing-masing punya gaya visual berbeda, bukan cuma ganti warna =====
+const TEMPLATES = {
+  modern:    { bg:'0F1E3D', accent:'3B82F6', accent2:'93C5FD', text:'0F172A', font:'Calibri', fullColorSlides:false },
+  sederhana: { bg:'FFFFFF', accent:'374151', accent2:'9CA3AF', text:'1F2937', font:'Calibri', fullColorSlides:false, minimal:true },
+  elegan:    { bg:'FAF7F0', accent:'B8860B', accent2:'D4AF37', text:'2D2A26', font:'Georgia', fullColorSlides:false, elegant:true },
+  bold:      { bg:'C81E4A', accent:'C81E4A', accent2:'FFD166', text:'FFFFFF', font:'Calibri', fullColorSlides:true },
 };
 function getTema(){
-  const key = document.querySelector('#pillsTema .type-pill.active')?.dataset.tema || 'navy';
-  return TEMA_WARNA[key];
+  const key = document.querySelector('#pillsTema .type-pill.active')?.dataset.tema || 'modern';
+  return { key, ...TEMPLATES[key] };
 }
 
 let slides=[];
 
 async function generatePPT(){
-  const topik=document.getElementById('topikPPT').value.trim();
-  if(!topik){showToast('Isi judul/topik presentasi');return;}
   const tujuan=document.querySelector('#pillsTujuan .type-pill.active')?.textContent||'Sidang Skripsi';
   const jumlah=document.querySelector('#pillsJumlah .type-pill.active')?.textContent||'15 slide';
-  const konten=document.getElementById('kontenPPT').value.trim();
   const instruksi=document.getElementById('instruksiPPT').value.trim();
+
+  if(!pptFileState && !instruksi){
+    showToast('Upload dokumen referensi, atau isi kolom Instruksi dengan topik presentasinya');
+    return;
+  }
 
   const btn=document.getElementById('btnGeneratePPT');
   const btnLabel=document.getElementById('btnGeneratePPTLabel');
@@ -196,13 +191,13 @@ async function generatePPT(){
   }
 
   btnLabel.textContent='AI sedang menyusun slide...';
-  const prompt=`Buatkan outline presentasi PPT untuk acara: ${tujuan}, jumlah ${jumlah}, dengan topik: "${topik}".
-${konten?'\nRingkasan/poin penting dari penulis: '+konten.substring(0,1500):''}
-${instruksi?'\nINSTRUKSI KHUSUS DARI PENULIS (WAJIB diikuti selama masuk akal): '+instruksi:''}
-${referensiText?'\n=== ISI DOKUMEN REFERENSI (gunakan sebagai sumber utama isi slide) ===\n'+referensiText.substring(0,10000):''}
+  const prompt=`Buatkan outline presentasi PPT untuk acara: ${tujuan}, jumlah ${jumlah}.
+${instruksi?'\nINSTRUKSI DARI PENULIS (WAJIB diikuti — ini sumber topik/arahan utama kalau tidak ada dokumen referensi): '+instruksi:''}
+${referensiText?'\n=== ISI DOKUMEN REFERENSI (gunakan sebagai sumber utama isi slide, tentukan topiknya dari sini) ===\n'+referensiText.substring(0,10000):''}
+${!referensiText?'\n(Tidak ada dokumen referensi — tentukan topik presentasi dari instruksi penulis di atas.)':''}
 
 ATURAN:
-- Slide pertama WAJIB "type":"title" (judul presentasi + subjudul singkat, misal nama institusi/tanggal).
+- Slide pertama WAJIB "type":"title" (judul presentasi yang jelas + subjudul singkat, misal nama institusi/tanggal).
 - Selipkan beberapa "type":"section" sebagai pembatas bagian besar (misal sebelum masuk ke Metode, Hasil, dst) — cukup title singkat, tanpa points.
 - Slide isi pakai "type":"content" dengan title dan 3-5 points singkat (maksimal ±12 kata per point, bukan kalimat panjang, ini SLIDE bukan naskah).
 - Slide terakhir WAJIB "type":"closing" (misal "Terima Kasih" / "Pertanyaan?").
@@ -268,38 +263,99 @@ async function downloadPPTX(){
       const slide=pptx.addSlide();
       const type=s.type||(i===0?'title':(i===slides.length-1?'closing':'content'));
 
-      if(type==='title'){
-        slide.background={ color:tema.bg };
-        slide.addShape('rect',{ x:0, y:0, w:0.28, h:H, fill:{color:tema.accent} });
-        slide.addShape('rect',{ x:0.9, y:H/2-0.05, w:1.6, h:0.06, fill:{color:tema.accent} });
-        slide.addText(s.title||'', { x:0.9, y:H/2-1.5, w:W-1.8, h:1.4, fontSize:36, bold:true, color:'FFFFFF', fontFace:'Calibri', align:'left', valign:'bottom' });
-        if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.15, w:W-1.8, h:0.6, fontSize:16, color:tema.accent2, fontFace:'Calibri', align:'left' });
-      } else if(type==='section'){
-        slide.background={ color:tema.accent };
-        slide.addText(s.title||'', { x:0.9, y:H/2-0.7, w:W-1.8, h:1.4, fontSize:30, bold:true, color:'FFFFFF', fontFace:'Calibri', align:'left', valign:'middle' });
-        slide.addShape('rect',{ x:0.95, y:H/2+0.55, w:1.2, h:0.05, fill:{color:'FFFFFF'} });
-      } else if(type==='closing'){
-        slide.background={ color:tema.bg };
-        slide.addText(s.title||'Terima Kasih', { x:0.9, y:H/2-0.9, w:W-1.8, h:1.1, fontSize:34, bold:true, color:'FFFFFF', fontFace:'Calibri', align:'center', valign:'middle' });
-        if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.25, w:W-1.8, h:0.6, fontSize:15, color:tema.accent2, fontFace:'Calibri', align:'center' });
-        slide.addShape('rect',{ x:W/2-0.6, y:H/2-1.15, w:1.2, h:0.05, fill:{color:tema.accent} });
-      } else {
-        // content
+      if(tema.key==='sederhana'){
+        // SEDERHANA: putih polos, tanpa blok warna, garis tipis sebagai satu-satunya aksen
         slide.background={ color:'FFFFFF' };
-        slide.addShape('rect',{ x:0, y:0, w:W, h:1.05, fill:{color:tema.bg} });
-        slide.addShape('rect',{ x:0, y:1.05, w:1.4, h:0.06, fill:{color:tema.accent} });
-        slide.addText(s.title||'', { x:0.6, y:0.15, w:W-1.2, h:0.75, fontSize:24, bold:true, color:'FFFFFF', fontFace:'Calibri', align:'left', valign:'middle' });
-        const points=(s.points||[]).map(p=>String(p));
-        if(points.length){
-          slide.addText(points.map(p=>({ text:p, options:{ bullet:{code:'2022', indent:18}, breakLine:true, paraSpaceAfter:14 } })), {
-            x:0.7, y:1.5, w:W-1.4, h:H-2.1, fontSize:18, color:tema.text, fontFace:'Calibri', valign:'top', lineSpacingMultiple:1.15
-          });
+        if(type==='title'){
+          slide.addText(s.title||'', { x:0.9, y:H/2-1.1, w:W-1.8, h:1.1, fontSize:34, bold:true, color:tema.text, fontFace:tema.font, align:'left' });
+          slide.addShape('line',{ x:0.9, y:H/2+0.15, w:2.2, h:0, line:{color:tema.accent, width:2} });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.3, w:W-1.8, h:0.5, fontSize:15, color:tema.accent2, fontFace:tema.font });
+        } else if(type==='section'){
+          slide.addText(s.title||'', { x:0.9, y:H/2-0.5, w:W-1.8, h:1, fontSize:26, bold:true, color:tema.text, fontFace:tema.font, align:'left' });
+          slide.addShape('line',{ x:0.9, y:H/2+0.55, w:1.4, h:0, line:{color:tema.accent, width:2} });
+        } else if(type==='closing'){
+          slide.addText(s.title||'Terima Kasih', { x:0.9, y:H/2-0.7, w:W-1.8, h:0.9, fontSize:30, bold:true, color:tema.text, fontFace:tema.font, align:'center' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.15, w:W-1.8, h:0.5, fontSize:14, color:tema.accent2, fontFace:tema.font, align:'center' });
+        } else {
+          slide.addText(s.title||'', { x:0.7, y:0.5, w:W-1.4, h:0.7, fontSize:22, bold:true, color:tema.text, fontFace:tema.font, align:'left' });
+          slide.addShape('line',{ x:0.7, y:1.25, w:W-1.4, h:0, line:{color:'E5E7EB', width:1} });
+          const points=(s.points||[]).map(p=>String(p));
+          if(points.length) slide.addText(points.map(p=>({ text:p, options:{ bullet:{code:'2013', indent:16}, breakLine:true, paraSpaceAfter:16 } })), { x:0.8, y:1.6, w:W-1.6, h:H-2.2, fontSize:17, color:tema.text, fontFace:tema.font, valign:'top' });
+          slide.addText(`${i+1}`, { x:W-0.7, y:H-0.5, w:0.5, h:0.35, fontSize:10, color:'9CA3AF', align:'right' });
         }
-        slide.addText(`${i+1}`, { x:W-0.7, y:H-0.5, w:0.5, h:0.35, fontSize:10, color:'9CA3AF', align:'right' });
+
+      } else if(tema.key==='elegan'){
+        // ELEGAN: krem, font serif, garis emas tipis, teks rata tengah
+        slide.background={ color:tema.bg };
+        if(type==='title'){
+          slide.addShape('line',{ x:W/2-0.8, y:H/2-1.3, w:1.6, h:0, line:{color:tema.accent2, width:1.5} });
+          slide.addText(s.title||'', { x:0.9, y:H/2-1.1, w:W-1.8, h:1.1, fontSize:32, bold:true, italic:true, color:tema.text, fontFace:tema.font, align:'center' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.15, w:W-1.8, h:0.5, fontSize:14, color:tema.accent, fontFace:tema.font, align:'center' });
+          slide.addShape('line',{ x:W/2-0.8, y:H/2+0.75, w:1.6, h:0, line:{color:tema.accent2, width:1.5} });
+        } else if(type==='section'){
+          slide.addText(s.title||'', { x:0.9, y:H/2-0.5, w:W-1.8, h:1, fontSize:26, bold:true, italic:true, color:tema.accent, fontFace:tema.font, align:'center' });
+        } else if(type==='closing'){
+          slide.addText(s.title||'Terima Kasih', { x:0.9, y:H/2-0.7, w:W-1.8, h:0.9, fontSize:30, bold:true, italic:true, color:tema.text, fontFace:tema.font, align:'center' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.15, w:W-1.8, h:0.5, fontSize:14, color:tema.accent, fontFace:tema.font, align:'center' });
+        } else {
+          slide.addText(s.title||'', { x:0.7, y:0.55, w:W-1.4, h:0.7, fontSize:22, bold:true, italic:true, color:tema.accent, fontFace:tema.font, align:'center' });
+          slide.addShape('line',{ x:W/2-0.6, y:1.35, w:1.2, h:0, line:{color:tema.accent2, width:1.2} });
+          const points=(s.points||[]).map(p=>String(p));
+          if(points.length) slide.addText(points.map(p=>({ text:p, options:{ bullet:{code:'2022', indent:18}, breakLine:true, paraSpaceAfter:16 } })), { x:1.3, y:1.7, w:W-2.6, h:H-2.3, fontSize:17, color:tema.text, fontFace:tema.font, valign:'top' });
+        }
+
+      } else if(tema.key==='bold'){
+        // BOLD KORPORAT: SEMUA slide full-color, tipografi besar & kontras tinggi
+        slide.background={ color:tema.bg };
+        if(type==='title'){
+          slide.addShape('rect',{ x:0, y:0, w:0.35, h:H, fill:{color:tema.accent2} });
+          slide.addText(s.title||'', { x:1.0, y:H/2-1.4, w:W-2, h:1.4, fontSize:38, bold:true, color:'FFFFFF', fontFace:tema.font, align:'left' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:1.0, y:H/2+0.15, w:W-2, h:0.6, fontSize:16, color:tema.accent2, fontFace:tema.font });
+        } else if(type==='section'){
+          slide.addShape('rect',{ x:0, y:H/2-1.2, w:W, h:2.4, fill:{color:'00000022'} });
+          slide.addText(s.title||'', { x:0.9, y:H/2-0.6, w:W-1.8, h:1.2, fontSize:30, bold:true, color:'FFFFFF', fontFace:tema.font, align:'center', valign:'middle' });
+        } else if(type==='closing'){
+          slide.addText(s.title||'Terima Kasih', { x:0.9, y:H/2-0.9, w:W-1.8, h:1.1, fontSize:34, bold:true, color:'FFFFFF', fontFace:tema.font, align:'center', valign:'middle' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.25, w:W-1.8, h:0.6, fontSize:15, color:tema.accent2, fontFace:tema.font, align:'center' });
+        } else {
+          slide.addShape('rect',{ x:0, y:0, w:0.35, h:H, fill:{color:tema.accent2} });
+          slide.addText(s.title||'', { x:1.0, y:0.5, w:W-2, h:0.8, fontSize:24, bold:true, color:'FFFFFF', fontFace:tema.font, align:'left' });
+          const points=(s.points||[]).map(p=>String(p));
+          if(points.length) slide.addText(points.map(p=>({ text:p, options:{ bullet:{code:'25B8', indent:18}, breakLine:true, paraSpaceAfter:16 } })), { x:1.1, y:1.6, w:W-2.2, h:H-2.2, fontSize:18, bold:true, color:'FFFFFF', fontFace:tema.font, valign:'top' });
+          slide.addText(`${i+1}`, { x:W-0.7, y:H-0.5, w:0.5, h:0.35, fontSize:10, color:tema.accent2, align:'right' });
+        }
+
+      } else {
+        // MODERN (default): dark title/closing, colored header bar untuk slide isi
+        if(type==='title'){
+          slide.background={ color:tema.bg };
+          slide.addShape('rect',{ x:0, y:0, w:0.28, h:H, fill:{color:tema.accent} });
+          slide.addShape('rect',{ x:0.9, y:H/2-0.05, w:1.6, h:0.06, fill:{color:tema.accent} });
+          slide.addText(s.title||'', { x:0.9, y:H/2-1.5, w:W-1.8, h:1.4, fontSize:36, bold:true, color:'FFFFFF', fontFace:tema.font, align:'left', valign:'bottom' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.15, w:W-1.8, h:0.6, fontSize:16, color:tema.accent2, fontFace:tema.font, align:'left' });
+        } else if(type==='section'){
+          slide.background={ color:tema.accent };
+          slide.addText(s.title||'', { x:0.9, y:H/2-0.7, w:W-1.8, h:1.4, fontSize:30, bold:true, color:'FFFFFF', fontFace:tema.font, align:'left', valign:'middle' });
+          slide.addShape('rect',{ x:0.95, y:H/2+0.55, w:1.2, h:0.05, fill:{color:'FFFFFF'} });
+        } else if(type==='closing'){
+          slide.background={ color:tema.bg };
+          slide.addText(s.title||'Terima Kasih', { x:0.9, y:H/2-0.9, w:W-1.8, h:1.1, fontSize:34, bold:true, color:'FFFFFF', fontFace:tema.font, align:'center', valign:'middle' });
+          if(s.subtitle) slide.addText(s.subtitle, { x:0.9, y:H/2+0.25, w:W-1.8, h:0.6, fontSize:15, color:tema.accent2, fontFace:tema.font, align:'center' });
+          slide.addShape('rect',{ x:W/2-0.6, y:H/2-1.15, w:1.2, h:0.05, fill:{color:tema.accent} });
+        } else {
+          slide.background={ color:'FFFFFF' };
+          slide.addShape('rect',{ x:0, y:0, w:W, h:1.05, fill:{color:tema.bg} });
+          slide.addShape('rect',{ x:0, y:1.05, w:1.4, h:0.06, fill:{color:tema.accent} });
+          slide.addText(s.title||'', { x:0.6, y:0.15, w:W-1.2, h:0.75, fontSize:24, bold:true, color:'FFFFFF', fontFace:tema.font, align:'left', valign:'middle' });
+          const points=(s.points||[]).map(p=>String(p));
+          if(points.length) slide.addText(points.map(p=>({ text:p, options:{ bullet:{code:'2022', indent:18}, breakLine:true, paraSpaceAfter:14 } })), { x:0.7, y:1.5, w:W-1.4, h:H-2.1, fontSize:18, color:tema.text, fontFace:tema.font, valign:'top', lineSpacingMultiple:1.15 });
+          slide.addText(`${i+1}`, { x:W-0.7, y:H-0.5, w:0.5, h:0.35, fontSize:10, color:'9CA3AF', align:'right' });
+        }
       }
     });
 
-    const judulFile=(document.getElementById('topikPPT').value.trim()||'Presentasi').substring(0,50).replace(/[^a-z0-9]+/gi,'_');
+    const judulSlide=(slides.find(s=>s.type==='title')||slides[0]||{}).title || 'Presentasi';
+    const judulFile=judulSlide.substring(0,50).replace(/[^a-z0-9]+/gi,'_');
     await pptx.writeFile({ fileName: judulFile+'.pptx' });
     showToast('File PPT berhasil diunduh!');
   }catch(e){
