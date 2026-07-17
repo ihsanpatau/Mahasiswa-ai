@@ -171,10 +171,7 @@ body, .app { background: var(--bg) !important; }
 }
 .modal-title { font-size:16px; font-weight:800; color:var(--dark); margin-bottom:14px; text-align:center; }
 
-.plan-badge { font-size:11.5px; font-weight:800; letter-spacing:.5px; padding:6px 13px; border-radius:20px; background:var(--gray-100); color:var(--gray-500); }
-.plan-badge.pro { background:linear-gradient(135deg,#0f1f5c,#1a3dc2); color:#fff; box-shadow:0 3px 10px rgba(27,61,194,.3); }
-.plan-badge.standar { background:var(--blue-pale); color:var(--blue-light); }
-.plan-badge.lanjutan { background:linear-gradient(135deg,#F5A623,#D97706); color:#fff; box-shadow:0 3px 10px rgba(217,119,6,.3); }
+.plan-badge { font-size:11.5px; font-weight:800; letter-spacing:.5px; padding:6px 13px; border-radius:20px; }
 
 /* ── Elegant menu sections ── */
 .profile-section {
@@ -185,11 +182,34 @@ body, .app { background: var(--bg) !important; }
   border: 1px solid var(--gray-100);
 }
 .profile-item-icon {
-  width: 38px; height: 38px; border-radius: 12px;
+  width: 40px; height: 40px; border-radius: 12px;
   background: var(--brand-50);
+  color: var(--brand);
   display: flex; align-items: center; justify-content: center;
   margin-right: 12px; flex-shrink: 0;
+  transition: transform .15s;
 }
+.profile-item:hover .profile-item-icon,
+.profile-item:active .profile-item-icon { transform: scale(1.06); }
+.profile-item-icon svg { width: 19px; height: 19px; }
+
+/* ── Colorful per-item icon variants ── */
+.profile-item-icon.c-blue    { background: #E8EEFF; color: #2952E3; }
+.profile-item-icon.c-purple  { background: #F1E9FE; color: #8B3DEE; }
+.profile-item-icon.c-orange  { background: #FFEEDD; color: #F5811F; }
+.profile-item-icon.c-green   { background: #E3FBEA; color: #16A34A; }
+.profile-item-icon.c-gold    { background: #FFF6DA; color: #D9A400; }
+.profile-item-icon.c-teal    { background: #DFF7F4; color: #0D9488; }
+.profile-item-icon.c-pink    { background: #FDE8F3; color: #DB2777; }
+.profile-item-icon.c-indigo  { background: #E9EAFE; color: #4F46E5; }
+.profile-item-icon.c-gray    { background: #EDEFF3; color: #5B6472; }
+.profile-item-icon.red       { background: #FDE7E7; color: #DC2626; }
+
+/* ── Colorful plan badges ── */
+.plan-badge.gratis   { background: var(--gray-100); color: var(--gray-500); }
+.plan-badge.standar  { background: linear-gradient(135deg,#2563EB,#1D4ED8); color: #fff; box-shadow: 0 3px 10px rgba(37,99,235,.3); }
+.plan-badge.pro      { background: linear-gradient(135deg,#EF4444,#B91C1C); color: #fff; box-shadow: 0 3px 10px rgba(220,38,38,.3); }
+.plan-badge.lanjutan { background: linear-gradient(135deg,#F5A623,#D97706); color: #fff; box-shadow: 0 3px 10px rgba(217,119,6,.3); }
 </style>
 </head>
 <body>
@@ -271,7 +291,7 @@ body, .app { background: var(--bg) !important; }
     <div style="padding:0 16px;margin-bottom:12px;">
       <div class="profile-section">
         <a href="#" class="profile-item" onclick="event.preventDefault();editProfile();">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="profile-item-icon c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Informasi Akun</div>
             <div class="profile-item-desc">Kelola informasi pribadi Anda</div>
@@ -279,7 +299,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="keamanan.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="profile-item-icon c-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Keamanan</div>
             <div class="profile-item-desc">Ubah password dan pengaturan keamanan</div>
@@ -287,7 +307,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="riwayat.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="profile-item-icon c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Riwayat &amp; Aktivitas</div>
             <div class="profile-item-desc">Lihat riwayat penggunaan dan aktivitas Anda</div>
@@ -295,7 +315,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="dokumen.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="profile-item-icon c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Dokumen Saya</div>
             <div class="profile-item-desc">Lihat semua dokumen yang pernah dibuat</div>
@@ -303,7 +323,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="favorit.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div class="profile-item-icon c-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Favorit</div>
             <div class="profile-item-desc">Dokumen dan percakapan favorit Anda</div>
@@ -316,7 +336,7 @@ body, .app { background: var(--bg) !important; }
     <div style="padding:0 16px;margin-bottom:12px;">
       <div class="profile-section">
         <a href="pembayaran.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div class="profile-item-icon c-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Metode Pembayaran</div>
             <div class="profile-item-desc">Kelola metode pembayaran Anda</div>
@@ -324,7 +344,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="voucher.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+          <div class="profile-item-icon c-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Voucher &amp; Promo</div>
             <div class="profile-item-desc">Lihat voucher dan promo yang tersedia</div>
@@ -337,7 +357,7 @@ body, .app { background: var(--bg) !important; }
     <div style="padding:0 16px;margin-bottom:12px;">
       <div class="profile-section">
         <a href="bantuan.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18a2 2 0 0 1 0 .92z"/></svg></div>
+          <div class="profile-item-icon c-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18a2 2 0 0 1 0 .92z"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Bantuan &amp; Dukungan</div>
             <div class="profile-item-desc">Pusat bantuan dan hubungi kami</div>
@@ -345,7 +365,7 @@ body, .app { background: var(--bg) !important; }
           <svg class="arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="pengaturan.html" class="profile-item">
-          <div class="profile-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <div class="profile-item-icon c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
           <div class="profile-item-body">
             <div class="profile-item-title">Pengaturan</div>
             <div class="profile-item-desc">Bahasa, notifikasi, dan pengaturan aplikasi</div>
@@ -437,7 +457,7 @@ function renderProfile(){
 function renderKuota(){
   const k=AkAccount.getKuota();
   document.getElementById('planBadge').textContent=k.planLabel.toUpperCase();
-  document.getElementById('planBadge').className='plan-badge '+(k.planKey==='gratis'?'':k.planKey);
+  document.getElementById('planBadge').className='plan-badge '+k.planKey;
 
   const halamanPct=Math.min(100, Math.round((k.halamanUsed/k.halamanLimit)*100));
   document.getElementById('halamanFill').style.width=halamanPct+'%';
