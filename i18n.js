@@ -1,0 +1,309 @@
+/* i18n.js — Kamus terjemahan ID ⇄ EN untuk asistenku.pro
+   Menyediakan window.AkI18n dengan API:
+     AkI18n.t(key)        -> string
+     AkI18n.apply()        -> terjemahkan semua [data-i18n] di halaman aktif
+     AkI18n.getLang()      -> 'id' | 'en'
+     AkI18n.setLang(code)  -> ganti bahasa & terjemahkan langsung + simpan ke localStorage
+   Catatan: Bahasa Arab belum didukung penuh (butuh RTL), jadi hanya 'id' dan 'en' yang aktif.
+*/
+(function (global) {
+  var DICT = {
+    id: {
+      "auth.agree1": "Saya setuju dengan",
+      "auth.agree2": "dan",
+      "auth.apple.register": "Daftar dengan Apple",
+      "auth.forgotPassword": "Lupa kata sandi?",
+      "auth.google": "Masuk dengan Google",
+      "auth.google.register": "Daftar dengan Google",
+      "auth.haveAccount": "Sudah punya akun?",
+      "auth.login.error": "Email atau kata sandi salah",
+      "auth.login.sub": "Masuk untuk melanjutkan",
+      "auth.login.title": "Selamat datang kembali!",
+      "auth.loginBtn": "Masuk",
+      "auth.loginHere": "Masuk di sini",
+      "auth.noAccount": "Belum punya akun?",
+      "auth.or": "atau",
+      "auth.register.sub": "Daftar untuk mulai menggunakan asistenku.pro",
+      "auth.register.title": "Buat akun baru",
+      "auth.registerBtn": "Daftar",
+      "auth.registerHere": "Daftar di sini",
+      "auth.rememberMe": "Ingat saya",
+      "backnav.abstrak.sub": "Buat ringkasan penelitian otomatis",
+      "backnav.abstrak.title": "Abstrak",
+      "backnav.bantuan.sub": "Pusat bantuan asistenku.pro",
+      "backnav.bantuan.title": "Bantuan &amp; Dukungan",
+      "backnav.doktrai.sub": "Dokter AI pribadi untuk membantumu",
+      "backnav.doktrai.title": "DoktrAI",
+      "backnav.dokumen.sub": "Semua dokumen yang pernah dibuat",
+      "backnav.dokumen.title": "Dokumen Saya",
+      "backnav.favorit.sub": "Dokumen dan percakapan favorit Anda",
+      "backnav.favorit.title": "Favorit",
+      "backnav.hasil_skripsi.sub": "Skripsi berhasil dibuat oleh AI",
+      "backnav.hasil_skripsi.title": "Hasil Skripsi",
+      "backnav.hasil_tugas.title": "Hasil Tugas",
+      "backnav.jurnal.sub": "Buat jurnal baru atau konversi dari skripsi",
+      "backnav.jurnal.title": "Jurnal",
+      "backnav.keamanan.sub": "Ubah password dan pengaturan keamanan",
+      "backnav.keamanan.title": "Keamanan",
+      "backnav.makalah.sub": "Buat makalah akademik dari judul atau file",
+      "backnav.makalah.title": "Makalah",
+      "backnav.parafrase.sub": "Tulis ulang teks & deteksi risiko plagiarisme/AI",
+      "backnav.parafrase.title": "Parafrase & Cek Plagiasi",
+      "backnav.pembayaran.sub": "Kelola metode pembayaran Anda",
+      "backnav.pembayaran.title": "Metode Pembayaran",
+      "backnav.pengaturan.sub": "Sesuaikan preferensi aplikasi",
+      "backnav.pengaturan.title": "Pengaturan",
+      "backnav.presentasi.sub": "Template AI · Desain unik setiap generate",
+      "backnav.presentasi.title": "Presentasi (PPT)",
+      "backnav.riwayat.sub": "Semua tugas yang pernah dikerjakan",
+      "backnav.riwayat.title": "Riwayat &amp; Aktivitas",
+      "backnav.skripsi.sub": "Bantu susun dari judul hingga selesai",
+      "backnav.skripsi.title": "Skripsi, Tesis &amp; Disertasi",
+      "backnav.skripsi_konfirmasi.sub": "Periksa sebelum generate",
+      "backnav.skripsi_konfirmasi.title": "Konfirmasi &amp; Mulai",
+      "backnav.skripsi_outline.sub": "Atur struktur bab dan sub-bab",
+      "backnav.skripsi_outline.title": "Outline Skripsi",
+      "backnav.skripsi_pengaturan.sub": "Gaya & format dokumen",
+      "backnav.skripsi_pengaturan.title": "Pengaturan",
+      "backnav.tanyajawab.sub": "AI bantu revisi per poin & belajar dari file",
+      "backnav.tanyajawab.title": "Revisi Skripsi & Belajar",
+      "backnav.tugas.sub": "Satu halaman serba-bisa untuk tugas apapun &amp; pekerjaan kantor.",
+      "backnav.tugas.title": "Tugas &amp; Project",
+      "backnav.voucher.sub": "Lihat voucher dan promo yang tersedia",
+      "backnav.voucher.title": "Voucher &amp; Promo",
+      "nav.beranda": "Beranda",
+      "nav.dokumen": "Dokumen",
+      "nav.kuota": "Kuota Saya",
+      "nav.profil": "Profil",
+      "nav.riwayat": "Riwayat",
+      "settings.analytics": "Bagikan Analitik",
+      "settings.analytics.sub": "Bantu tingkatkan layanan kami",
+      "settings.appLang": "Bahasa Aplikasi",
+      "settings.appVersion": "Versi Aplikasi",
+      "settings.auto": "Auto",
+      "settings.cancel": "Batal",
+      "settings.chooseLang": "Pilih Bahasa",
+      "settings.confirmDelete.h": "Hapus Semua Data?",
+      "settings.confirmDelete.p": "Semua riwayat dan data lokal akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.",
+      "settings.darkMode": "Mode Gelap",
+      "settings.darkMode.sub.off": "Tampilan terang aktif",
+      "settings.darkMode.sub.on": "Tampilan gelap aktif",
+      "settings.delete": "Hapus",
+      "settings.deleteAll": "Hapus Semua Data",
+      "settings.deleteAll.sub": "Hapus riwayat dan cache",
+      "settings.font.extra": "Ekstra",
+      "settings.font.large": "Besar",
+      "settings.font.normal": "Normal",
+      "settings.font.small": "Kecil",
+      "settings.fontSize": "Ukuran Font",
+      "settings.lang.note": "Bahasa Arab sedang dalam pengembangan dan akan hadir di update berikutnya.",
+      "settings.lang.noteLabel": "Catatan:",
+      "settings.latest": "Terbaru",
+      "settings.logout": "Keluar dari Akun",
+      "settings.notifEmail": "Notifikasi Email",
+      "settings.notifEmail.sub": "Update via email",
+      "settings.notifPromo": "Promo &amp; Penawaran",
+      "settings.notifPromo.sub": "Notifikasi diskon dan promo",
+      "settings.notifPush": "Notifikasi Push",
+      "settings.notifPush.sub": "Terima notifikasi di perangkat",
+      "settings.notifTugas": "Tugas Selesai",
+      "settings.notifTugas.sub": "Notifikasi saat dokumen siap",
+      "settings.privacyPolicy": "Kebijakan Privasi",
+      "settings.saveChat": "Simpan Riwayat Chat",
+      "settings.saveChat.sub": "Simpan percakapan DoktrAI",
+      "settings.section.about": "Tentang",
+      "settings.section.display": "Tampilan",
+      "settings.section.lang": "Bahasa &amp; Wilayah",
+      "settings.section.notif": "Notifikasi",
+      "settings.section.privacy": "Privasi &amp; Data",
+      "settings.soon": "Segera",
+      "settings.terms": "Syarat &amp; Ketentuan",
+      "settings.tz": "Zona Waktu",
+      "settings.enabled": "diaktifkan",
+      "settings.disabled": "dinonaktifkan",
+      "settings.darkMode.toast.on": "Mode gelap diaktifkan",
+      "settings.darkMode.toast.off": "Mode gelap dinonaktifkan",
+      "settings.lang.changed": "Bahasa diubah ke",
+      "settings.deleteAll.toast": "Semua data berhasil dihapus",
+      "settings.logout.confirm": "Yakin ingin keluar dari akun?",
+      "settings.logout.toast": "Berhasil keluar",
+      "settings.lang.arSoon": "Bahasa Arab segera hadir",
+      "settings.tz.toast": "Zona waktu diperbarui"
+    },
+    en: {
+      "auth.agree1": "I agree to the",
+      "auth.agree2": "and",
+      "auth.apple.register": "Sign up with Apple",
+      "auth.forgotPassword": "Forgot password?",
+      "auth.google": "Sign in with Google",
+      "auth.google.register": "Sign up with Google",
+      "auth.haveAccount": "Already have an account?",
+      "auth.login.error": "Incorrect email or password",
+      "auth.login.sub": "Sign in to continue",
+      "auth.login.title": "Welcome back!",
+      "auth.loginBtn": "Sign In",
+      "auth.loginHere": "Sign in here",
+      "auth.noAccount": "Don't have an account?",
+      "auth.or": "or",
+      "auth.register.sub": "Sign up to start using asistenku.pro",
+      "auth.register.title": "Create a new account",
+      "auth.registerBtn": "Sign Up",
+      "auth.registerHere": "Sign up here",
+      "auth.rememberMe": "Remember me",
+      "backnav.abstrak.sub": "Generate an automatic research summary",
+      "backnav.abstrak.title": "Abstract",
+      "backnav.bantuan.sub": "asistenku.pro help center",
+      "backnav.bantuan.title": "Help &amp; Support",
+      "backnav.doktrai.sub": "Your personal AI doctor",
+      "backnav.doktrai.title": "DoktrAI",
+      "backnav.dokumen.sub": "All documents you've ever created",
+      "backnav.dokumen.title": "My Documents",
+      "backnav.favorit.sub": "Your favorite documents and conversations",
+      "backnav.favorit.title": "Favorites",
+      "backnav.hasil_skripsi.sub": "Thesis successfully generated by AI",
+      "backnav.hasil_skripsi.title": "Thesis Result",
+      "backnav.hasil_tugas.title": "Assignment Result",
+      "backnav.jurnal.sub": "Create a new journal or convert from your thesis",
+      "backnav.jurnal.title": "Journal",
+      "backnav.keamanan.sub": "Change your password and security settings",
+      "backnav.keamanan.title": "Security",
+      "backnav.makalah.sub": "Create an academic paper from a title or file",
+      "backnav.makalah.title": "Paper",
+      "backnav.parafrase.sub": "Rewrite text & detect plagiarism/AI risk",
+      "backnav.parafrase.title": "Paraphrase & Plagiarism Check",
+      "backnav.pembayaran.sub": "Manage your payment methods",
+      "backnav.pembayaran.title": "Payment Methods",
+      "backnav.pengaturan.sub": "Customize your app preferences",
+      "backnav.pengaturan.title": "Settings",
+      "backnav.presentasi.sub": "AI templates · Unique design every generation",
+      "backnav.presentasi.title": "Presentation (PPT)",
+      "backnav.riwayat.sub": "All tasks you've ever worked on",
+      "backnav.riwayat.title": "History &amp; Activity",
+      "backnav.skripsi.sub": "Get help from title to completion",
+      "backnav.skripsi.title": "Thesis &amp; Dissertation",
+      "backnav.skripsi_konfirmasi.sub": "Review before generating",
+      "backnav.skripsi_konfirmasi.title": "Confirm &amp; Start",
+      "backnav.skripsi_outline.sub": "Arrange chapter and sub-chapter structure",
+      "backnav.skripsi_outline.title": "Thesis Outline",
+      "backnav.skripsi_pengaturan.sub": "Document style & format",
+      "backnav.skripsi_pengaturan.title": "Settings",
+      "backnav.tanyajawab.sub": "AI helps revise point-by-point & learn from files",
+      "backnav.tanyajawab.title": "Thesis Revision & Learning",
+      "backnav.tugas.sub": "One all-in-one page for any assignment or office work.",
+      "backnav.tugas.title": "Assignments &amp; Projects",
+      "backnav.voucher.sub": "View available vouchers and promos",
+      "backnav.voucher.title": "Vouchers &amp; Promos",
+      "nav.beranda": "Home",
+      "nav.dokumen": "Documents",
+      "nav.kuota": "My Quota",
+      "nav.profil": "Profile",
+      "nav.riwayat": "History",
+      "settings.analytics": "Share Analytics",
+      "settings.analytics.sub": "Help us improve our service",
+      "settings.appLang": "App Language",
+      "settings.appVersion": "App Version",
+      "settings.auto": "Auto",
+      "settings.cancel": "Cancel",
+      "settings.chooseLang": "Choose Language",
+      "settings.confirmDelete.h": "Delete All Data?",
+      "settings.confirmDelete.p": "All history and local data will be permanently deleted. This action cannot be undone.",
+      "settings.darkMode": "Dark Mode",
+      "settings.darkMode.sub.off": "Light theme active",
+      "settings.darkMode.sub.on": "Dark theme active",
+      "settings.delete": "Delete",
+      "settings.deleteAll": "Delete All Data",
+      "settings.deleteAll.sub": "Clear history and cache",
+      "settings.font.extra": "Extra",
+      "settings.font.large": "Large",
+      "settings.font.normal": "Normal",
+      "settings.font.small": "Small",
+      "settings.fontSize": "Font Size",
+      "settings.lang.note": "Arabic is under development and will arrive in a future update.",
+      "settings.lang.noteLabel": "Note:",
+      "settings.latest": "Latest",
+      "settings.logout": "Log Out",
+      "settings.notifEmail": "Email Notifications",
+      "settings.notifEmail.sub": "Updates via email",
+      "settings.notifPromo": "Promos &amp; Offers",
+      "settings.notifPromo.sub": "Discount and promo notifications",
+      "settings.notifPush": "Push Notifications",
+      "settings.notifPush.sub": "Receive notifications on this device",
+      "settings.notifTugas": "Task Completed",
+      "settings.notifTugas.sub": "Notify when a document is ready",
+      "settings.privacyPolicy": "Privacy Policy",
+      "settings.saveChat": "Save Chat History",
+      "settings.saveChat.sub": "Save DoktrAI conversations",
+      "settings.section.about": "About",
+      "settings.section.display": "Display",
+      "settings.section.lang": "Language &amp; Region",
+      "settings.section.notif": "Notifications",
+      "settings.section.privacy": "Privacy &amp; Data",
+      "settings.soon": "Coming soon",
+      "settings.terms": "Terms &amp; Conditions",
+      "settings.tz": "Time Zone",
+      "settings.enabled": "enabled",
+      "settings.disabled": "disabled",
+      "settings.darkMode.toast.on": "Dark mode enabled",
+      "settings.darkMode.toast.off": "Dark mode disabled",
+      "settings.lang.changed": "Language changed to",
+      "settings.deleteAll.toast": "All data deleted successfully",
+      "settings.logout.confirm": "Are you sure you want to log out?",
+      "settings.logout.toast": "Logged out successfully",
+      "settings.lang.arSoon": "Arabic is coming soon",
+      "settings.tz.toast": "Time zone updated"
+    }
+  };
+
+  var LANG_KEY = "ak_lang";
+  var SUPPORTED = ["id", "en"]; // Arab belum didukung, lihat catatan di atas
+
+  function getLang() {
+    var saved = localStorage.getItem(LANG_KEY);
+    return SUPPORTED.indexOf(saved) !== -1 ? saved : "id";
+  }
+
+  function t(key) {
+    var lang = getLang();
+    var table = DICT[lang] || DICT.id;
+    if (Object.prototype.hasOwnProperty.call(table, key)) return table[key];
+    if (Object.prototype.hasOwnProperty.call(DICT.id, key)) return DICT.id[key];
+    return key;
+  }
+
+  function apply() {
+    var lang = getLang();
+    document.documentElement.setAttribute("lang", lang);
+    var nodes = document.querySelectorAll("[data-i18n]");
+    nodes.forEach(function (el) {
+      var key = el.getAttribute("data-i18n");
+      var text = t(key);
+      el.innerHTML = text;
+    });
+    var attrNodes = document.querySelectorAll("[data-i18n-placeholder]");
+    attrNodes.forEach(function (el) {
+      var key = el.getAttribute("data-i18n-placeholder");
+      el.setAttribute("placeholder", t(key));
+    });
+  }
+
+  function setLang(code) {
+    if (SUPPORTED.indexOf(code) === -1) code = "id";
+    localStorage.setItem(LANG_KEY, code);
+    apply();
+    document.dispatchEvent(new CustomEvent("ak-i18n-changed", { detail: { lang: code } }));
+  }
+
+  global.AkI18n = {
+    t: t,
+    apply: apply,
+    getLang: getLang,
+    setLang: setLang,
+    SUPPORTED: SUPPORTED
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply);
+  } else {
+    apply();
+  }
+})(window);
