@@ -502,7 +502,36 @@ function highlightCurrentPlan(){
     }
   });
 }
+// Render dulu dari localStorage (cepat, hindari kedip), lalu sync paket
+// TERBARU dari Supabase (kolom profiles.plan) supaya kartu yang ditandai
+// "Paket Aktif" selalu sesuai dengan paket yang diset admin di Admin Panel —
+// bukan cache lama di HP pengguna.
 highlightCurrentPlan();
+(async function syncActivePlanUpgrade(){
+  try {
+    if (typeof window.supabase === 'undefined' || typeof AkAccount === 'undefined') return;
+    const token = await AkAccount.getValidToken();
+    if (!token) return;
+    let userId = null;
+    try {
+      const payload = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
+      userId = payload.sub;
+    } catch(e) { return; }
+    if (!userId) return;
+    const _sbUpg = window.supabase.createClient(
+      'https://dkpztybbcvvzatgwhano.supabase.co',
+      'sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm',
+      { global: { headers: { Authorization: 'Bearer ' + token } } }
+    );
+    const { data, error } = await _sbUpg.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+    if (error) { console.warn('Sync paket upgrade.html gagal:', error.message || error); return; }
+    if (data) {
+      localStorage.setItem('user_plan', (data.plan || 'gratis').toLowerCase());
+      if (data.plan_expiry) localStorage.setItem('user_plan_expiry', data.plan_expiry);
+      highlightCurrentPlan(); // render ulang dengan paket terbaru dari admin
+    }
+  } catch(e) { console.warn('Sync paket upgrade.html gagal:', e); }
+})();
 document.getElementById('payModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 </script>
 </body>

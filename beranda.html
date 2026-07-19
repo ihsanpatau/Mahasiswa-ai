@@ -410,6 +410,7 @@ renderKuotaBeranda();
       { global: { headers: { Authorization: 'Bearer ' + token } } }
     );
     const { data, error } = await _sb2.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+    if (error) console.warn('Sync plan beranda gagal:', error.message || error);
     if (!error && data) {
       localStorage.setItem('user_plan', (data.plan || 'gratis').toLowerCase());
       if (data.plan_expiry) localStorage.setItem('user_plan_expiry', data.plan_expiry);

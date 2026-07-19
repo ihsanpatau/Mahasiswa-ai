@@ -505,7 +505,11 @@ renderProfile();
 // Ini memastikan paket yang tampil selalu sesuai dengan yang diset admin
 (async function() {
   try {
-    const token = localStorage.getItem('ak_token');
+    // PENTING: pakai getValidToken() (auto-refresh) bukan token mentah dari
+    // localStorage, supaya kalau sesi login sudah lama (token kedaluwarsa),
+    // query ke Supabase tetap berhasil dan tidak diam-diam gagal lalu
+    // menampilkan paket lama yang ter-cache.
+    const token = (typeof AkAccount !== 'undefined') ? await AkAccount.getValidToken() : localStorage.getItem('ak_token');
     if (token) {
       let userId = null;
       try {
@@ -514,7 +518,11 @@ renderProfile();
       } catch(e) {}
 
       if (userId) {
-        const { data, error } = await _sb.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+        const _sbProfil = window.supabase.createClient(SB_URL, SB_KEY, {
+          global: { headers: { Authorization: 'Bearer ' + token } }
+        });
+        const { data, error } = await _sbProfil.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+        if (error) console.warn('Sync plan gagal:', error.message || error);
         if (!error && data) {
           const planBaru = (data.plan || 'gratis').toLowerCase();
           localStorage.setItem('user_plan', planBaru);
