@@ -195,79 +195,94 @@
       <div style="height:40px;"></div>
     </div>
 
-    <!-- Pricing Cards -->
-    <div class="section-header" style="margin-top:16px;"><span class="section-title">💳 Pilih Paket</span></div>
-    <div class="pricing-cards-wrap">
-      <!-- GRATIS -->
-      <div class="plan-card current">
-        <div class="plan-mascot-ring"><div class="plan-mascot">
-          <img src="cat-logo.png" alt="Maskot Gratis">
-        </div></div>
-        <div class="plan-name" style="color:var(--gray-500);">GRATIS</div>
-        <div class="plan-price" style="color:var(--dark);">Rp0</div>
-        <ul class="plan-features" style="color:var(--gray-500);">
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>5 halaman / hari</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>5 Chat DoktrAI</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Semua menu utama</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Riwayat 7 hari</li>
-        </ul>
-        <button class="plan-btn disabled">Paket Aktif</button>
-      </div>
+<!-- Pricing Cards -->
+<div class="section-header" style="margin-top:16px;"><span class="section-title">💳 Pilih Paket</span></div>
+<div class="pricing-cards-wrap" id="pricingCardsWrap">
+  <!-- GRATIS -->
+  <div class="plan-card current">
+    <div class="plan-mascot-ring"><div class="plan-mascot"><img src="cat-logo.png" alt="Maskot Gratis"></div></div>
+    <div class="plan-name" style="color:var(--gray-500);">GRATIS</div>
+    <div class="plan-price" style="color:var(--dark);" id="price_gratis">Rp0</div>
+    <ul class="plan-features" style="color:var(--gray-500);">
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="hal_gratis">5</span> halaman / hari</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="pesan_gratis">5</span> Chat DoktrAI</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Semua menu utama</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Riwayat 7 hari</li>
+    </ul>
+    <button class="plan-btn disabled">Paket Aktif</button>
+  </div>
 
-      <!-- STANDAR -->
-      <div class="plan-card standar">
-        <div class="plan-mascot-ring"><div class="plan-mascot">
-          <img src="cat-dokter-standar.png" alt="Maskot Standar - Kucing Dokter">
-        </div></div>
-        <div class="plan-name" style="color:var(--blue);">STANDAR</div>
-        <div class="plan-price" style="color:var(--blue);">Rp20.000<span>/bulan</span></div>
-        <ul class="plan-features" style="color:var(--gray-500);">
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>10 halaman / hari</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>20 Chat DoktrAI</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Riwayat tanpa batas</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas normal</li>
-        </ul>
-        <div style="text-align:center;font-size:11px;font-weight:700;color:var(--orange);margin-top:2px;">🔥 Paling Dipilih</div>
-        <button class="plan-btn blue" onclick="beliPaket('Standar','20000')">Beli Sekarang</button>
-      </div>
+  <!-- STANDAR -->
+  <div class="plan-card standar">
+    <div class="plan-mascot-ring"><div class="plan-mascot"><img src="cat-dokter-standar.png" alt="Maskot Standar - Kucing Dokter"></div></div>
+    <div class="plan-name" style="color:var(--blue);">STANDAR</div>
+    <div class="plan-price" style="color:var(--blue);" id="price_standar">Rp20.000<span>/bulan</span></div>
+    <ul class="plan-features" style="color:var(--gray-500);">
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="hal_standar">10</span> halaman / hari</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="pesan_standar">20</span> Chat DoktrAI</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Riwayat tanpa batas</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas normal</li>
+    </ul>
+    <div style="text-align:center;font-size:11px;font-weight:700;color:var(--orange);margin-top:2px;">🔥 Paling Dipilih</div>
+    <button class="plan-btn blue" id="btn_standar" onclick="beliPaket('Standar','20000')">Beli Sekarang</button>
+  </div>
 
-      <!-- PRO -->
-      <div class="plan-card pro" style="position:relative;padding-top:26px;">
-        <div class="best-badge">⭐ TERBAIK</div>
-        <div class="plan-mascot-ring"><div class="plan-mascot">
-          <img src="cat-doktrai.png" alt="Maskot Pro">
-        </div></div>
-        <div class="plan-name" style="color:#fff;">PRO</div>
-        <div class="plan-price" style="color:#fff;">Rp59.000<span>/bulan</span></div>
-        <ul class="plan-features" style="color:rgba(255,255,255,0.85);">
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>35 halaman / hari</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>50 Chat DoktrAI</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Generate lebih cepat</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas tinggi</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk skripsi</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk freelancer</li>
-        </ul>
-        <button class="plan-btn gold" onclick="beliPaket('Pro','59000')">Beli Sekarang</button>
-      </div>
+  <!-- PRO -->
+  <div class="plan-card pro" style="position:relative;padding-top:26px;">
+    <div class="best-badge">⭐ TERBAIK</div>
+    <div class="plan-mascot-ring"><div class="plan-mascot"><img src="cat-doktrai.png" alt="Maskot Pro"></div></div>
+    <div class="plan-name" style="color:#fff;">PRO</div>
+    <div class="plan-price" style="color:#fff;" id="price_pro">Rp59.000<span>/bulan</span></div>
+    <ul class="plan-features" style="color:rgba(255,255,255,0.85);">
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="hal_pro">35</span> halaman / hari</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="pesan_pro">50</span> Chat DoktrAI</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Generate lebih cepat</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas tinggi</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk skripsi</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#A7F3D0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk freelancer</li>
+    </ul>
+    <button class="plan-btn gold" id="btn_pro" onclick="beliPaket('Pro','59000')">Beli Sekarang</button>
+  </div>
 
-      <!-- LANJUTAN -->
-      <div class="plan-card lanjutan">
-        <div class="plan-mascot-ring"><div class="plan-mascot">
-          <img src="mascot-logo.png" alt="Maskot Lanjutan">
-        </div></div>
-        <div class="plan-name" style="color:#fff;">LANJUTAN</div>
-        <div class="plan-price" style="color:#fff;">Rp99.000<span>/bulan</span></div>
-        <ul class="plan-features" style="color:rgba(255,255,255,0.85);">
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>60 halaman / hari</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Chat tanpa batas</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas tertinggi</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Semua fitur premium</li>
-          <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk tim &amp; profesional</li>
-        </ul>
-        <button class="plan-btn white-outline" onclick="beliPaket('Lanjutan','99000')">Beli Sekarang</button>
-      </div>
-    </div>
-    <div class="scroll-dots"><span></span><span></span><span></span><span></span></div>
+  <!-- LANJUTAN -->
+  <div class="plan-card lanjutan">
+    <div class="plan-mascot-ring"><div class="plan-mascot"><img src="mascot-logo.png" alt="Maskot Lanjutan"></div></div>
+    <div class="plan-name" style="color:#fff;">LANJUTAN</div>
+    <div class="plan-price" style="color:#fff;" id="price_lanjutan">Rp99.000<span>/bulan</span></div>
+    <ul class="plan-features" style="color:rgba(255,255,255,0.85);">
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span><span id="hal_lanjutan">60</span> halaman / hari</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Chat tanpa batas</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Prioritas tertinggi</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Semua fitur premium</li>
+      <li><span class="feat-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Cocok untuk tim &amp; profesional</li>
+    </ul>
+    <button class="plan-btn white-outline" id="btn_lanjutan" onclick="beliPaket('Lanjutan','99000')">Beli Sekarang</button>
+  </div>
+</div>
+<div class="scroll-dots"><span></span><span></span><span></span><span></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared-config.js"></script>
+<script src="admin-sync.js"></script>
+<script>
+async function muatHargaTerbaru() {
+  if (!window.AkPricing) return;
+  const pkgs = await AkPricing.getPackages();
+  pkgs.forEach(p => {
+    const priceEl = document.getElementById('price_' + p.key);
+    if (priceEl) {
+      const coret = p.strike_price ? `<span style="text-decoration:line-through;opacity:.55;font-size:13px;margin-right:4px;">Rp${Number(p.strike_price).toLocaleString('id-ID')}</span>` : '';
+      const sub = p.key === 'gratis' ? '' : '<span>/bulan</span>';
+      priceEl.innerHTML = coret + 'Rp' + Number(p.display_price).toLocaleString('id-ID') + sub;
+    }
+    const halEl = document.getElementById('hal_' + p.key); if (halEl) halEl.textContent = p.halaman_limit;
+    const pesanEl = document.getElementById('pesan_' + p.key); if (pesanEl) pesanEl.textContent = p.pesan_limit >= 99999 ? 'Unlimited' : p.pesan_limit;
+    const btn = document.getElementById('btn_' + p.key);
+    if (btn) btn.setAttribute('onclick', `beliPaket('${p.label}','${p.real_price}')`);
+  });
+}
+document.addEventListener('DOMContentLoaded', muatHargaTerbaru);
+</script>
 
     <!-- Comparison Table -->
     <div style="padding:0 16px;margin-bottom:16px;">
