@@ -11,6 +11,7 @@
 <script src="theme.js"></script>
 <script src="i18n.js"></script>
 <script src="riwayat-store.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="account.js"></script>
 <style>
 /* ── Global dark background ── */
@@ -360,8 +361,8 @@ if(avatarUrl){ uaEl.innerHTML=`<img src="${avatarUrl}" alt="Foto profil" style="
 else { uaEl.textContent = firstName[0]?.toUpperCase() || 'A'; }
 document.getElementById('un').textContent = 'Halo, ' + firstName;
 
-// --- Kuota Hari Ini (data asli, bukan angka contoh) ---
-(function renderKuotaBeranda(){
+// --- Kuota Hari Ini: sync dari Supabase dulu, baru render ---
+function renderKuotaBeranda(){
   const k=AkAccount.getKuota();
   const badge=document.getElementById('planBadge');
   badge.textContent=k.planLabel.toUpperCase();
@@ -386,6 +387,32 @@ document.getElementById('un').textContent = 'Halo, ' + firstName;
     const exp=localStorage.getItem('user_plan_expiry');
     expiryEl.textContent = exp ? ('Berlaku hingga '+new Date(exp).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})) : 'Paket aktif';
   }
+}
+
+// Render awal dari localStorage (cepat), lalu sync dari Supabase dan render ulang
+renderKuotaBeranda();
+(async function syncPlanBeranda(){
+  try {
+    const token = localStorage.getItem('ak_token');
+    if (!token || typeof window.supabase === 'undefined') return;
+    let userId = null;
+    try {
+      const payload = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
+      userId = payload.sub;
+    } catch(e) { return; }
+    if (!userId) return;
+    const _sb2 = window.supabase.createClient(
+      'https://dkpztybbcvvzatgwhano.supabase.co',
+      'sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm',
+      { global: { headers: { Authorization: 'Bearer ' + token } } }
+    );
+    const { data, error } = await _sb2.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+    if (!error && data) {
+      localStorage.setItem('user_plan', (data.plan || 'gratis').toLowerCase());
+      if (data.plan_expiry) localStorage.setItem('user_plan_expiry', data.plan_expiry);
+      renderKuotaBeranda(); // render ulang dengan data terbaru
+    }
+  } catch(e) { console.warn('Sync plan beranda gagal:', e); }
 })();
 </script>
 </body>

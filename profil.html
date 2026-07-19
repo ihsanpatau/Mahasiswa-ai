@@ -507,7 +507,31 @@ function renderKuota(){
 }
 
 renderProfile();
-renderKuota();
+
+// Sync plan dari Supabase dulu, baru render kuota
+// Ini memastikan paket yang tampil selalu sesuai dengan yang diset admin
+(async function() {
+  try {
+    const token = localStorage.getItem('ak_token');
+    if (token) {
+      let userId = null;
+      try {
+        const payload = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
+        userId = payload.sub;
+      } catch(e) {}
+
+      if (userId) {
+        const { data, error } = await _sb.from('profiles').select('plan, plan_expiry').eq('id', userId).single();
+        if (!error && data) {
+          const planBaru = (data.plan || 'gratis').toLowerCase();
+          localStorage.setItem('user_plan', planBaru);
+          if (data.plan_expiry) localStorage.setItem('user_plan_expiry', data.plan_expiry);
+        }
+      }
+    }
+  } catch(e) { console.warn('Sync plan gagal:', e); }
+  renderKuota(); // render SETELAH sync selesai
+})();
 
 // --- Edit Profil ---
 function editProfile(){
