@@ -1100,7 +1100,17 @@ body {
 #akNotifOverlay .ak-notif-icon.warn  { box-shadow: 0 5px 14px rgba(245,158,11,.4); }
 #akNotifOverlay .ak-notif-icon.clock { box-shadow: 0 5px 14px rgba(239,68,68,.4); }
 #akNotifOverlay .ak-notif-icon.star  { box-shadow: 0 5px 14px rgba(124,58,237,.4); }
-#akNotifOverlay .ak-notif-icon.info  { box-shadow: 0 5px 14px rgba(59,91,255,.4); }
+#akNotifOverlay .ak-notif-icon.info  {
+  box-shadow: 0 5px 14px rgba(59,91,255,.3);
+  background-color: var(--brand-50);
+  background-image: url('mascot-logo.png'), linear-gradient(135deg,#EEF2FF,#DCE4FF);
+  background-size: 78%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  border: 2px solid #fff;
+  outline: 1px solid var(--brand-100);
+}
+#akNotifOverlay .ak-notif-icon.info svg { display: none; }
 #akNotifOverlay .ak-notif-title { font-size: 13.5px; font-weight: 750; }
 #akNotifOverlay .ak-notif-time {
   display: inline-block; margin-top: 7px;
