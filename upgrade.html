@@ -164,6 +164,12 @@
 .payment-logo.ovo { background: #4C3494; color: #fff; }
 .payment-logo.gopay { background: #00AED6; color: #fff; }
 </style>
+<!-- Midtrans Snap.js: mode SANDBOX untuk testing.
+     Kalau nanti sudah pindah ke Production, ganti src ke:
+     https://app.midtrans.com/snap/snap.js
+     dan data-client-key ke Client Key PRODUCTION (yang diawali "Mid-client-", diambil
+     dari dashboard.midtrans.com — bukan dashboard.sandbox.midtrans.com). -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-MKkci2a4CnUw32RL"></script>
 </head>
 <body>
 <div class="app">
@@ -447,41 +453,66 @@ function beliPaket(name,harga){
   if(voucherCode && bonusNote){ bonusNote.textContent = `🎟️ Voucher ${voucherCode} diterapkan: diskon ${voucherDiscount}%!`; }
 }
 function selectPay(btn){document.querySelectorAll('.pay-method').forEach(b=>{b.style.borderColor='var(--gray-200)';b.style.background='#fff';b.style.color='var(--dark)';});btn.style.borderColor='var(--blue-light)';btn.style.background='var(--blue-pale)';btn.style.color='var(--blue)';}
-function prosesPayment(){
-  showToast('Memproses pembayaran... Integrasi Midtrans segera hadir!');
-  const planKey=document.getElementById('payModal').dataset.planKey||'standar';
-  setTimeout(async ()=>{
-    // Simpan ke localStorage
-    localStorage.setItem('user_plan', planKey);
-    const expiry=new Date(); expiry.setDate(expiry.getDate()+37); // 30 hari + bonus 7 hari
-    localStorage.setItem('user_plan_expiry', expiry.toISOString());
 
-    // PENTING: simpan juga ke Supabase agar sinkron dengan admin panel
-    try {
-      const token = (typeof AkAccount !== 'undefined') ? await AkAccount.getValidToken() : localStorage.getItem('ak_token');
-      if (token) {
-        const payload = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
-        const userId = payload.sub;
-        if (userId) {
-          const SB_URL = 'https://dkpztybbcvvzatgwhano.supabase.co';
-          const SB_KEY = 'sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm';
-          const _sbUp = window.supabase.createClient(SB_URL, SB_KEY, {
-            global: { headers: { Authorization: 'Bearer ' + token } }
-          });
-          await _sbUp.from('profiles').update({
-            plan: planKey,
-            plan_expiry: expiry.toISOString(),
-            updated_at: new Date().toISOString()
-          }).eq('id', userId);
-        }
-      }
-    } catch(e) { console.warn('Sync plan ke Supabase gagal:', e); }
+async function prosesPayment(){
+  const planKey = document.getElementById('payModal').dataset.planKey || 'standar';
+  const btnBayar = document.querySelector('#payModal .btn-primary');
+  const teksAsli = btnBayar.textContent;
+  btnBayar.disabled = true;
+  btnBayar.textContent = 'Memproses...';
 
-    if(voucherCode){ localStorage.removeItem('ak_voucher_applied'); }
+  try {
+    // 1) Ambil identitas user yang sedang login (token di-refresh dulu biar tidak expired)
+    const token = (typeof AkAccount !== 'undefined') ? await AkAccount.getValidToken() : localStorage.getItem('ak_token');
+    if (!token) { showToast('Sesi login habis, silakan login ulang.'); setTimeout(()=>location.href='login.html',1500); return; }
+
+    const payload = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));
+    const userId = payload.sub;
+    const userEmail = payload.email || (user.email || '');
+    const userName = (user.user_metadata && user.user_metadata.full_name) || userEmail;
+
+    if (!userId || !userEmail) { showToast('Gagal membaca data akun, coba login ulang.'); return; }
+
+    // 2) Minta Snap Token ke server kita (backend yang hubungi Midtrans, bukan browser)
+    const resp = await fetch('/api/midtrans-create-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ package_key: planKey, user_id: userId, user_email: userEmail, user_name: userName })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      showToast('Gagal memulai pembayaran: ' + (data.error || 'Terjadi kesalahan'));
+      return;
+    }
+
     document.getElementById('payModal').classList.remove('open');
-    showToast('Paket '+planKey.charAt(0).toUpperCase()+planKey.slice(1)+' aktif!');
-    highlightCurrentPlan();
-  },1500);
+
+    // 3) Buka popup pembayaran Midtrans Snap
+    window.snap.pay(data.token, {
+      onSuccess: function(){
+        showToast('Pembayaran berhasil! Paket sedang diaktifkan...');
+        if (voucherCode) localStorage.removeItem('ak_voucher_applied');
+        setTimeout(() => location.reload(), 2000); // reload supaya sync dari Supabase (di-update webhook)
+      },
+      onPending: function(){
+        showToast('Menunggu pembayaran kamu. Paket aktif otomatis setelah pembayaran dikonfirmasi.', 4000);
+      },
+      onError: function(){
+        showToast('Pembayaran gagal. Silakan coba lagi.');
+      },
+      onClose: function(){
+        showToast('Pembayaran dibatalkan.');
+      }
+    });
+
+  } catch(e) {
+    console.error('prosesPayment error:', e);
+    showToast('Terjadi kesalahan, coba lagi.');
+  } finally {
+    btnBayar.disabled = false;
+    btnBayar.textContent = teksAsli;
+  }
 }
 function highlightCurrentPlan(){
   const activePlan=(localStorage.getItem('user_plan')||'gratis');
