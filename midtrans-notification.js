@@ -42,7 +42,11 @@ module.exports = async (req, res) => {
 
     if (expectedSignature !== signature_key) {
       console.warn('Signature tidak cocok untuk order_id:', order_id);
-      return res.status(403).json({ error: 'Signature tidak valid' });
+      // PENTING: tetap balas 200 (bukan 403/401), supaya Midtrans tidak menganggap
+      // endpoint ini error dan mengirim ulang notifikasi berkali-kali. Kita cukup
+      // tidak memproses datanya kalau signature tidak valid — ini praktik yang
+      // direkomendasikan Midtrans, termasuk untuk tombol "Test notification URL".
+      return res.status(200).json({ message: 'Signature tidak valid, diabaikan' });
     }
 
     // 2) Tentukan status akhir transaksi
