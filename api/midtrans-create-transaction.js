@@ -62,9 +62,9 @@ module.exports = async (req, res) => {
     const { error: insertError } = await sbAdmin.from('transactions').insert({
       order_id: orderId,
       user_id,
-      user_email,
-      package_key,
+      package_type: package_key,
       amount,
+      payment_method: 'midtrans',
       status: 'pending'
     });
 
@@ -118,6 +118,9 @@ module.exports = async (req, res) => {
       console.error('Midtrans error:', midtransData);
       return res.status(midtransRes.status).json({ error: midtransData.error_messages?.join(', ') || 'Gagal membuat transaksi Midtrans' });
     }
+
+    // Simpan token Snap ke transaksi (untuk referensi/debug)
+    await sbAdmin.from('transactions').update({ midtrans_token: midtransData.token }).eq('order_id', orderId);
 
     return res.status(200).json({
       token: midtransData.token,

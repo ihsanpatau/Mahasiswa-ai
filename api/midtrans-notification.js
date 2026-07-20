@@ -76,8 +76,11 @@ module.exports = async (req, res) => {
       return res.status(200).json({ message: 'Transaksi tidak ditemukan, diabaikan' });
     }
 
-    // 4) Update status transaksi
-    await sbAdmin.from('transactions').update({ status: finalStatus }).eq('order_id', order_id);
+    // 4) Update status transaksi + simpan response lengkap dari Midtrans
+    await sbAdmin.from('transactions').update({
+      status: finalStatus,
+      midtrans_response: notif
+    }).eq('order_id', order_id);
 
     // 5) Kalau sukses, aktifkan paket user di tabel profiles
     if (finalStatus === 'success') {
@@ -87,7 +90,7 @@ module.exports = async (req, res) => {
       const { error: profileError } = await sbAdmin
         .from('profiles')
         .update({
-          plan: trx.package_key,
+          plan: trx.package_type,
           plan_expiry: expiry.toISOString(),
           updated_at: new Date().toISOString()
         })
