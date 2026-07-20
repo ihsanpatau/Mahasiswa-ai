@@ -17,6 +17,12 @@ const AkAccount = (function () {
   };
   const PLAN_LIMITS = DEFAULT_LIMITS; // nama lama dipertahankan untuk kompatibilitas
   const LIMITS_CACHE_KEY = 'ak_plan_limits_cache';
+  const DURASI_CACHE_KEY = 'ak_plan_durasi_cache'; // { gratis:0, standar:30, pro:30, lanjutan:30, ... } — hari, diatur admin
+  const PROMO_CACHE_KEY = 'ak_promo_cache';
+  const DEFAULT_DURASI_HARI = 30; // fallback kalau admin belum sempat set / belum sync
+  const PESAN_INTERVAL_CACHE_KEY = 'ak_pesan_interval_cache'; // { gratis:7, standar:1, ... } — hari, diatur admin
+  const DEFAULT_PESAN_INTERVAL_HARI = 1; // fallback: reset harian kalau admin belum atur
+  const PESAN_WINDOW_KEY = 'ak_pesan_window'; // { start: ISOString, count: N } — jendela pesan berjalan saat ini
 
   // Baca override kuota terakhir yang berhasil disinkron dari tabel 'packages'.
   function getLimitsOverride() {
@@ -32,7 +38,50 @@ const AkAccount = (function () {
   function getPlanKey() {
     return (localStorage.getItem('user_plan') || 'gratis').toLowerCase();
   }
+  // --- PROMO (diatur admin lewat Admin Panel > Promo) ---
+  // Kalau admin mengaktifkan promo, SEMUA pengguna (apapun paketnya) memakai
+  // limit dari promo selama jendela waktunya masih berlaku. Jendela waktu
+  // dihitung dari 'started_at' (waktu admin menyalakan) + 'durasi_hari' (diatur admin).
+  function getActivePromo() {
+    try {
+      const p = JSON.parse(localStorage.getItem(PROMO_CACHE_KEY) || 'null');
+      if (!p || !p.active || !p.started_at) return null;
+      const start = new Date(p.started_at).getTime();
+      const durasiMs = (Number(p.durasi_hari) > 0 ? Number(p.durasi_hari) : 1) * 86400000;
+      const end = start + durasiMs;
+      if (Date.now() >= end) return null; // jendela promo sudah lewat
+      return { ...p, endsAt: new Date(end).toISOString() };
+    } catch (e) { return null; }
+  }
+
+  async function syncPromo() {
+    try {
+      if (typeof window.supabase === 'undefined') return null;
+      const SUPABASE_URL = 'https://dkpztybbcvvzatgwhano.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm';
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data, error } = await sb.from('promo_settings').select('*').eq('id', 1).maybeSingle();
+      if (error || !data) { localStorage.removeItem(PROMO_CACHE_KEY); return null; }
+      localStorage.setItem(PROMO_CACHE_KEY, JSON.stringify(data));
+      return data;
+    } catch (e) {
+      console.warn('syncPromo gagal:', e);
+      return null;
+    }
+  }
+
   function getPlan() {
+    const promo = getActivePromo();
+    if (promo) {
+      return {
+        halaman: promo.halaman_unlimited ? 99999 : (Number(promo.halaman_limit) || 0),
+        pesan: promo.pesan_unlimited ? 99999 : (Number(promo.pesan_limit) || 0),
+        label: '🎁 ' + (promo.label || 'Promo'),
+        isPromo: true,
+        promoEndsAt: promo.endsAt,
+        wordsPerPage: 300
+      };
+    }
     const key = getPlanKey();
     const base = DEFAULT_LIMITS[key] || DEFAULT_LIMITS.gratis;
     const override = getLimitsOverride()[key];
@@ -41,10 +90,11 @@ const AkAccount = (function () {
       return {
         halaman: (typeof override.halaman === 'number' && override.halaman >= 0) ? override.halaman : base.halaman,
         pesan:   (typeof override.pesan === 'number' && override.pesan >= 0) ? override.pesan : base.pesan,
-        label:   override.label || base.label
+        label:   override.label || base.label,
+        wordsPerPage: override.wordsPerPage || 300
       };
     }
-    return base;
+    return { ...base, wordsPerPage: 300 };
   }
 
   function todayKey() {
@@ -80,17 +130,48 @@ const AkAccount = (function () {
     localStorage.setItem(key, String(cur + jumlah));
   }
 
-  // Catat 1 (atau n) pemakaian pesan/chat AI.
+  // Interval reset pesan (hari) untuk 1 paket, sesuai admin di tabel packages.pesan_interval_hari.
+  // Contoh: Gratis=7 (1x per minggu), Standar=1 (harian), dst — bebas diatur admin.
+  function getPesanIntervalHari(planKey) {
+    try {
+      const d = JSON.parse(localStorage.getItem(PESAN_INTERVAL_CACHE_KEY) || '{}');
+      const key = (planKey || getPlanKey()).toLowerCase();
+      const v = d[key];
+      return (v && v > 0) ? v : DEFAULT_PESAN_INTERVAL_HARI;
+    } catch (e) { return DEFAULT_PESAN_INTERVAL_HARI; }
+  }
+
+  // Baca jendela pesan SAAT INI. Kalau jendela sebelumnya sudah lewat durasi
+  // interval paket aktif, otomatis dianggap mulai jendela baru (count=0) —
+  // TANPA menulis ke localStorage (murni untuk dibaca/ditampilkan).
+  function getPesanWindow() {
+    const intervalHari = getPesanIntervalHari();
+    const intervalMs = intervalHari * 86400000;
+    let w = null;
+    try { w = JSON.parse(localStorage.getItem(PESAN_WINDOW_KEY) || 'null'); } catch (e) {}
+    const now = Date.now();
+    if (!w || !w.start || (now - new Date(w.start).getTime()) >= intervalMs) {
+      w = { start: new Date(now).toISOString(), count: 0 };
+    }
+    return {
+      start: w.start,
+      count: w.count || 0,
+      intervalHari,
+      nextResetAt: new Date(new Date(w.start).getTime() + intervalMs).toISOString()
+    };
+  }
+
+  // Catat 1 (atau n) pemakaian pesan/chat AI — otomatis mulai jendela baru
+  // kalau jendela sebelumnya sudah lewat interval reset paket aktif.
   function catatPesan(n) {
     n = n || 1;
-    const key = 'ak_usage_pesan_' + todayKey();
-    const cur = parseInt(localStorage.getItem(key) || '0', 10);
-    localStorage.setItem(key, String(cur + n));
+    const w = getPesanWindow();
+    localStorage.setItem(PESAN_WINDOW_KEY, JSON.stringify({ start: w.start, count: w.count + n }));
   }
 
   function getUsage() {
     const halaman = Math.round(parseFloat(localStorage.getItem('ak_usage_halaman_' + todayKey()) || '0'));
-    const pesan = parseInt(localStorage.getItem('ak_usage_pesan_' + todayKey()) || '0', 10);
+    const pesan = getPesanWindow().count;
     return { halaman, pesan };
   }
 
@@ -98,6 +179,7 @@ const AkAccount = (function () {
   function getKuota() {
     const plan = getPlan();
     const usage = getUsage();
+    const pesanWindow = getPesanWindow();
     return {
       planKey: getPlanKey(),
       planLabel: plan.label,
@@ -105,7 +187,9 @@ const AkAccount = (function () {
       halamanLimit: plan.halaman,
       pesanUsed: Math.min(usage.pesan, plan.pesan),
       pesanLimit: plan.pesan,
-      pesanUnlimited: plan.pesan >= 99999
+      pesanUnlimited: plan.pesan >= 99999,
+      pesanIntervalHari: pesanWindow.intervalHari,
+      pesanNextResetAt: pesanWindow.nextResetAt
     };
   }
 
@@ -192,7 +276,68 @@ const AkAccount = (function () {
     return token;
   }
 
-  // --- Sync BATAS KUOTA dari tabel 'packages' (diatur admin di Admin Panel) ---
+  // Masa aktif (hari) untuk 1 paket, sesuai yang diatur admin di tabel packages.durasi_hari
+  function getDurasiHari(planKey) {
+    try {
+      const d = JSON.parse(localStorage.getItem(DURASI_CACHE_KEY) || '{}');
+      const key = (planKey || getPlanKey()).toLowerCase();
+      return d[key] || DEFAULT_DURASI_HARI;
+    } catch (e) { return DEFAULT_DURASI_HARI; }
+  }
+
+  // Info masa aktif siap-pakai untuk ditampilkan di UI (Beranda/Profil).
+  function getMasaAktifInfo() {
+    const planKey = getPlanKey();
+    const expiryRaw = localStorage.getItem('user_plan_expiry');
+    if (planKey === 'gratis' || !expiryRaw) {
+      return { planKey, expiryDate: null, expiryLabel: '-', daysLeft: null, isExpired: false };
+    }
+    const expiryDate = new Date(expiryRaw);
+    const daysLeft = Math.ceil((expiryDate.getTime() - Date.now()) / 86400000);
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const expiryLabel = `${expiryDate.getDate()} ${bulan[expiryDate.getMonth()]} ${expiryDate.getFullYear()}`;
+    return { planKey, expiryDate, expiryLabel, daysLeft, isExpired: daysLeft < 0 };
+  }
+
+  // --- Cek kuota SEBELUM generate — dipanggil oleh skripsi/jurnal/makalah/dll ---
+  // jumlahDiminta = perkiraan halaman yang mau dibuat (boleh dikosongkan untuk cek sisa saja).
+  function cekKuotaHalaman(jumlahDiminta) {
+    const k = getKuota();
+    if (k.halamanLimit >= 99999) return { ok: true, unlimited: true, sisa: Infinity };
+    const sisa = Math.max(0, k.halamanLimit - k.halamanUsed);
+    if (sisa <= 0) {
+      return {
+        ok: false, sisa: 0,
+        pesan: `Kuota halaman harian paket ${k.planLabel} sudah habis (${k.halamanUsed}/${k.halamanLimit} halaman). Kuota otomatis reset besok jam 00:00, atau upgrade paket untuk kuota lebih besar.`
+      };
+    }
+    if (jumlahDiminta && jumlahDiminta > sisa) {
+      return {
+        ok: true, sisa,
+        pesan: `Sisa kuota halaman hari ini tinggal ${sisa} dari paket ${k.planLabel} (target kamu ${jumlahDiminta} halaman).`,
+        partial: true
+      };
+    }
+    return { ok: true, sisa };
+  }
+
+  function cekKuotaPesan(n) {
+    n = n || 1;
+    const k = getKuota();
+    if (k.pesanUnlimited) return { ok: true, unlimited: true };
+    const sisa = Math.max(0, k.pesanLimit - k.pesanUsed);
+    if (sisa < n) {
+      const resetLabel = new Date(k.pesanNextResetAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+      const intervalTeks = k.pesanIntervalHari === 1 ? 'harian (tiap 1 hari)' : `tiap ${k.pesanIntervalHari} hari`;
+      return {
+        ok: false, sisa,
+        pesan: `Kuota pesan DoktrAI paket ${k.planLabel} sudah habis (${k.pesanUsed}/${k.pesanLimit}, reset ${intervalTeks}). Kuota berikutnya reset pada ${resetLabel}, atau upgrade paket.`
+      };
+    }
+    return { ok: true, sisa };
+  }
+
+
   // Ini yang membuat "Jatah Halaman/Hari" & "Jatah Pesan DoktrAI/Hari" yang
   // diubah admin langsung terpakai di dashboard konsumen, tanpa perlu update kode.
   // Tabel ini publik dibaca (dipakai juga oleh upgrade.html lewat admin-sync.js),
@@ -206,21 +351,34 @@ const AkAccount = (function () {
 
       const { data, error } = await sb
         .from('packages')
-        .select('key, label, halaman_limit, pesan_limit')
+        .select('key, label, halaman_limit, pesan_limit, durasi_hari, words_per_page, pesan_interval_hari')
         .eq('active', true);
 
       if (error || !Array.isArray(data) || data.length === 0) return false;
 
       const override = {};
+      const durasi = {};
+      const pesanInterval = {};
       data.forEach(p => {
         if (!p.key) return;
-        override[p.key.toLowerCase()] = {
+        const k = p.key.toLowerCase();
+        override[k] = {
           halaman: Number(p.halaman_limit),
           pesan: Number(p.pesan_limit),
-          label: p.label || undefined
+          label: p.label || undefined,
+          wordsPerPage: (Number(p.words_per_page) > 0) ? Number(p.words_per_page) : 300
         };
+        // Masa aktif (hari) per paket — diatur admin. Fallback 30 hari kalau kolom belum diisi.
+        durasi[k] = (p.durasi_hari !== null && p.durasi_hari !== undefined && Number(p.durasi_hari) > 0)
+          ? Number(p.durasi_hari) : DEFAULT_DURASI_HARI;
+        // Interval reset pesan (hari) per paket — diatur admin. Fallback 1 hari (harian).
+        pesanInterval[k] = (Number(p.pesan_interval_hari) > 0) ? Number(p.pesan_interval_hari) : DEFAULT_PESAN_INTERVAL_HARI;
       });
       localStorage.setItem(LIMITS_CACHE_KEY, JSON.stringify(override));
+      localStorage.setItem(DURASI_CACHE_KEY, JSON.stringify(durasi));
+      localStorage.setItem(PESAN_INTERVAL_CACHE_KEY, JSON.stringify(pesanInterval));
+      // Sekalian sync promo tiap kali sync limits dipanggil (satu kali fetch, hemat request)
+      await syncPromo();
       return true;
     } catch (e) {
       console.warn('syncPlanLimits gagal:', e);
@@ -265,11 +423,30 @@ const AkAccount = (function () {
       if (error || !data) return;
 
       // Update localStorage dengan nilai terbaru dari Supabase
-      const planBaru = (data.plan || 'gratis').toLowerCase();
-      localStorage.setItem('user_plan', planBaru);
-      if (data.plan_expiry) {
-        localStorage.setItem('user_plan_expiry', data.plan_expiry);
+      let planBaru = (data.plan || 'gratis').toLowerCase();
+      let expiryBaru = data.plan_expiry || null;
+
+      // --- TEGAKKAN MASA AKTIF ---
+      // Kalau paket berbayar sudah lewat plan_expiry, turunkan ke 'gratis'
+      // di sini juga (bukan cuma ditampilkan). Ini yang bikin masa aktif
+      // benar-benar berlaku, bukan cuma pajangan tanggal.
+      if (planBaru !== 'gratis' && expiryBaru) {
+        const expTime = new Date(expiryBaru).getTime();
+        if (!isNaN(expTime) && Date.now() > expTime) {
+          planBaru = 'gratis';
+          expiryBaru = null;
+          // Best-effort: tulis balik ke Supabase supaya admin panel & device lain
+          // juga lihat status 'gratis' yang sebenarnya (butuh RLS izinkan user
+          // update baris profil miliknya sendiri — lihat catatan SQL migrasi).
+          try {
+            await sb.from('profiles').update({ plan: 'gratis', plan_expiry: null }).eq('id', userId);
+          } catch (e) { console.warn('Gagal tulis-balik status expired:', e); }
+        }
       }
+
+      localStorage.setItem('user_plan', planBaru);
+      if (expiryBaru) localStorage.setItem('user_plan_expiry', expiryBaru);
+      else localStorage.removeItem('user_plan_expiry');
     } catch(e) {
       console.warn('syncPlanFromSupabase gagal:', e);
     }
@@ -294,6 +471,9 @@ const AkAccount = (function () {
     catatHalaman, catatPesan, getDokumenStats, getJoinDate,
     getDisplayName, setDisplayName, getAvatarUrl, setAvatarUrl,
     getFavoritIds, isFavorit, toggleFavorit,
-    syncPlanFromSupabase, syncPlanLimits, getValidToken
+    syncPlanFromSupabase, syncPlanLimits, getValidToken,
+    getDurasiHari, getMasaAktifInfo, cekKuotaHalaman, cekKuotaPesan,
+    getPesanIntervalHari,
+    syncPromo, getActivePromo
   };
 })();
