@@ -297,6 +297,56 @@ async function muatHargaTerbaru() {
   if (pro && promoBtn) promoBtn.setAttribute('onclick', `beliPaket('Pro','${pro.real_price}')`);
 }
 document.addEventListener('DOMContentLoaded', muatHargaTerbaru);
+
+// ===== PROMO KILAT BANNER =====
+async function muatFlashPromo() {
+  // Sync dulu dari Supabase kalau account.js tersedia
+  if (typeof AkAccount !== 'undefined' && AkAccount.syncFlashPromo) {
+    await AkAccount.syncFlashPromo();
+  }
+  const fp = (typeof AkAccount !== 'undefined' && AkAccount.getActiveFlashPromo)
+    ? AkAccount.getActiveFlashPromo()
+    : null;
+
+  const banner = document.getElementById('flashPromoBanner');
+  if (!banner) return;
+
+  if (!fp || !fp.active) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  // Isi konten banner
+  const label = fp.label || 'Promo Kilat!';
+  const deskripsi = fp.deskripsi || 'Akses unlimited dengan harga spesial.';
+  const harga = Number(fp.harga || 20000);
+  const durasi = Number(fp.durasi_hari || 1);
+
+  document.getElementById('flashPromoLabel').textContent = label;
+  document.getElementById('flashPromoDeskripsi').textContent = deskripsi;
+  document.getElementById('flashPromoDurasi').textContent =
+    durasi === 1 ? '🕐 Akses selama 1 hari penuh' : `🕐 Akses selama ${durasi} hari`;
+  document.getElementById('flashPromoHarga').textContent = harga.toLocaleString('id-ID');
+
+  // Set onclick tombol dengan harga & durasi flash promo
+  document.getElementById('flashPromoBtn').setAttribute(
+    'onclick', `beliFlashPromo('${label}','${harga}','${durasi}')`
+  );
+
+  banner.style.display = 'block';
+}
+
+function beliFlashPromo(label, harga, durasi) {
+  // Pakai modal beliPaket dengan key khusus 'flash'
+  const finalHarga = voucherDiscount ? Math.round(parseInt(harga) * (1 - voucherDiscount/100)) : parseInt(harga);
+  document.getElementById('payPaket').textContent = label;
+  document.getElementById('payHarga').textContent = 'Rp' + finalHarga.toLocaleString('id-ID');
+  document.getElementById('payModal').dataset.planKey = 'flash';
+  document.getElementById('payModal').dataset.flashDurasi = durasi;
+  document.getElementById('payModal').classList.add('open');
+}
+
+document.addEventListener('DOMContentLoaded', muatFlashPromo);
 </script>
 
     <!-- Comparison Table -->
@@ -330,6 +380,22 @@ document.addEventListener('DOMContentLoaded', muatHargaTerbaru);
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Promo Kilat Banner (muncul hanya jika diaktifkan admin) -->
+    <div id="flashPromoBanner" style="display:none;margin:0 16px 12px;">
+      <div style="background:linear-gradient(120deg,#F59E0B 0%,#EF4444 100%);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 20px rgba(245,158,11,.35);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-10px;right:-10px;font-size:60px;opacity:0.15;pointer-events:none;">⚡</div>
+        <div style="font-size:28px;flex-shrink:0;">⚡</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.5px;" id="flashPromoLabel">Promo Kilat!</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.9);margin-top:3px;line-height:1.4;" id="flashPromoDeskripsi">Akses unlimited hari ini dengan harga spesial.</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;" id="flashPromoDurasi"></div>
+        </div>
+        <button id="flashPromoBtn" onclick="beliPaket('Flash','20000')" style="background:#fff;color:#D97706;border:none;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer;flex-shrink:0;">
+          Rp<span id="flashPromoHarga">20.000</span> →
+        </button>
       </div>
     </div>
 
@@ -449,6 +515,7 @@ function beliPaket(name,harga){
 
 async function prosesPayment(){
   const planKey = document.getElementById('payModal').dataset.planKey || 'standar';
+  const flashDurasi = document.getElementById('payModal').dataset.flashDurasi || null;
   const btnBayar = document.querySelector('#payModal .btn-primary');
   const teksAsli = btnBayar.textContent;
   btnBayar.disabled = true;
@@ -470,7 +537,7 @@ async function prosesPayment(){
     const resp = await fetch('/api/midtrans-create-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ package_key: planKey, user_id: userId, user_email: userEmail, user_name: userName })
+      body: JSON.stringify((() => { const b = { package_key: planKey, user_id: userId, user_email: userEmail, user_name: userName }; if (planKey === 'flash' && flashDurasi) b.flash_durasi = Number(flashDurasi); return b; })())
     });
     const data = await resp.json();
 
