@@ -562,71 +562,27 @@ const AkAccount = (function () {
   // admin di panel admin langsung berpengaruh ke konsumen.
   async function syncPlanFromSupabase() {
     try {
-      // Pastikan Supabase SDK sudah dimuat di halaman ini
-      if (typeof window.supabase === "undefined") return;
-
       const token = await getValidToken();
       if (!token) return;
 
-      // Decode user ID dari JWT token
-      let userId = null;
-      try {
-        const payload = JSON.parse(
-          decodeURIComponent(
-            escape(
-              atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
-            )
-          )
-        );
-        userId = payload.sub;
-      } catch (e) {
-        return;
-      }
-
-      if (!userId) return;
-
-      // Koneksi ke Supabase (URL & key sama dengan shared-config.js)
-      const SUPABASE_URL = "https://dkpztybbcvvzatgwhano.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "sb_publishable_yYIlVG0GWf85R3wK_xjhfQ_1gqucStm";
-      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        global: { headers: { Authorization: "Bearer " + token } },
+      // Sinkron & tegakkan masa aktif LEWAT SERVER (bukan tulis langsung dari
+      // browser). Ini sengaja dipindah ke /api/sync-plan supaya user tidak
+      // bisa membuka Console browser dan menaikkan plan-nya sendiri secara
+      // curang — server hanya pernah menurunkan ke 'gratis', tidak pernah
+      // menaikkan plan apapun.
+      const res = await fetch("/api/sync-plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data) return;
 
-      const { data, error } = await sb
-        .from("profiles")
-        .select("plan, plan_expiry")
-        .eq("id", userId)
-        .single();
-
-      if (error || !data) return;
-
-      // Update localStorage dengan nilai terbaru dari Supabase
-      let planBaru = (data.plan || "gratis").toLowerCase();
-      let expiryBaru = data.plan_expiry || null;
-
-      // --- TEGAKKAN MASA AKTIF ---
-      // Kalau paket berbayar sudah lewat plan_expiry, turunkan ke 'gratis'
-      // di sini juga (bukan cuma ditampilkan). Ini yang bikin masa aktif
-      // benar-benar berlaku, bukan cuma pajangan tanggal.
-      if (planBaru !== "gratis" && expiryBaru) {
-        const expTime = new Date(expiryBaru).getTime();
-        if (!isNaN(expTime) && Date.now() > expTime) {
-          planBaru = "gratis";
-          expiryBaru = null;
-          // Best-effort: tulis balik ke Supabase supaya admin panel & device lain
-          // juga lihat status 'gratis' yang sebenarnya (butuh RLS izinkan user
-          // update baris profil miliknya sendiri — lihat catatan SQL migrasi).
-          try {
-            await sb
-              .from("profiles")
-              .update({ plan: "gratis", plan_expiry: null })
-              .eq("id", userId);
-          } catch (e) {
-            console.warn("Gagal tulis-balik status expired:", e);
-          }
-        }
-      }
+      const planBaru = (data.plan || "gratis").toLowerCase();
+      const expiryBaru = data.plan_expiry || null;
 
       localStorage.setItem("user_plan", planBaru);
       if (expiryBaru) localStorage.setItem("user_plan_expiry", expiryBaru);
