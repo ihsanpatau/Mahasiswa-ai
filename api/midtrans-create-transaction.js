@@ -31,20 +31,16 @@ module.exports = async (req, res) => {
     const isProduction = process.env.MIDTRANS_ENV === "production";
 
     if (!serverKey) {
-      return res
-        .status(500)
-        .json({
-          error:
-            "MIDTRANS_SERVER_KEY belum diset di Environment Variables Vercel",
-        });
+      return res.status(500).json({
+        error:
+          "MIDTRANS_SERVER_KEY belum diset di Environment Variables Vercel",
+      });
     }
     if (!serviceRoleKey) {
-      return res
-        .status(500)
-        .json({
-          error:
-            "SUPABASE_SERVICE_ROLE_KEY belum diset di Environment Variables Vercel",
-        });
+      return res.status(500).json({
+        error:
+          "SUPABASE_SERVICE_ROLE_KEY belum diset di Environment Variables Vercel",
+      });
     }
 
     const sbAdmin = createClient(SUPABASE_URL, serviceRoleKey);
@@ -105,11 +101,9 @@ module.exports = async (req, res) => {
 
     if (insertError) {
       console.error("Gagal insert transaksi:", insertError.message);
-      return res
-        .status(500)
-        .json({
-          error: "Gagal menyimpan data transaksi: " + insertError.message,
-        });
+      return res.status(500).json({
+        error: "Gagal menyimpan data transaksi: " + insertError.message,
+      });
     }
 
     // 4) Minta Snap Token ke Midtrans
@@ -156,13 +150,11 @@ module.exports = async (req, res) => {
 
     if (!midtransRes.ok) {
       console.error("Midtrans error:", midtransData);
-      return res
-        .status(midtransRes.status)
-        .json({
-          error:
-            midtransData.error_messages?.join(", ") ||
-            "Gagal membuat transaksi Midtrans",
-        });
+      return res.status(midtransRes.status).json({
+        error:
+          midtransData.error_messages?.join(", ") ||
+          "Gagal membuat transaksi Midtrans",
+      });
     }
 
     return res.status(200).json({
