@@ -495,7 +495,7 @@ const AkAccount = (function () {
 
   // Ini yang membuat "Jatah Halaman/Hari" & "Jatah Pesan DoktrAI/Hari" yang
   // diubah admin langsung terpakai di dashboard konsumen, tanpa perlu update kode.
-  // Tabel ini publik dibaca (dipakai juga oleh upgrade.html lewat admin-sync.js),
+  // Tabel ini publik dibaca (dipakai juga oleh upgrade.html lewat sync-plan.js),
   // jadi tidak perlu token login.
   async function syncPlanLimits() {
     try {
